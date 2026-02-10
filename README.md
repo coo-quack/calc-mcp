@@ -1,4 +1,4 @@
-# @chatalaw/calc-mcp
+# @coo-quack/calc-mcp
 
 A Model Context Protocol (MCP) server that provides 21 calculation, conversion, and utility tools for AI assistants. Designed to supplement areas where LLMs are unreliable — random generation, hashing, encoding, date math, and more.
 
@@ -31,7 +31,7 @@ A Model Context Protocol (MCP) server that provides 21 calculation, conversion, 
 ## Installation
 
 ```bash
-npm install @chatalaw/calc-mcp
+npm install @coo-quack/calc-mcp
 ```
 
 Or from source:
