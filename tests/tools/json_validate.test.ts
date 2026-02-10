@@ -1,0 +1,60 @@
+import { describe, expect, test } from "bun:test";
+import { execute } from "../../src/tools/json_validate.js";
+
+describe("json_validate", () => {
+	test("validates valid JSON", () => {
+		const result = JSON.parse(
+			execute({ input: '{"key": "value"}', format: "json" }),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+	});
+
+	test("validates invalid JSON", () => {
+		const result = JSON.parse(execute({ input: "{bad json", format: "json" }));
+		expect(result.valid).toBe(false);
+		expect(result.error).toBeDefined();
+	});
+
+	test("validates JSON array", () => {
+		const result = JSON.parse(execute({ input: "[1, 2, 3]", format: "json" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("array");
+		expect(result.length).toBe(3);
+	});
+
+	test("validates valid CSV", () => {
+		const result = JSON.parse(
+			execute({ input: "name,age\nAlice,30\nBob,25", format: "csv" }),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.rows).toBe(3);
+		expect(result.columns).toBe(2);
+	});
+
+	test("validates CSV with inconsistent columns", () => {
+		const result = JSON.parse(execute({ input: "a,b\n1,2,3", format: "csv" }));
+		expect(result.valid).toBe(false);
+	});
+
+	test("validates well-formed XML", () => {
+		const result = JSON.parse(
+			execute({ input: "<root><child>text</child></root>", format: "xml" }),
+		);
+		expect(result.valid).toBe(true);
+	});
+
+	test("validates malformed XML", () => {
+		const result = JSON.parse(
+			execute({ input: "<root><child></root>", format: "xml" }),
+		);
+		expect(result.valid).toBe(false);
+	});
+
+	test("validates basic YAML", () => {
+		const result = JSON.parse(
+			execute({ input: "key: value\nlist:\n  - item1", format: "yaml" }),
+		);
+		expect(result.valid).toBe(true);
+	});
+});
