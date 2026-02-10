@@ -9,6 +9,28 @@ describe("random", () => {
 		);
 	});
 
+	test("generates a valid UUID v7", () => {
+		const result = execute({ type: "uuid", uuidVersion: "v7" });
+		expect(result).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+		);
+	});
+
+	test("UUID v7 embeds timestamp", () => {
+		const before = Date.now();
+		const result = execute({ type: "uuid", uuidVersion: "v7" });
+		const after = Date.now();
+		const hex = result.replace(/-/g, "").slice(0, 12);
+		const ts = Number.parseInt(hex, 16);
+		expect(ts).toBeGreaterThanOrEqual(before);
+		expect(ts).toBeLessThanOrEqual(after);
+	});
+
+	test("defaults to v4 when uuidVersion not specified", () => {
+		const result = execute({ type: "uuid" });
+		expect(result).toMatch(/-4[0-9a-f]{3}-/);
+	});
+
 	test("generates unique UUIDs", () => {
 		const a = execute({ type: "uuid" });
 		const b = execute({ type: "uuid" });

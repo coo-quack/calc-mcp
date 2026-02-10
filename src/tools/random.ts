@@ -5,6 +5,10 @@ const schema = {
 	type: z
 		.enum(["uuid", "ulid", "password", "number"])
 		.describe("Type of random value to generate"),
+	uuidVersion: z
+		.enum(["v4", "v7"])
+		.optional()
+		.describe("UUID version: v4 (random, default) or v7 (time-ordered)"),
 	length: z
 		.number()
 		.int()
@@ -47,6 +51,28 @@ function generateRandomNumber(min: number, max: number): number {
 	return min + (array[0] % (range + 1));
 }
 
+function generateUUIDv7(): string {
+	const now = Date.now();
+	const bytes = new Uint8Array(16);
+	crypto.getRandomValues(bytes);
+	// Timestamp (48 bits) in bytes 0-5
+	const ms = BigInt(now);
+	bytes[0] = Number((ms >> 40n) & 0xffn);
+	bytes[1] = Number((ms >> 32n) & 0xffn);
+	bytes[2] = Number((ms >> 24n) & 0xffn);
+	bytes[3] = Number((ms >> 16n) & 0xffn);
+	bytes[4] = Number((ms >> 8n) & 0xffn);
+	bytes[5] = Number(ms & 0xffn);
+	// Version 7 (bits 48-51)
+	bytes[6] = (bytes[6] & 0x0f) | 0x70;
+	// Variant 10 (bits 64-65)
+	bytes[8] = (bytes[8] & 0x3f) | 0x80;
+	const hex = Array.from(bytes, (b) =>
+		b.toString(16).padStart(2, "0"),
+	).join("");
+	return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 function generateULID(): string {
 	const now = Date.now();
 	let timeStr = "";
@@ -78,7 +104,9 @@ function generateULID(): string {
 export function execute(input: Input): string {
 	switch (input.type) {
 		case "uuid":
-			return crypto.randomUUID();
+			return input.uuidVersion === "v7"
+				? generateUUIDv7()
+				: crypto.randomUUID();
 		case "ulid":
 			return generateULID();
 		case "password": {
