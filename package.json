@@ -1,0 +1,26 @@
+{
+	"name": "@chatalaw/calc-mcp",
+	"version": "0.1.0",
+	"type": "module",
+	"bin": {
+		"calc-mcp": "./dist/index.js"
+	},
+	"scripts": {
+		"dev": "bun run src/index.ts",
+		"build": "bun build src/index.ts --outdir dist --target node",
+		"test": "bun test",
+		"lint": "biome check .",
+		"format": "biome format . --write",
+		"changelog": "bunx changelogen",
+		"release": "bunx bumpp"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.14",
+		"@types/bun": "latest",
+		"typescript": "^5.9.3"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.26.0",
+		"zod": "^4.3.6"
+	}
+}
