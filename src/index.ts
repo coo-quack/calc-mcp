@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import type { z } from "zod";
 
 import { tool as base64Tool } from "./tools/base64.js";
+import { tool as datetimeTool } from "./tools/datetime.js";
 import { tool as encodeTool } from "./tools/encode.js";
 import { tool as hashTool } from "./tools/hash.js";
 import { tool as randomTool } from "./tools/random.js";
@@ -14,7 +15,13 @@ export interface ToolDefinition {
 	handler: (args: Record<string, unknown>) => Promise<string>;
 }
 
-const tools: ToolDefinition[] = [randomTool, hashTool, base64Tool, encodeTool];
+const tools: ToolDefinition[] = [
+	randomTool,
+	hashTool,
+	base64Tool,
+	encodeTool,
+	datetimeTool,
+];
 
 const server = new McpServer({
 	name: "calc",
