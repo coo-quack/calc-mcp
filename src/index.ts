@@ -1,7 +1,13 @@
+import { createRequire } from "node:module";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { z } from "zod";
+
 import { tool as baseTool } from "./tools/base.js";
+
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json") as { version: string };
+
 import { tool as base64Tool } from "./tools/base64.js";
 import { tool as charInfoTool } from "./tools/char_info.js";
 import { tool as colorTool } from "./tools/color.js";
@@ -55,8 +61,8 @@ const tools: ToolDefinition[] = [
 ];
 
 const server = new McpServer({
-	name: "calc",
-	version: "0.1.0",
+	name: "calc-mcp",
+	version,
 });
 
 for (const tool of tools) {
@@ -82,6 +88,10 @@ for (const tool of tools) {
 }
 
 async function main() {
+	if (process.argv.includes("--version") || process.argv.includes("-v")) {
+		console.log(version);
+		process.exit(0);
+	}
 	const transport = new StdioServerTransport();
 	await server.connect(transport);
 }

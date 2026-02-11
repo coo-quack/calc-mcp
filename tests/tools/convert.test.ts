@@ -36,7 +36,31 @@ describe("convert", () => {
 		expect(result.result).toBe(1024);
 	});
 
-	test("unknown unit throws", () => {
-		expect(() => execute({ value: 1, from: "xyz", to: "abc" })).toThrow();
+	test("hours to minutes", () => {
+		const result = JSON.parse(execute({ value: 2, from: "h", to: "min" }));
+		expect(result.result).toBe(120);
+		expect(result.category).toBe("time");
+	});
+
+	test("days to seconds", () => {
+		const result = JSON.parse(execute({ value: 1, from: "day", to: "s" }));
+		expect(result.result).toBe(86400);
+	});
+
+	test("weeks to days", () => {
+		const result = JSON.parse(execute({ value: 1, from: "week", to: "day" }));
+		expect(result.result).toBe(7);
+	});
+
+	test("unknown unit throws with supported list", () => {
+		expect(() => execute({ value: 1, from: "xyz", to: "abc" })).toThrow(
+			"Supported units",
+		);
+	});
+
+	test("unknown unit in category throws with supported list", () => {
+		expect(() =>
+			execute({ value: 1, from: "m", to: "xyz", category: "length" }),
+		).toThrow("Supported");
 	});
 });

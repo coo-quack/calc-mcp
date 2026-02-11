@@ -1,5 +1,9 @@
 # @coo-quack/calc-mcp
 
+[![npm version](https://img.shields.io/npm/v/@coo-quack/calc-mcp)](https://www.npmjs.com/package/@coo-quack/calc-mcp)
+[![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 An MCP server with 21 tools for things AI is bad at — math, hashing, encoding, date arithmetic, and more.
 
 ## Examples
@@ -20,7 +24,7 @@ Ask in natural language — the AI picks the right tool automatically.
 |---------|---------|------|
 | How many characters in "Hello, World! 🌍"? | `15 chars, 18 bytes` | count |
 | Base64 encode "Hello World" | `SGVsbG8gV29ybGQ=` | base64 |
-| Base64 decode "5pel5pys6Kqe" | `日本語` | base64 |
+| Base64 decode "eyJhbGciOiJIUzI1NiJ9" | `{"alg":"HS256"}` | base64 |
 | URL-encode "hello world" | `hello%20world` | encode |
 | URL-decode "hello%20world" | `hello world` | encode |
 | HTML-decode `&lt;script&gt;` | `<script>` | encode |
@@ -57,7 +61,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | Does 1.5.3 satisfy ^1.0.0? | `true` | semver |
 | IP range of 192.168.1.0/24? | `192.168.1.1 – .254 (254 hosts)` | ip |
 | Edit distance: "kitten" → "sitting" | `3` | diff |
-| Unicode info for "漢" | `U+6F22, CJK Unified Ideographs` | char_info |
+| Unicode info for "€" | `U+20AC, Currency Symbols` | char_info |
 | Is `{"name":"test"}` valid JSON? | `valid, object` | json_validate |
 
 ### Decode & Parse
@@ -87,7 +91,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | `luhn` | Validate / generate check digits |
 | `ip` | IPv4/IPv6 info, CIDR range |
 | `color` | HEX ↔ RGB ↔ HSL |
-| `convert` | 7 categories, 58 units: length (m, km, mi, ft, ...), weight (kg, lb, oz, ...), temperature (°C, °F, K), area (m², ha, acre, tsubo, tatami), volume (l, gal, cup, tbsp, ...), speed (km/h, mph, kn, ...), data (kb, mb, gb, tb, ...) |
+| `convert` | 8 categories, 72 units: length (m, km, mi, ft, ...), weight (kg, lb, oz, ...), temperature (°C, °F, K), area (m², ha, acre, tsubo, tatami), volume (l, gal, cup, tbsp, ...), speed (km/h, mph, kn, ...), data (kb, mb, gb, tb, ...), time (ms, s, min, h, d, wk, mo, yr) |
 | `char_info` | Unicode code point, block, category |
 | `jwt_decode` | Decode header + payload (no verification) |
 | `url_parse` | Protocol, host, path, params, hash |
