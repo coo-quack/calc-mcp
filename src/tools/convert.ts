@@ -14,6 +14,7 @@ const schema = {
 			"volume",
 			"speed",
 			"data",
+			"time",
 		])
 		.optional()
 		.describe("Category (auto-detected if omitted)"),
@@ -80,6 +81,23 @@ const SPEED: Record<string, number> = {
 	"ft/s": 0.3048,
 };
 
+const TIME: Record<string, number> = {
+	ms: 0.001,
+	s: 1,
+	sec: 1,
+	min: 60,
+	h: 3600,
+	hr: 3600,
+	d: 86400,
+	day: 86400,
+	wk: 604800,
+	week: 604800,
+	mo: 2592000,
+	month: 2592000,
+	yr: 31536000,
+	year: 31536000,
+};
+
 const DATA: Record<string, number> = {
 	b: 1,
 	kb: 1024,
@@ -101,6 +119,7 @@ const CATEGORIES: Record<string, ConversionTable> = {
 	volume: VOLUME,
 	speed: SPEED,
 	data: DATA,
+	time: TIME,
 };
 
 function findCategory(unit: string): [string, ConversionTable] | null {
@@ -177,15 +196,27 @@ export function execute(input: Input): string {
 		}
 	}
 
-	if (!table) throw new Error(`Unknown unit: ${from}`);
+	if (!table) {
+		const allUnits = Object.values(CATEGORIES)
+			.flatMap((t) => Object.keys(t))
+			.concat([...TEMP_UNITS]);
+		throw new Error(
+			`Unknown unit: ${from}. Supported units: ${allUnits.join(", ")}`,
+		);
+	}
 
 	const fromLower = from.toLowerCase();
 	const toLower = to.toLowerCase();
 
+	const supported = Object.keys(table).join(", ");
 	if (!(fromLower in table))
-		throw new Error(`Unknown unit '${from}' in ${category}`);
+		throw new Error(
+			`Unknown unit '${from}' in ${category}. Supported: ${supported}`,
+		);
 	if (!(toLower in table))
-		throw new Error(`Unknown unit '${to}' in ${category}`);
+		throw new Error(
+			`Unknown unit '${to}' in ${category}. Supported: ${supported}`,
+		);
 
 	const result = (value * table[fromLower]) / table[toLower];
 

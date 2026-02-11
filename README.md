@@ -1,5 +1,9 @@
 # @coo-quack/calc-mcp
 
+[![npm version](https://img.shields.io/npm/v/@coo-quack/calc-mcp)](https://www.npmjs.com/package/@coo-quack/calc-mcp)
+[![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 An MCP server with 21 tools for things AI is bad at — math, hashing, encoding, date arithmetic, and more.
 
 ## Examples
@@ -87,7 +91,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | `luhn` | Validate / generate check digits |
 | `ip` | IPv4/IPv6 info, CIDR range |
 | `color` | HEX ↔ RGB ↔ HSL |
-| `convert` | 7 categories, 58 units: length (m, km, mi, ft, ...), weight (kg, lb, oz, ...), temperature (°C, °F, K), area (m², ha, acre, tsubo, tatami), volume (l, gal, cup, tbsp, ...), speed (km/h, mph, kn, ...), data (kb, mb, gb, tb, ...) |
+| `convert` | 8 categories, 72 units: length (m, km, mi, ft, ...), weight (kg, lb, oz, ...), temperature (°C, °F, K), area (m², ha, acre, tsubo, tatami), volume (l, gal, cup, tbsp, ...), speed (km/h, mph, kn, ...), data (kb, mb, gb, tb, ...), time (ms, s, min, h, d, wk, mo, yr) |
 | `char_info` | Unicode code point, block, category |
 | `jwt_decode` | Decode header + payload (no verification) |
 | `url_parse` | Protocol, host, path, params, hash |
