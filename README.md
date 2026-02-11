@@ -4,6 +4,8 @@
 [![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+📖 **[Documentation](https://coo-quack.github.io/calc-mcp/)** — Full tool reference, examples, and install guides.
+
 **21 tools for things AI is bad at** — deterministic math, cryptographic randomness, accurate date arithmetic, encoding, hashing, and more.
 
 LLMs hallucinate calculations, can't generate true random numbers, and struggle with timezones. This MCP server fixes that.
