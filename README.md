@@ -1,239 +1,164 @@
 # @coo-quack/calc-mcp
 
-A Model Context Protocol (MCP) server that provides 21 calculation, conversion, and utility tools for AI assistants. Designed to supplement areas where LLMs are unreliable — random generation, hashing, encoding, date math, and more.
+An MCP server with 21 tools for things AI is bad at — math, hashing, encoding, date arithmetic, and more.
 
-## Tools
+## Install
 
-| Tool | Description |
-|------|-------------|
-| `random` | Generate UUID, ULID, secure passwords, or random numbers |
-| `hash` | Compute MD5, SHA1, SHA256, SHA512, or CRC32 hashes |
-| `base64` | Encode/decode Base64 strings |
-| `encode` | URL, HTML entity, and Unicode escape encoding/decoding |
-| `datetime` | Get current datetime, convert timezones, format dates, UNIX timestamps |
-| `count` | Count characters (grapheme clusters), words, lines, bytes |
-| `math` | Evaluate math expressions or compute statistics |
-| `date` | Date diff, add, weekday, and Japanese wareki conversion |
-| `regex` | Test, match, matchAll, or replace with regular expressions |
-| `base` | Convert numbers between bases (2-36) with BigInt support |
-| `diff` | Line-by-line text diff or Levenshtein distance |
-| `json_validate` | Validate and parse JSON, CSV, XML, or YAML |
-| `cron_parse` | Parse cron expressions and return next N execution times |
-| `luhn` | Validate or generate Luhn check digits |
-| `ip` | IP address info, CIDR contains check, range calculation |
-| `color` | Convert colors between HEX, RGB, and HSL |
-| `convert` | Unit conversion: length, weight, temperature, area, volume, speed, data |
-| `char_info` | Unicode character information (code point, block, category) |
-| `jwt_decode` | Decode JWT header and payload (no signature verification) |
-| `url_parse` | Parse URL into components (protocol, host, path, params) |
-| `semver` | Semantic versioning: compare, validate, range satisfaction |
-
-## Installation
+### Claude Code (CLI)
 
 ```bash
-npm install @coo-quack/calc-mcp
+claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
 ```
-
-Or from source:
-
-```bash
-bun install
-bun run build
-```
-
-## Usage
 
 ### Claude Desktop
 
-Add to your `claude_desktop_config.json`:
+Add to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "calc": {
-      "command": "bun",
-      "args": ["run", "/path/to/calc/src/index.ts"]
+    "calc-mcp": {
+      "command": "npx",
+      "args": ["-y", "@coo-quack/calc-mcp"]
     }
   }
 }
 ```
 
-### Cursor / Other MCP Clients
+### Other MCP Clients (Cursor, etc.)
 
 ```json
 {
-  "command": "bun",
-  "args": ["run", "/path/to/calc/src/index.ts"],
+  "command": "npx",
+  "args": ["-y", "@coo-quack/calc-mcp"],
   "transport": "stdio"
 }
 ```
 
-### Using Built Version
+## What You Can Ask
 
-```bash
-bun run build
-node dist/index.js
-```
+> What's 10 + 34 × 341 ÷ 23?
 
-## Tool Examples
+→ `514.087` (via **math**)
 
-### random
+> How many characters in "Hello, World! 🌍"?
 
-```json
-{ "type": "uuid" }
-{ "type": "ulid" }
-{ "type": "password", "length": 32, "charset": "abc123" }
-{ "type": "number", "min": 1, "max": 100 }
-```
+→ `15 characters, 18 bytes` (via **count** — grapheme-aware)
 
-### hash
+> What time is it in New York?
 
-```json
-{ "input": "hello", "algorithm": "sha256" }
-```
+→ `2026-02-10T19:00:00-05:00` (via **datetime**)
 
-### base64
+> Generate a UUID v7.
 
-```json
-{ "input": "hello world", "action": "encode" }
-{ "input": "aGVsbG8gd29ybGQ=", "action": "decode" }
-```
+→ `019c4b54-aad2-7e52-95a3-f150f7c74254` (via **random**)
 
-### encode
+> SHA-256 hash of "password123"?
 
-```json
-{ "input": "hello world", "action": "encode", "type": "url" }
-{ "input": "<script>", "action": "encode", "type": "html" }
-```
+→ `ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f` (via **hash**)
 
-### datetime
+> Base64 encode "Hello World".
 
-```json
-{ "action": "now", "timezone": "Asia/Tokyo" }
-{ "action": "convert", "datetime": "2024-01-01T00:00:00Z", "toTimezone": "America/New_York" }
-{ "action": "timestamp", "timestamp": 1704067200 }
-```
+→ `SGVsbG8gV29ybGQ=` (via **base64**)
 
-### count
+> Convert 255 to binary.
 
-```json
-{ "text": "こんにちは世界" }
-{ "text": "Hello World", "encoding": "shift_jis" }
-```
+→ `11111111` (via **base**)
 
-### math
+> Convert #FF5733 to RGB.
 
-```json
-{ "expression": "sqrt(16) + 2^3" }
-{ "action": "statistics", "values": [1, 2, 3, 4, 5] }
-```
+→ `rgb(255, 87, 51)` (via **color**)
 
-### date
+> 100 miles in kilometers?
 
-```json
-{ "action": "diff", "date": "2024-01-01", "date2": "2024-12-31" }
-{ "action": "add", "date": "2024-01-01", "amount": 30, "unit": "days" }
-{ "action": "weekday", "date": "2024-01-01" }
-{ "action": "wareki", "date": "2024-06-15" }
-```
+→ `160.93 km` (via **convert**)
 
-### regex
+> 72°F in Celsius?
 
-```json
-{ "pattern": "\\d+", "text": "abc123", "action": "test" }
-{ "pattern": "\\d+", "flags": "g", "text": "a1b2c3", "action": "matchAll" }
-```
+→ `22.22°C` (via **convert**)
 
-### base
+> What's 100 days after 2026-02-11?
 
-```json
-{ "value": "255", "from": 10, "to": 16 }
-{ "value": "ff", "from": 16, "to": 2 }
-```
+→ `2026-05-22` (via **date**)
 
-### diff
+> Extract all numbers from "abc123def456".
 
-```json
-{ "text1": "hello\nworld", "text2": "hello\nearth" }
-{ "text1": "kitten", "text2": "sitting", "action": "distance" }
-```
+→ `123, 456` (via **regex**)
 
-### json_validate
+> Does 1.5.3 satisfy ^1.0.0?
 
-```json
-{ "input": "{\"key\": \"value\"}", "format": "json" }
-{ "input": "name,age\nAlice,30", "format": "csv" }
-```
+→ `true` (via **semver**)
 
-### cron_parse
+> IP range of 192.168.1.0/24?
 
-```json
-{ "expression": "30 9 * * 1-5", "count": 5 }
-```
+→ `192.168.1.1 – 192.168.1.254 (254 hosts)` (via **ip**)
 
-### luhn
+> Is 4539578763621486 a valid card number?
 
-```json
-{ "number": "4539578763621486", "action": "validate" }
-{ "number": "453957876362148", "action": "generate" }
-```
+→ `true` (via **luhn**)
 
-### ip
+> Edit distance between "kitten" and "sitting"?
 
-```json
-{ "action": "info", "ip": "192.168.1.1" }
-{ "action": "contains", "cidr": "192.168.1.0/24", "target": "192.168.1.100" }
-{ "action": "range", "cidr": "10.0.0.0/24" }
-```
+→ `3` (via **diff**)
 
-### color
+> When does "30 9 * * 1-5" run?
 
-```json
-{ "color": "#ff0000", "to": "hsl" }
-{ "color": "rgb(0, 255, 0)", "to": "hex" }
-```
+→ `Mon–Fri at 9:30` (via **cron_parse**)
 
-### convert
+> Unicode info for "漢"?
 
-```json
-{ "value": 100, "from": "km", "to": "mi" }
-{ "value": 72, "from": "F", "to": "C", "category": "temperature" }
-```
+→ `U+6F22, CJK Unified Ideographs, Letter` (via **char_info**)
 
-### char_info
+> URL-encode "hello world".
 
-```json
-{ "char": "漢" }
-{ "char": "😀" }
-```
+→ `hello%20world` (via **encode**)
 
-### jwt_decode
+> Decode this JWT: eyJhbGciOiJIUzI1NiIs...
 
-```json
-{ "token": "eyJhbGciOiJIUzI1NiIs..." }
-```
+→ `{ alg: "HS256", sub: "1234567890", name: "John Doe" }` (via **jwt_decode**)
 
-### url_parse
+> Parse https://example.com/search?q=hello&lang=en#results
 
-```json
-{ "url": "https://example.com/path?q=hello&lang=en#section" }
-```
+→ `host: example.com, params: { q: "hello", lang: "en" }, hash: "#results"` (via **url_parse**)
 
-### semver
+> Is this valid JSON? {"name": "test", "count": 42}
 
-```json
-{ "action": "compare", "version": "2.0.0", "version2": "1.5.0" }
-{ "action": "satisfies", "version": "1.5.0", "range": "^1.0.0" }
-{ "action": "valid", "version": "1.2.3-alpha.1" }
-```
+→ `valid, object with keys: name, count` (via **json_validate**)
+
+## All Tools
+
+| Tool | Description |
+|------|-------------|
+| `math` | Evaluate expressions, statistics |
+| `count` | Characters (grapheme-aware), words, lines, bytes |
+| `datetime` | Current time, timezone conversion, UNIX timestamps |
+| `random` | UUID v4/v7, ULID, passwords, random numbers |
+| `hash` | MD5, SHA-1, SHA-256, SHA-512, CRC32 |
+| `base64` | Encode / decode |
+| `encode` | URL, HTML entity, Unicode escape |
+| `date` | Diff, add/subtract, weekday, wareki |
+| `regex` | Test, match, matchAll, replace |
+| `base` | Number base conversion (2–36) |
+| `diff` | Line diff, Levenshtein distance |
+| `json_validate` | Validate JSON, CSV, XML, YAML |
+| `cron_parse` | Human-readable cron + next runs |
+| `luhn` | Validate / generate check digits |
+| `ip` | IPv4/IPv6 info, CIDR range |
+| `color` | HEX ↔ RGB ↔ HSL |
+| `convert` | Length, weight, temp, area, volume, speed, data |
+| `char_info` | Unicode code point, block, category |
+| `jwt_decode` | Decode header + payload (no verification) |
+| `url_parse` | Protocol, host, path, params, hash |
+| `semver` | Compare, validate, range satisfaction |
 
 ## Development
 
 ```bash
-bun run dev     # Run dev server
-bun test        # Run tests (157 tests)
-bun run lint    # Lint with Biome
-bun run format  # Format with Biome
+bun install
+bun run dev       # Start dev server
+bun test          # 160 tests
+bun run lint      # Biome
+bun run format    # Biome
 ```
 
 ## License
