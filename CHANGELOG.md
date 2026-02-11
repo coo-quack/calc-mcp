@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.0 (2026-02-11)
+
+### Documentation
+
+- Overhaul README with natural language examples (22 verified examples)
+- Add install guides for Claude Code, Claude Desktop, VS Code, Cursor, Windsurf
+- Add unit conversion coverage details (7 categories, 58 units)
+- Add encode/decode examples (Base64, URL, HTML)
+
 ## v1.1.0 (2026-02-11)
 
 ### Features
