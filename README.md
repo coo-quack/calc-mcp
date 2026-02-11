@@ -4,7 +4,32 @@
 [![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An MCP server with 21 tools for things AI is bad at — math, hashing, encoding, date arithmetic, and more.
+**21 tools for things AI is bad at** — deterministic math, cryptographic randomness, accurate date arithmetic, encoding, hashing, and more.
+
+LLMs hallucinate calculations, can't generate true random numbers, and struggle with timezones. This MCP server fixes that.
+
+### Quick Start
+
+```bash
+# Claude Code
+claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
+
+# Or just run it
+npx -y @coo-quack/calc-mcp
+```
+
+> Works with Claude Desktop, VS Code Copilot, Cursor, Windsurf — [setup guides below](#install).
+
+---
+
+## Why?
+
+| AI alone | With calc-mcp |
+|----------|---------------|
+| "10 + 34 × 341 ÷ 23 = 507.8" ❌ | `514.087` ✅ (math) |
+| "Here's a UUID: 550e8400-..." 🤷 fake | Cryptographically random UUID v4/v7 ✅ (random) |
+| "100 days from now is..." 🤔 guess | `2026-05-22` ✅ (date) |
+| "SHA-256 of password123 is..." 💀 hallucinated | `ef92b778bafe...` ✅ (hash) |
 
 ## Examples
 
@@ -43,7 +68,8 @@ Ask in natural language — the AI picks the right tool automatically.
 | You ask | You get | Tool |
 |---------|---------|------|
 | Generate a UUID v7 | `019c4b54-aad2-7e52-...` | random |
-| Generate a 20-char password | `h#tjZDojX6sH!RJt8vaS` | random |
+| Generate a readable 20-char password | `hT9jZDojX6sHRJt8vaKS` | random |
+| Shuffle ["Alice", "Bob", "Charlie"] | `["Charlie", "Alice", "Bob"]` | random |
 
 ### Conversion
 
@@ -71,14 +97,14 @@ Ask in natural language — the AI picks the right tool automatically.
 | Decode this JWT: eyJhbGci... | `{ alg: "HS256", name: "John Doe" }` | jwt_decode |
 | Parse https://example.com/search?q=hello | `host: example.com, q: "hello"` | url_parse |
 
-## All Tools
+## All 21 Tools
 
 | Tool | Description |
 |------|-------------|
 | `math` | Evaluate expressions, statistics |
 | `count` | Characters (grapheme-aware), words, lines, bytes |
 | `datetime` | Current time, timezone conversion, UNIX timestamps |
-| `random` | UUID v4/v7, ULID, passwords, random numbers |
+| `random` | UUID v4/v7, ULID, passwords (readable, custom charset), shuffle |
 | `hash` | MD5, SHA-1, SHA-256, SHA-512, CRC32 |
 | `base64` | Encode / decode |
 | `encode` | URL, HTML entity, Unicode escape |
@@ -91,7 +117,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | `luhn` | Validate / generate check digits |
 | `ip` | IPv4/IPv6 info, CIDR range |
 | `color` | HEX ↔ RGB ↔ HSL |
-| `convert` | 8 categories, 72 units: length (m, km, mi, ft, ...), weight (kg, lb, oz, ...), temperature (°C, °F, K), area (m², ha, acre, tsubo, tatami), volume (l, gal, cup, tbsp, ...), speed (km/h, mph, kn, ...), data (kb, mb, gb, tb, ...), time (ms, s, min, h, d, wk, mo, yr) |
+| `convert` | 8 categories, 72 units: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
 | `char_info` | Unicode code point, block, category |
 | `jwt_decode` | Decode header + payload (no verification) |
 | `url_parse` | Protocol, host, path, params, hash |
@@ -188,7 +214,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 ```bash
 bun install
 bun run dev       # Start dev server
-bun test          # 160 tests
+bun test          # Run tests
 bun run lint      # Biome
 bun run format    # Biome
 ```
