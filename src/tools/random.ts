@@ -3,8 +3,10 @@ import type { ToolDefinition } from "../index.js";
 
 const schema = {
 	type: z
-		.enum(["uuid", "ulid", "password", "number"])
-		.describe("Type of random value to generate"),
+		.enum(["uuid", "ulid", "password", "number", "shuffle"])
+		.describe(
+			"Type of random value to generate: uuid, ulid, password, number, or shuffle",
+		),
 	uuidVersion: z
 		.enum(["v4", "v7"])
 		.optional()
@@ -27,15 +29,87 @@ const schema = {
 	charset: z
 		.string()
 		.optional()
-		.describe("Character set for password generation"),
+		.describe(
+			"Custom character set for password (overrides uppercase/numbers/symbols options)",
+		),
+	uppercase: z
+		.boolean()
+		.optional()
+		.describe("Include uppercase letters in password (default: true)"),
+	numbers: z
+		.boolean()
+		.optional()
+		.describe("Include numbers in password (default: true)"),
+	symbols: z
+		.boolean()
+		.optional()
+		.describe("Include symbols in password (default: true)"),
+	excludeChars: z
+		.string()
+		.optional()
+		.describe('Characters to exclude from password (e.g. "\\\\|{}")'),
+	readable: z
+		.boolean()
+		.optional()
+		.describe(
+			"Readable mode: excludes ambiguous characters (l/1/I/O/0/o) for easy reading",
+		),
+	items: z
+		.array(z.string())
+		.optional()
+		.describe("Items to shuffle (for type=shuffle)"),
 };
 
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
-const DEFAULT_CHARSET =
-	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+const LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
+const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const NUMBERS = "0123456789";
+const SYMBOLS = "!@#$%^&*()-_=+[]{}|;:,.<>?/~`";
+const AMBIGUOUS = "lI1O0o";
+
 const ULID_ENCODING = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+function buildCharset(input: Input): string {
+	// Custom charset takes priority
+	if (input.charset) {
+		let cs = input.charset;
+		if (input.excludeChars) {
+			const exclude = new Set(input.excludeChars);
+			cs = cs
+				.split("")
+				.filter((c) => !exclude.has(c))
+				.join("");
+		}
+		if (cs.length === 0) throw new Error("Charset is empty after exclusions");
+		return cs;
+	}
+
+	let cs = LOWERCASE;
+	if (input.uppercase !== false) cs += UPPERCASE;
+	if (input.numbers !== false) cs += NUMBERS;
+	if (input.symbols !== false) cs += SYMBOLS;
+
+	if (input.readable) {
+		const ambiguous = new Set(AMBIGUOUS);
+		cs = cs
+			.split("")
+			.filter((c) => !ambiguous.has(c))
+			.join("");
+	}
+
+	if (input.excludeChars) {
+		const exclude = new Set(input.excludeChars);
+		cs = cs
+			.split("")
+			.filter((c) => !exclude.has(c))
+			.join("");
+	}
+
+	if (cs.length === 0) throw new Error("Charset is empty after exclusions");
+	return cs;
+}
 
 function generatePassword(length: number, charset: string): string {
 	const array = new Uint32Array(length);
@@ -55,7 +129,6 @@ function generateUUIDv7(): string {
 	const now = Date.now();
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
-	// Timestamp (48 bits) in bytes 0-5
 	const ms = BigInt(now);
 	bytes[0] = Number((ms >> 40n) & 0xffn);
 	bytes[1] = Number((ms >> 32n) & 0xffn);
@@ -63,9 +136,7 @@ function generateUUIDv7(): string {
 	bytes[3] = Number((ms >> 16n) & 0xffn);
 	bytes[4] = Number((ms >> 8n) & 0xffn);
 	bytes[5] = Number(ms & 0xffn);
-	// Version 7 (bits 48-51)
 	bytes[6] = (bytes[6] & 0x0f) | 0x70;
-	// Variant 10 (bits 64-65)
 	bytes[8] = (bytes[8] & 0x3f) | 0x80;
 	const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
 		"",
@@ -101,6 +172,19 @@ function generateULID(): string {
 	return timeStr + randomStr;
 }
 
+function shuffle(items: string[]): string[] {
+	if (items.length === 0) throw new Error("Items array must not be empty");
+	const result = [...items];
+	// Fisher-Yates shuffle with crypto random
+	for (let i = result.length - 1; i > 0; i--) {
+		const array = new Uint32Array(1);
+		crypto.getRandomValues(array);
+		const j = array[0] % (i + 1);
+		[result[i], result[j]] = [result[j], result[i]];
+	}
+	return result;
+}
+
 export function execute(input: Input): string {
 	switch (input.type) {
 		case "uuid":
@@ -111,7 +195,7 @@ export function execute(input: Input): string {
 			return generateULID();
 		case "password": {
 			const length = input.length ?? 16;
-			const charset = input.charset ?? DEFAULT_CHARSET;
+			const charset = buildCharset(input);
 			return generatePassword(length, charset);
 		}
 		case "number": {
@@ -119,13 +203,19 @@ export function execute(input: Input): string {
 			const max = input.max ?? 100;
 			return String(generateRandomNumber(min, max));
 		}
+		case "shuffle": {
+			if (!input.items || input.items.length === 0) {
+				throw new Error("Items array is required for shuffle");
+			}
+			return JSON.stringify(shuffle(input.items));
+		}
 	}
 }
 
 export const tool: ToolDefinition = {
 	name: "random",
 	description:
-		"Generate random values: UUID, ULID, secure password, or random number",
+		"Generate random values: UUID, ULID, secure password (with fine-grained options), random number, or shuffle a list",
 	schema,
 	handler: async (args: Record<string, unknown>) => {
 		const input = inputSchema.parse(args);
