@@ -27,6 +27,17 @@ bun run build     # Build for production
 3. Register in `src/index.ts` — import and add to the `tools` array
 4. Update `README.md` — add to examples and tool table
 
+## Release Checklist
+
+When bumping a version:
+
+1. Update `CHANGELOG.md` with new version entry
+2. Update `docs/changelog.md` to match
+3. Review `docs/tools.md` — add/update any changed tool parameters or examples
+4. Review `docs/examples.md` — add examples for new features
+5. Review `README.md` — update tool table and examples if needed
+6. Create GitHub Release with release notes
+
 ## Pull Requests
 
 - Branch from `main`
