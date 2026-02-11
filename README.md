@@ -1,4 +1,4 @@
-# @coo-quack/calc-mcp
+# Calc MCP
 
 [![npm version](https://img.shields.io/npm/v/@coo-quack/calc-mcp)](https://www.npmjs.com/package/@coo-quack/calc-mcp)
 [![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
@@ -131,12 +131,16 @@ Ask in natural language — the AI picks the right tool automatically.
 claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
 ```
 
-### Claude Desktop
+### Claude Desktop / Cursor / Windsurf
 
 Add to your config file:
 
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+| App | Config path |
+|-----|-------------|
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Cursor | `~/.cursor/mcp.json` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` |
 
 ```json
 {
@@ -156,51 +160,6 @@ Add to `.vscode/mcp.json` in your workspace:
 ```json
 {
   "servers": {
-    "calc-mcp": {
-      "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
-    }
-  }
-}
-```
-
-Or add globally via settings.json:
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "calc-mcp": {
-        "command": "npx",
-        "args": ["-y", "@coo-quack/calc-mcp"]
-      }
-    }
-  }
-}
-```
-
-### Cursor
-
-Add to `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "calc-mcp": {
-      "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
-    }
-  }
-}
-```
-
-### Windsurf
-
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
     "calc-mcp": {
       "command": "npx",
       "args": ["-y", "@coo-quack/calc-mcp"]
