@@ -8,5 +8,15 @@
 		}
 	},
 	"linter": { "enabled": true, "rules": { "recommended": true } },
-	"formatter": { "enabled": true, "indentStyle": "tab" }
+	"formatter": { "enabled": true, "indentStyle": "tab" },
+	"files": {
+		"includes": [
+			"src/**",
+			"test/**",
+			"docs/.vitepress/config.ts",
+			"docs/.vitepress/theme/**",
+			"*.json",
+			"*.ts"
+		]
+	}
 }
