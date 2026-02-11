@@ -87,7 +87,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | `luhn` | Validate / generate check digits |
 | `ip` | IPv4/IPv6 info, CIDR range |
 | `color` | HEX ↔ RGB ↔ HSL |
-| `convert` | Length, weight, temp, area, volume, speed, data |
+| `convert` | 7 categories, 58 units: length (m, km, mi, ft, ...), weight (kg, lb, oz, ...), temperature (°C, °F, K), area (m², ha, acre, tsubo, tatami), volume (l, gal, cup, tbsp, ...), speed (km/h, mph, kn, ...), data (kb, mb, gb, tb, ...) |
 | `char_info` | Unicode code point, block, category |
 | `jwt_decode` | Decode header + payload (no verification) |
 | `url_parse` | Protocol, host, path, params, hash |
