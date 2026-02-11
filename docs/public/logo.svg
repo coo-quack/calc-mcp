@@ -10,61 +10,36 @@
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
   
   <!-- Calculator body -->
-  <rect x="120" y="80" width="272" height="352" rx="32" fill="rgba(0,0,0,0.15)"/>
-  <rect x="124" y="84" width="264" height="344" rx="30" fill="white" opacity="0.95"/>
+  <rect x="96" y="56" width="320" height="400" rx="36" fill="rgba(0,0,0,0.15)"/>
+  <rect x="100" y="60" width="312" height="392" rx="34" fill="white" opacity="0.95"/>
   
   <!-- Display -->
-  <rect x="152" y="112" width="208" height="72" rx="12" fill="#1a1a2e"/>
-  <text x="340" y="162" font-family="monospace" font-size="34" font-weight="bold" fill="#00e676" text-anchor="end">calc-mcp</text>
+  <rect x="132" y="92" width="248" height="80" rx="16" fill="#1a1a2e"/>
+  <!-- Display dots to suggest digits -->
+  <circle cx="332" cy="132" r="4" fill="#00e676"/>
+  <circle cx="316" cy="132" r="4" fill="#00e676" opacity="0.6"/>
+  <circle cx="300" cy="132" r="4" fill="#00e676" opacity="0.3"/>
   
   <!-- Row 1: function keys -->
-  <rect x="152" y="208" width="44" height="44" rx="10" fill="#00a000"/>
-  <rect x="208" y="208" width="44" height="44" rx="10" fill="#00a000"/>
-  <rect x="264" y="208" width="44" height="44" rx="10" fill="#00a000"/>
-  <rect x="316" y="208" width="44" height="44" rx="10" fill="#ff6d00"/>
+  <rect x="132" y="200" width="52" height="52" rx="12" fill="#00a000"/>
+  <rect x="198" y="200" width="52" height="52" rx="12" fill="#00a000"/>
+  <rect x="264" y="200" width="52" height="52" rx="12" fill="#00a000"/>
+  <rect x="330" y="200" width="52" height="52" rx="12" fill="#ff6d00"/>
   
   <!-- Row 2 -->
-  <rect x="152" y="264" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="208" y="264" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="264" y="264" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="316" y="264" width="44" height="44" rx="10" fill="#ff6d00"/>
+  <rect x="132" y="266" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="198" y="266" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="264" y="266" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="330" y="266" width="52" height="52" rx="12" fill="#ff6d00"/>
   
   <!-- Row 3 -->
-  <rect x="152" y="320" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="208" y="320" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="264" y="320" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="316" y="320" width="44" height="44" rx="10" fill="#ff6d00"/>
+  <rect x="132" y="332" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="198" y="332" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="264" y="332" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="330" y="332" width="52" height="52" rx="12" fill="#ff6d00"/>
   
   <!-- Row 4 -->
-  <rect x="152" y="376" width="100" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="264" y="376" width="44" height="44" rx="10" fill="#eeeeee"/>
-  <rect x="316" y="376" width="44" height="44" rx="10" fill="#00c853"/>
-  
-  <!-- Button labels - Row 1 -->
-  <text x="174" y="237" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">fn</text>
-  <text x="230" y="237" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">%</text>
-  <text x="286" y="237" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">^</text>
-  <text x="338" y="238" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">/</text>
-  
-  <!-- Row 2 labels -->
-  <text x="174" y="293" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">7</text>
-  <text x="230" y="293" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">8</text>
-  <text x="286" y="293" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">9</text>
-  <text x="338" y="294" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">*</text>
-  
-  <!-- Row 3 labels -->
-  <text x="174" y="349" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">4</text>
-  <text x="230" y="349" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">5</text>
-  <text x="286" y="349" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">6</text>
-  <text x="338" y="349" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">-</text>
-  
-  <!-- Row 4 labels -->
-  <text x="202" y="405" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">0</text>
-  <text x="286" y="405" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">.</text>
-  <text x="338" y="405" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">=</text>
-  
-  <!-- MCP badge -->
-  <circle cx="416" cy="96" r="46" fill="#1a1a2e"/>
-  <circle cx="416" cy="96" r="42" fill="#00e676"/>
-  <text x="416" y="103" font-family="sans-serif" font-size="20" font-weight="900" fill="#1a1a2e" text-anchor="middle">MCP</text>
+  <rect x="132" y="398" width="118" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="264" y="398" width="52" height="52" rx="12" fill="#eeeeee"/>
+  <rect x="330" y="398" width="52" height="52" rx="12" fill="#00c853"/>
 </svg>
