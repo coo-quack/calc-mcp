@@ -23,6 +23,7 @@
 		"typescript": "^5.9.3",
 		"vitepress": "^1.6.4"
 	},
+	"homepage": "https://coo-quack.github.io/calc-mcp/",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/coo-quack/calc-mcp.git"
