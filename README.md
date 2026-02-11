@@ -6,6 +6,8 @@
 
 **21 tools for things AI is bad at** — deterministic math, cryptographic randomness, accurate date arithmetic, encoding, hashing, and more.
 
+📖 **[Documentation](https://coo-quack.github.io/calc-mcp/)** — Full tool reference, examples, and install guides.
+
 LLMs hallucinate calculations, can't generate true random numbers, and struggle with timezones. This MCP server fixes that.
 
 ### Quick Start
