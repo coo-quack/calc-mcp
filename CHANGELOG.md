@@ -89,3 +89,7 @@
 - Biome for linting and formatting
 - Renovate with OSV vulnerability alerts
 - 160 tests, 92%+ line coverage
+
+---
+
+For the latest changes, see [GitHub Releases](https://github.com/coo-quack/calc-mcp/releases).
