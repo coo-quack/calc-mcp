@@ -20,26 +20,18 @@
   <circle cx="316" cy="132" r="4" fill="#00e676" opacity="0.6"/>
   <circle cx="300" cy="132" r="4" fill="#00e676" opacity="0.3"/>
   
-  <!-- Row 1: function keys -->
-  <rect x="132" y="200" width="52" height="52" rx="12" fill="#00a000"/>
-  <rect x="198" y="200" width="52" height="52" rx="12" fill="#00a000"/>
-  <rect x="264" y="200" width="52" height="52" rx="12" fill="#00a000"/>
-  <rect x="330" y="200" width="52" height="52" rx="12" fill="#ff6d00"/>
+  <!-- Row 1: function keys (green) -->
+  <rect x="132" y="196" width="60" height="60" rx="12" fill="#00a000"/>
+  <rect x="226" y="196" width="60" height="60" rx="12" fill="#00a000"/>
+  <rect x="320" y="196" width="60" height="60" rx="12" fill="#ff6d00"/>
   
-  <!-- Row 2 -->
-  <rect x="132" y="266" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="198" y="266" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="264" y="266" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="330" y="266" width="52" height="52" rx="12" fill="#ff6d00"/>
+  <!-- Row 2: number keys (gray) -->
+  <rect x="132" y="286" width="60" height="60" rx="12" fill="#eeeeee"/>
+  <rect x="226" y="286" width="60" height="60" rx="12" fill="#eeeeee"/>
+  <rect x="320" y="286" width="60" height="60" rx="12" fill="#ff6d00"/>
   
-  <!-- Row 3 -->
-  <rect x="132" y="332" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="198" y="332" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="264" y="332" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="330" y="332" width="52" height="52" rx="12" fill="#ff6d00"/>
-  
-  <!-- Row 4 -->
-  <rect x="132" y="398" width="118" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="264" y="398" width="52" height="52" rx="12" fill="#eeeeee"/>
-  <rect x="330" y="398" width="52" height="52" rx="12" fill="#00c853"/>
+  <!-- Row 3: bottom keys -->
+  <rect x="132" y="376" width="60" height="60" rx="12" fill="#eeeeee"/>
+  <rect x="226" y="376" width="60" height="60" rx="12" fill="#eeeeee"/>
+  <rect x="320" y="376" width="60" height="60" rx="12" fill="#00c853"/>
 </svg>
