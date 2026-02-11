@@ -31,9 +31,8 @@ bun run build     # Build for production
 
 When bumping a version:
 
-1. Update `CHANGELOG.md` with new version entry
-2. Update `docs/changelog.md` to match
-3. Review `docs/tools.md` — add/update any changed tool parameters or examples
+1. Update `CHANGELOG.md` with new version entry (`docs/changelog.md` is a symlink — auto-synced)
+2. Review `docs/tools.md` — add/update any changed tool parameters or examples
 4. Review `docs/examples.md` — add examples for new features
 5. Review `README.md` — update tool table and examples if needed
 6. Create GitHub Release with release notes
