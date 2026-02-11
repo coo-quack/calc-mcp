@@ -1,4 +1,70 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="15" fill="#00a000"/>
-  <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">∑</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00c853"/>
+      <stop offset="100%" style="stop-color:#007e33"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  
+  <!-- Calculator body -->
+  <rect x="120" y="80" width="272" height="352" rx="32" fill="rgba(0,0,0,0.15)"/>
+  <rect x="124" y="84" width="264" height="344" rx="30" fill="white" opacity="0.95"/>
+  
+  <!-- Display -->
+  <rect x="152" y="112" width="208" height="72" rx="12" fill="#1a1a2e"/>
+  <text x="340" y="162" font-family="monospace" font-size="34" font-weight="bold" fill="#00e676" text-anchor="end">calc-mcp</text>
+  
+  <!-- Row 1: function keys -->
+  <rect x="152" y="208" width="44" height="44" rx="10" fill="#00a000"/>
+  <rect x="208" y="208" width="44" height="44" rx="10" fill="#00a000"/>
+  <rect x="264" y="208" width="44" height="44" rx="10" fill="#00a000"/>
+  <rect x="316" y="208" width="44" height="44" rx="10" fill="#ff6d00"/>
+  
+  <!-- Row 2 -->
+  <rect x="152" y="264" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="208" y="264" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="264" y="264" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="316" y="264" width="44" height="44" rx="10" fill="#ff6d00"/>
+  
+  <!-- Row 3 -->
+  <rect x="152" y="320" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="208" y="320" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="264" y="320" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="316" y="320" width="44" height="44" rx="10" fill="#ff6d00"/>
+  
+  <!-- Row 4 -->
+  <rect x="152" y="376" width="100" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="264" y="376" width="44" height="44" rx="10" fill="#eeeeee"/>
+  <rect x="316" y="376" width="44" height="44" rx="10" fill="#00c853"/>
+  
+  <!-- Button labels - Row 1 -->
+  <text x="174" y="237" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">fn</text>
+  <text x="230" y="237" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">%</text>
+  <text x="286" y="237" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">^</text>
+  <text x="338" y="238" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">/</text>
+  
+  <!-- Row 2 labels -->
+  <text x="174" y="293" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">7</text>
+  <text x="230" y="293" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">8</text>
+  <text x="286" y="293" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">9</text>
+  <text x="338" y="294" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">*</text>
+  
+  <!-- Row 3 labels -->
+  <text x="174" y="349" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">4</text>
+  <text x="230" y="349" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">5</text>
+  <text x="286" y="349" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">6</text>
+  <text x="338" y="349" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">-</text>
+  
+  <!-- Row 4 labels -->
+  <text x="202" y="405" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">0</text>
+  <text x="286" y="405" font-family="sans-serif" font-size="20" font-weight="600" fill="#333" text-anchor="middle">.</text>
+  <text x="338" y="405" font-family="sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">=</text>
+  
+  <!-- MCP badge -->
+  <circle cx="416" cy="96" r="46" fill="#1a1a2e"/>
+  <circle cx="416" cy="96" r="42" fill="#00e676"/>
+  <text x="416" y="103" font-family="sans-serif" font-size="20" font-weight="900" fill="#1a1a2e" text-anchor="middle">MCP</text>
 </svg>
