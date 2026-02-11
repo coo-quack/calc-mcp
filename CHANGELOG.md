@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.0 (2026-02-11)
+
+### Documentation
+
+- Overhaul README with `claude mcp add` install command and npx-based setup
+- Replace JSON examples with 22 natural language "What You Can Ask" examples (all verified)
+- Compact tool reference table
+- 242 lines → 127 lines
+
 ## v1.1.0 (2026-02-11)
 
 ### Features
