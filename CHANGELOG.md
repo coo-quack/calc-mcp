@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.4.0 (2026-02-11)
+
+### Features
+
+- **Time conversion** — ms, s, min, h, d, wk, mo, yr (now 8 categories, 72 units)
+- **`--version` flag** — `npx @coo-quack/calc-mcp --version`
+
+### Improvements
+
+- serverInfo.version synced with package.json (was hardcoded "0.1.0")
+- Error messages now list all supported units on unknown unit
+- Semver test coverage: 9 → 23 tests
+- CI git config for tag authoring
+- README badges (npm, CI, license)
+- CONTRIBUTING.md added
+- GitHub topics set
+- README examples: Japanese text replaced with English alternatives
+
 ## v1.3.0 (2026-02-11)
 
 ### Documentation
