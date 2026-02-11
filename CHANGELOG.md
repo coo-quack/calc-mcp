@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.5.0 (2026-02-11)
+
+### Features
+
+- **Password generation** — fine-grained options: `uppercase`, `numbers`, `symbols` (on/off), `readable` mode (excludes ambiguous chars like l/1/I/O/0/o), `excludeChars` for custom exclusions
+- **Shuffle** — Fisher-Yates algorithm with `crypto.getRandomValues` for unbiased list shuffling
+
+### Documentation
+
+- README title: `@coo-quack/calc-mcp` → `Calc MCP`
+- Added "Why?" section with AI-alone vs calc-mcp comparison
+- Quick Start moved to top
+- Install guides consolidated (Claude Desktop/Cursor/Windsurf share same JSON format)
+
+### Tests
+
+- Random tool tests: 12 → 27 (+15)
+- Total: 194 tests, 280 assertions
+
 ## v1.4.0 (2026-02-11)
 
 ### Features
