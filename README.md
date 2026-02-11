@@ -2,92 +2,6 @@
 
 An MCP server with 21 tools for things AI is bad at — math, hashing, encoding, date arithmetic, and more.
 
-## Install
-
-### Claude Code
-
-```bash
-claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
-```
-
-### Claude Desktop
-
-Add to your config file:
-
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "calc-mcp": {
-      "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
-    }
-  }
-}
-```
-
-### VS Code (GitHub Copilot)
-
-Add to `.vscode/mcp.json` in your workspace:
-
-```json
-{
-  "servers": {
-    "calc-mcp": {
-      "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
-    }
-  }
-}
-```
-
-Or add globally via settings.json:
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "calc-mcp": {
-        "command": "npx",
-        "args": ["-y", "@coo-quack/calc-mcp"]
-      }
-    }
-  }
-}
-```
-
-### Cursor
-
-Add to `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "calc-mcp": {
-      "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
-    }
-  }
-}
-```
-
-### Windsurf
-
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "calc-mcp": {
-      "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
-    }
-  }
-}
-```
-
 ## Examples
 
 Ask in natural language — the AI picks the right tool automatically.
@@ -175,6 +89,92 @@ Ask in natural language — the AI picks the right tool automatically.
 | `jwt_decode` | Decode header + payload (no verification) |
 | `url_parse` | Protocol, host, path, params, hash |
 | `semver` | Compare, validate, range satisfaction |
+
+## Install
+
+### Claude Code
+
+```bash
+claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
+```
+
+### Claude Desktop
+
+Add to your config file:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "npx",
+      "args": ["-y", "@coo-quack/calc-mcp"]
+    }
+  }
+}
+```
+
+### VS Code (GitHub Copilot)
+
+Add to `.vscode/mcp.json` in your workspace:
+
+```json
+{
+  "servers": {
+    "calc-mcp": {
+      "command": "npx",
+      "args": ["-y", "@coo-quack/calc-mcp"]
+    }
+  }
+}
+```
+
+Or add globally via settings.json:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "calc-mcp": {
+        "command": "npx",
+        "args": ["-y", "@coo-quack/calc-mcp"]
+      }
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "npx",
+      "args": ["-y", "@coo-quack/calc-mcp"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "npx",
+      "args": ["-y", "@coo-quack/calc-mcp"]
+    }
+  }
+}
+```
 
 ## Development
 
