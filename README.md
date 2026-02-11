@@ -22,6 +22,8 @@ Ask in natural language — the AI picks the right tool automatically.
 | Base64 encode "Hello World" | `SGVsbG8gV29ybGQ=` | base64 |
 | Base64 decode "5pel5pys6Kqe" | `日本語` | base64 |
 | URL-encode "hello world" | `hello%20world` | encode |
+| URL-decode "hello%20world" | `hello world` | encode |
+| HTML-decode `&lt;script&gt;` | `<script>` | encode |
 | SHA-256 hash of "password123" | `ef92b778bafe...` | hash |
 
 ### Date & Time
