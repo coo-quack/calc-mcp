@@ -20,6 +20,7 @@ Ask in natural language — the AI picks the right tool automatically.
 |---------|---------|------|
 | How many characters in "Hello, World! 🌍"? | `15 chars, 18 bytes` | count |
 | Base64 encode "Hello World" | `SGVsbG8gV29ybGQ=` | base64 |
+| Base64 decode "5pel5pys6Kqe" | `日本語` | base64 |
 | URL-encode "hello world" | `hello%20world` | encode |
 | SHA-256 hash of "password123" | `ef92b778bafe...` | hash |
 
