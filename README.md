@@ -88,95 +88,67 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 }
 ```
 
-## What You Can Ask
+## Examples
 
-> What's 10 + 34 × 341 ÷ 23?
+Ask in natural language — the AI picks the right tool automatically.
 
-→ `514.087` (via **math**)
+### Math & Numbers
 
-> How many characters in "Hello, World! 🌍"?
+| You ask | You get | Tool |
+|---------|---------|------|
+| What's 10 + 34 × 341 ÷ 23? | `514.087` | math |
+| Convert 255 to binary | `11111111` | base |
+| Is 4539578763621486 a valid card number? | `true` | luhn |
 
-→ `15 characters, 18 bytes` (via **count** — grapheme-aware)
+### Text & Encoding
 
-> What time is it in New York?
+| You ask | You get | Tool |
+|---------|---------|------|
+| How many characters in "Hello, World! 🌍"? | `15 chars, 18 bytes` | count |
+| Base64 encode "Hello World" | `SGVsbG8gV29ybGQ=` | base64 |
+| URL-encode "hello world" | `hello%20world` | encode |
+| SHA-256 hash of "password123" | `ef92b778bafe...` | hash |
 
-→ `2026-02-10T19:00:00-05:00` (via **datetime**)
+### Date & Time
 
-> Generate a UUID v7.
+| You ask | You get | Tool |
+|---------|---------|------|
+| What time is it in New York? | `2026-02-10T19:00:00-05:00` | datetime |
+| What's 100 days after 2026-02-11? | `2026-05-22` | date |
+| When does "30 9 * * 1-5" run? | `Mon–Fri at 9:30` | cron_parse |
 
-→ `019c4b54-aad2-7e52-95a3-f150f7c74254` (via **random**)
+### Generation
 
-> SHA-256 hash of "password123"?
+| You ask | You get | Tool |
+|---------|---------|------|
+| Generate a UUID v7 | `019c4b54-aad2-7e52-...` | random |
+| Generate a 20-char password | `h#tjZDojX6sH!RJt8vaS` | random |
 
-→ `ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f` (via **hash**)
+### Conversion
 
-> Base64 encode "Hello World".
+| You ask | You get | Tool |
+|---------|---------|------|
+| 100 miles in kilometers? | `160.93 km` | convert |
+| 72°F in Celsius? | `22.22°C` | convert |
+| Convert #FF5733 to RGB | `rgb(255, 87, 51)` | color |
 
-→ `SGVsbG8gV29ybGQ=` (via **base64**)
+### Analysis & Parsing
 
-> Convert 255 to binary.
+| You ask | You get | Tool |
+|---------|---------|------|
+| Extract numbers from "abc123def456" | `123, 456` | regex |
+| Does 1.5.3 satisfy ^1.0.0? | `true` | semver |
+| IP range of 192.168.1.0/24? | `192.168.1.1 – .254 (254 hosts)` | ip |
+| Edit distance: "kitten" → "sitting" | `3` | diff |
+| Unicode info for "漢" | `U+6F22, CJK Unified Ideographs` | char_info |
+| Is `{"name":"test"}` valid JSON? | `valid, object` | json_validate |
 
-→ `11111111` (via **base**)
+### Decode & Parse
 
-> Convert #FF5733 to RGB.
-
-→ `rgb(255, 87, 51)` (via **color**)
-
-> 100 miles in kilometers?
-
-→ `160.93 km` (via **convert**)
-
-> 72°F in Celsius?
-
-→ `22.22°C` (via **convert**)
-
-> What's 100 days after 2026-02-11?
-
-→ `2026-05-22` (via **date**)
-
-> Extract all numbers from "abc123def456".
-
-→ `123, 456` (via **regex**)
-
-> Does 1.5.3 satisfy ^1.0.0?
-
-→ `true` (via **semver**)
-
-> IP range of 192.168.1.0/24?
-
-→ `192.168.1.1 – 192.168.1.254 (254 hosts)` (via **ip**)
-
-> Is 4539578763621486 a valid card number?
-
-→ `true` (via **luhn**)
-
-> Edit distance between "kitten" and "sitting"?
-
-→ `3` (via **diff**)
-
-> When does "30 9 * * 1-5" run?
-
-→ `Mon–Fri at 9:30` (via **cron_parse**)
-
-> Unicode info for "漢"?
-
-→ `U+6F22, CJK Unified Ideographs, Letter` (via **char_info**)
-
-> URL-encode "hello world".
-
-→ `hello%20world` (via **encode**)
-
-> Decode this JWT: eyJhbGciOiJIUzI1NiIs...
-
-→ `{ alg: "HS256", sub: "1234567890", name: "John Doe" }` (via **jwt_decode**)
-
-> Parse https://example.com/search?q=hello&lang=en#results
-
-→ `host: example.com, params: { q: "hello", lang: "en" }, hash: "#results"` (via **url_parse**)
-
-> Is this valid JSON? {"name": "test", "count": 42}
-
-→ `valid, object with keys: name, count` (via **json_validate**)
+| You ask | You get | Tool |
+|---------|---------|------|
+| Decode this JWT: eyJhbGci... | `{ alg: "HS256", name: "John Doe" }` | jwt_decode |
+| Parse https://example.com/search?q=hello | `host: example.com, q: "hello"` | url_parse |
 
 ## All Tools
 
