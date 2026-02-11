@@ -24,7 +24,7 @@ Ask in natural language — the AI picks the right tool automatically.
 |---------|---------|------|
 | How many characters in "Hello, World! 🌍"? | `15 chars, 18 bytes` | count |
 | Base64 encode "Hello World" | `SGVsbG8gV29ybGQ=` | base64 |
-| Base64 decode "5pel5pys6Kqe" | `日本語` | base64 |
+| Base64 decode "eyJhbGciOiJIUzI1NiJ9" | `{"alg":"HS256"}` | base64 |
 | URL-encode "hello world" | `hello%20world` | encode |
 | URL-decode "hello%20world" | `hello world` | encode |
 | HTML-decode `&lt;script&gt;` | `<script>` | encode |
@@ -61,7 +61,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | Does 1.5.3 satisfy ^1.0.0? | `true` | semver |
 | IP range of 192.168.1.0/24? | `192.168.1.1 – .254 (254 hosts)` | ip |
 | Edit distance: "kitten" → "sitting" | `3` | diff |
-| Unicode info for "漢" | `U+6F22, CJK Unified Ideographs` | char_info |
+| Unicode info for "€" | `U+20AC, Currency Symbols` | char_info |
 | Is `{"name":"test"}` valid JSON? | `valid, object` | json_validate |
 
 ### Decode & Parse
