@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.6.0 (2026-02-12)
+
+### Features
+
+- **Documentation site** — Full VitePress-powered docs at [coo-quack.github.io/calc-mcp](https://coo-quack.github.io/calc-mcp/) with tool reference, examples, install guides, and changelog (#13)
+
+### Documentation
+
+- Added documentation site link to README
+- Added release checklist to CONTRIBUTING.md (#15)
+- Updated npx examples with `--prefix /tmp` for better node_modules compatibility
+- Added common ignore patterns to .gitignore
+
 ## v1.5.0 (2026-02-11)
 
 ### Features
