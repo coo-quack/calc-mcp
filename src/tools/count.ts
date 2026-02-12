@@ -14,9 +14,10 @@ type Input = z.infer<typeof inputSchema>;
 
 function countShiftJisBytes(text: string): number {
 	// Approximate Shift_JIS encoded byte length using code point heuristics
-	// This does not perform real Shift_JIS encoding
-	// TextEncoder doesn't support Shift_JIS, so we approximate
-	// by estimating how many bytes each character would use
+	// This does not perform real Shift_JIS encoding (no encoding library used)
+	// Note: BMP characters not representable in Shift_JIS (e.g., Cyrillic, Arabic,
+	// combining diacritics) are counted as 2 bytes. For exact byte counts,
+	// use an actual Shift_JIS encoder.
 	let bytes = 0;
 	for (const char of text) {
 		const code = char.codePointAt(0) ?? 0;
@@ -33,12 +34,13 @@ function countShiftJisBytes(text: string): number {
 		else if (code === 0x00a5 || code === 0x203e) {
 			bytes += 1;
 		}
-		// Characters that cannot be represented in Shift_JIS
-		// (supplementary plane characters): count as replacement char (1 byte '?')
+		// Supplementary plane characters (astral plane, emoji): 1 byte replacement
 		else if (code > 0xffff) {
 			bytes += 1; // replacement character
 		}
-		// All other characters (hiragana, katakana, kanji, symbols): 2 bytes
+		// All other BMP characters (hiragana, katakana, kanji, symbols, etc.): 2 bytes
+		// Note: This includes some characters not actually encodable in Shift_JIS
+		// (e.g., Cyrillic, Arabic), which would be 1-byte replacements in real encoding
 		else {
 			bytes += 2;
 		}

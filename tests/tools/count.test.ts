@@ -94,4 +94,14 @@ describe("count", () => {
 		// Supplementary plane character → 1 byte replacement
 		expect(result.bytesShiftJis).toBe(1);
 	});
+
+	test("shift_jis: BMP non-representable character (Cyrillic)", () => {
+		const result = JSON.parse(
+			execute({ text: "Привет", encoding: "shift_jis" }),
+		);
+		// Note: Current heuristic counts BMP non-representables as 2 bytes
+		// (not as 1-byte replacement). This is a known limitation.
+		// "Привет" = 6 Cyrillic characters × 2 bytes = 12 bytes
+		expect(result.bytesShiftJis).toBe(12);
+	});
 });
