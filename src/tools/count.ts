@@ -34,8 +34,8 @@ function countShiftJisBytes(text: string): number {
 			bytes += 1;
 		}
 		// Characters that cannot be represented in Shift_JIS
-		// (supplementary plane characters, surrogates): count as replacement char (1 byte '?')
-		else if (code > 0xffff || (code >= 0xd800 && code <= 0xdfff)) {
+		// (supplementary plane characters): count as replacement char (1 byte '?')
+		else if (code > 0xffff) {
 			bytes += 1; // replacement character
 		}
 		// All other characters (hiragana, katakana, kanji, symbols): 2 bytes
