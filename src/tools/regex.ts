@@ -26,7 +26,14 @@ function withTimeout<T>(fn: () => T): T {
 }
 
 export function execute(input: Input): string {
-	const regex = new RegExp(input.pattern, input.flags ?? "");
+	let flags = input.flags ?? "";
+	if (input.action === "match" && !flags.includes("g")) {
+		flags = `g${flags}`;
+	}
+	if (input.action === "replace" && !flags.includes("g")) {
+		flags = `g${flags}`;
+	}
+	const regex = new RegExp(input.pattern, flags);
 
 	switch (input.action) {
 		case "test": {
@@ -34,12 +41,14 @@ export function execute(input: Input): string {
 			return JSON.stringify({ match: result });
 		}
 		case "match": {
-			const result = withTimeout(() => input.text.match(regex));
-			if (!result) return JSON.stringify({ matches: null });
+			const matches = withTimeout(() => [...input.text.matchAll(regex)]);
+			if (matches.length === 0) {
+				return JSON.stringify({ matches: null, index: null, groups: null });
+			}
 			return JSON.stringify({
-				matches: [...result],
-				index: result.index,
-				groups: result.groups ?? null,
+				matches: matches.map((m) => m[0]),
+				index: matches[0].index,
+				groups: matches[0].groups ?? null,
 			});
 		}
 		case "matchAll": {

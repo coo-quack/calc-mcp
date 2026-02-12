@@ -34,4 +34,23 @@ describe("color", () => {
 	test("invalid color throws", () => {
 		expect(() => execute({ color: "not a color" })).toThrow();
 	});
+
+	test("parses named color red", () => {
+		expect(execute({ color: "red", to: "hex" })).toBe("#ff0000");
+	});
+
+	test("parses named color blue", () => {
+		expect(execute({ color: "blue", to: "rgb" })).toBe("rgb(0, 0, 255)");
+	});
+
+	test("parses named color green", () => {
+		const result = JSON.parse(execute({ color: "green" }));
+		expect(result.hex).toBe("#008000");
+		expect(result.rgb).toBe("rgb(0, 128, 0)");
+	});
+
+	test("parses named color without case sensitivity", () => {
+		expect(execute({ color: "RED", to: "hex" })).toBe("#ff0000");
+		expect(execute({ color: "Blue", to: "hex" })).toBe("#0000ff");
+	});
 });

@@ -15,6 +15,17 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
+const cronAliases: Record<string, string> = {
+	"@yearly": "0 0 1 1 *",
+	"@annually": "0 0 1 1 *",
+	"@monthly": "0 0 1 * *",
+	"@weekly": "0 0 * * 0",
+	"@daily": "0 0 * * *",
+	"@midnight": "0 0 * * *",
+	"@hourly": "0 * * * *",
+	"@reboot": "",
+};
+
 interface CronField {
 	values: Set<number>;
 }
@@ -85,7 +96,16 @@ function getNextOccurrences(fields: string[], count: number): Date[] {
 }
 
 export function execute(input: Input): string {
-	const fields = input.expression.trim().split(/\s+/);
+	let expression = input.expression.trim();
+
+	if (expression in cronAliases) {
+		expression = cronAliases[expression];
+		if (expression === "") {
+			throw new Error("@reboot is not supported (systemd-only)");
+		}
+	}
+
+	const fields = expression.split(/\s+/);
 	if (fields.length !== 5) {
 		throw new Error(
 			`Expected 5 fields (minute hour dom month dow), got ${fields.length}`,

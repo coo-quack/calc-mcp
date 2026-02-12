@@ -9,9 +9,13 @@ const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
 export function execute(input: Input): string {
+	let urlToParse = input.url;
+	if (!urlToParse.includes("://")) {
+		urlToParse = `https://${urlToParse}`;
+	}
 	let parsed: URL;
 	try {
-		parsed = new URL(input.url);
+		parsed = new URL(urlToParse);
 	} catch {
 		throw new Error(`Invalid URL: ${input.url}`);
 	}
