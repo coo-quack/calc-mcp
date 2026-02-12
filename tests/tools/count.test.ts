@@ -48,4 +48,34 @@ describe("count", () => {
 		const result = JSON.parse(execute({ text: "𠮷野家" }));
 		expect(result.characters).toBe(3);
 	});
+
+	test("shift_jis: half-width katakana is 1 byte each", () => {
+		const result = JSON.parse(
+			execute({ text: "ｱｲｳｴｵ", encoding: "shift_jis" }),
+		);
+		expect(result.bytesShiftJis).toBe(5);
+	});
+
+	test("shift_jis: hiragana is 2 bytes each", () => {
+		const result = JSON.parse(
+			execute({ text: "あいうえお", encoding: "shift_jis" }),
+		);
+		expect(result.bytesShiftJis).toBe(10);
+	});
+
+	test("shift_jis: mixed ASCII and Japanese", () => {
+		const result = JSON.parse(
+			execute({ text: "ABC漢字", encoding: "shift_jis" }),
+		);
+		// ABC = 3 bytes, 漢字 = 2*2 = 4 bytes, total = 7
+		expect(result.bytesShiftJis).toBe(7);
+	});
+
+	test("shift_jis: yen sign and overline", () => {
+		const result = JSON.parse(
+			execute({ text: "¥100‾", encoding: "shift_jis" }),
+		);
+		// ¥ = 1 byte, 100 = 3 bytes, ‾ = 1 byte, total = 5
+		expect(result.bytesShiftJis).toBe(5);
+	});
 });
