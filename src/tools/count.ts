@@ -21,7 +21,7 @@ function countShiftJisBytes(text: string): number {
 		let bytes = 0;
 		for (const char of text) {
 			const code = char.codePointAt(0) ?? 0;
-			
+
 			// ASCII (0x00-0x7F): 1 byte
 			if (code <= 0x7f) {
 				bytes += 1;
@@ -36,9 +36,11 @@ function countShiftJisBytes(text: string): number {
 			}
 			// Characters that cannot be represented in Shift_JIS
 			// (emojis, extended Unicode, etc.): count as replacement char (1 byte '?')
-			else if (code > 0xffff || 
-			         (code >= 0xd800 && code <= 0xdfff) ||
-			         code > 0x10000) {
+			else if (
+				code > 0xffff ||
+				(code >= 0xd800 && code <= 0xdfff) ||
+				code > 0x10000
+			) {
 				bytes += 1; // replacement character
 			}
 			// All other characters (hiragana, katakana, kanji, symbols): 2 bytes
