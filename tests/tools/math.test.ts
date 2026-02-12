@@ -54,4 +54,12 @@ describe("math", () => {
 	test("large integer 2^53 + 1 is exact", () => {
 		expect(execute({ expression: "2^53 + 1" })).toBe("9007199254740993");
 	});
+
+	test("statistics with decimal values has no floating-point drift", () => {
+		const result = JSON.parse(
+			execute({ action: "statistics", values: [0.1, 0.2, 0.3] }),
+		);
+		expect(result.sum).toBe(0.6);
+		expect(result.mean).toBe(0.2);
+	});
 });
