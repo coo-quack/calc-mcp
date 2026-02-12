@@ -2,6 +2,23 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.7.0 (2026-02-12)
+
+### Features
+
+- **math** — BigNumber mode (64-digit precision) eliminates floating-point drift (`0.1 + 0.2 = 0.3`, `mean([0.1,0.2,0.3]) = 0.2`)
+- **url_parse** — Auto-add `https://` for URLs without protocol
+- **color** — Support CSS named colors (red, blue, green, etc.)
+- **regex** — Global match/replace (auto-add `g` flag) for all occurrences
+- **cron_parse** — Support `@daily`, `@hourly`, `@weekly`, `@monthly`, `@yearly` aliases
+- **semver** — Add `parse` action to extract version components
+
+### Tests
+
+- E2E: 137 tests covering all 21 tools' every action/option
+- Unit: 222 tests across all tools
+- Total: 359 tests passing
+
 ## v1.6.2 (2026-02-12)
 
 ### Fixes
