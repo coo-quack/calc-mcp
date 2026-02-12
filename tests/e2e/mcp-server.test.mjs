@@ -20,8 +20,8 @@ let transport;
 
 before(async () => {
 	transport = new StdioClientTransport({
-		command: "npx",
-		args: ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"],
+		command: "node",
+		args: [resolve(projectRoot, "dist/index.js")],
 	});
 	client = new Client({ name: "e2e-test", version: "1.0.0" });
 	await client.connect(transport);

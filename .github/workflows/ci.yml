@@ -29,5 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run build
       - run: node --test tests/e2e/mcp-server.test.mjs
