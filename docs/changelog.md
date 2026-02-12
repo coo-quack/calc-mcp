@@ -2,6 +2,12 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.6.1 (2026-02-12)
+
+### Bug Fixes
+
+- **hash** — Replace `Bun.CryptoHasher` with `node:crypto` for Node.js compatibility (#18)
+
 ## v1.6.0 (2026-02-12)
 
 ### Features
