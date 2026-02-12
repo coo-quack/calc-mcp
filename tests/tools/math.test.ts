@@ -62,4 +62,12 @@ describe("math", () => {
 		expect(result.sum).toBe(0.6);
 		expect(result.mean).toBe(0.2);
 	});
+
+	test("rejects dangerous import function", () => {
+		expect(() => execute({ expression: "import('fs')" })).toThrow();
+	});
+
+	test("rejects dangerous createUnit function", () => {
+		expect(() => execute({ expression: "createUnit('foo')" })).toThrow();
+	});
 });
