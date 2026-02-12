@@ -35,4 +35,38 @@ describe("cron_parse", () => {
 		const result = JSON.parse(execute({ expression: "* * * * *" }));
 		expect(result.nextOccurrences).toHaveLength(5);
 	});
+
+	test("supports @daily alias", () => {
+		const result = JSON.parse(execute({ expression: "@daily", count: 1 }));
+		expect(result.expression).toBe("@daily");
+		expect(result.nextOccurrences[0]).toMatch(/T00:00:00/);
+	});
+
+	test("supports @hourly alias", () => {
+		const result = JSON.parse(execute({ expression: "@hourly", count: 1 }));
+		expect(result.expression).toBe("@hourly");
+		expect(result.nextOccurrences[0]).toMatch(/:\d{2}:00/);
+	});
+
+	test("supports @weekly alias", () => {
+		const result = JSON.parse(execute({ expression: "@weekly", count: 1 }));
+		expect(result.expression).toBe("@weekly");
+	});
+
+	test("supports @monthly alias", () => {
+		const result = JSON.parse(execute({ expression: "@monthly", count: 1 }));
+		expect(result.expression).toBe("@monthly");
+	});
+
+	test("supports @yearly and @annually alias", () => {
+		const yearly = JSON.parse(execute({ expression: "@yearly", count: 1 }));
+		const annually = JSON.parse(execute({ expression: "@annually", count: 1 }));
+		expect(yearly.nextOccurrences).toEqual(annually.nextOccurrences);
+	});
+
+	test("rejects @reboot", () => {
+		expect(() => execute({ expression: "@reboot" })).toThrow(
+			"@reboot is not supported",
+		);
+	});
 });

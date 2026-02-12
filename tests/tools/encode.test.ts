@@ -79,9 +79,12 @@ describe("encode - Unicode", () => {
 		).toBe("あ");
 	});
 
-	test("ASCII stays as-is in unicode encode", () => {
+	test("ASCII is escaped in unicode encode", () => {
+		expect(execute({ input: "A", action: "encode", type: "unicode" })).toBe(
+			"\\u0041",
+		);
 		expect(execute({ input: "hello", action: "encode", type: "unicode" })).toBe(
-			"hello",
+			"\\u0068\\u0065\\u006c\\u006c\\u006f",
 		);
 	});
 

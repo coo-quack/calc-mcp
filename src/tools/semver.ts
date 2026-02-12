@@ -3,9 +3,9 @@ import type { ToolDefinition } from "../index.js";
 
 const schema = {
 	action: z
-		.enum(["compare", "valid", "satisfies"])
+		.enum(["compare", "valid", "satisfies", "parse"])
 		.describe(
-			"compare: compare two versions, valid: check validity, satisfies: range match",
+			"compare: compare two versions, valid: check validity, satisfies: range match, parse: extract components",
 		),
 	version: z.string().describe("Semver version string"),
 	version2: z.string().optional().describe("Second version for compare"),
@@ -141,6 +141,18 @@ function satisfies(version: SemVer, range: string): boolean {
 
 export function execute(input: Input): string {
 	switch (input.action) {
+		case "parse": {
+			const v = parse(input.version);
+			if (!v) throw new Error(`Invalid version: ${input.version}`);
+			return JSON.stringify({
+				version: input.version,
+				major: v.major,
+				minor: v.minor,
+				patch: v.patch,
+				prerelease: v.prerelease.join(".") || null,
+				build: v.build.join(".") || null,
+			});
+		}
 		case "valid": {
 			const v = parse(input.version);
 			return JSON.stringify({

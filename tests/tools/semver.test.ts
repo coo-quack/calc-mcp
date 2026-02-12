@@ -170,4 +170,38 @@ describe("semver", () => {
 			execute({ action: "compare", version: "bad", version2: "1.0.0" }),
 		).toThrow("Invalid version");
 	});
+
+	test("parse extracts components", () => {
+		const result = JSON.parse(execute({ action: "parse", version: "1.2.3" }));
+		expect(result.version).toBe("1.2.3");
+		expect(result.major).toBe(1);
+		expect(result.minor).toBe(2);
+		expect(result.patch).toBe(3);
+		expect(result.prerelease).toBe(null);
+		expect(result.build).toBe(null);
+	});
+
+	test("parse handles v prefix", () => {
+		const result = JSON.parse(execute({ action: "parse", version: "v2.1.0" }));
+		expect(result.major).toBe(2);
+	});
+
+	test("parse extracts prerelease", () => {
+		const result = JSON.parse(
+			execute({ action: "parse", version: "1.0.0-alpha" }),
+		);
+		expect(result.prerelease).toBe("alpha");
+	});
+
+	test("parse extracts build", () => {
+		const result = JSON.parse(execute({ action: "parse", version: "1.0.0+build.123" }));
+		expect(result.build).toBe("build.123");
+	});
+
+	test("parse handles multiple prerelease parts", () => {
+		const result = JSON.parse(
+			execute({ action: "parse", version: "1.0.0-alpha.1.beta.2" }),
+		);
+		expect(result.prerelease).toBe("alpha.1.beta.2");
+	});
 });

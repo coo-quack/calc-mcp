@@ -122,8 +122,94 @@ const CATEGORIES: Record<string, ConversionTable> = {
 	time: TIME,
 };
 
+const UNIT_ALIASES: Record<string, string> = {
+	meter: "m",
+	meters: "m",
+	metre: "m",
+	metres: "m",
+	kilometer: "km",
+	kilometers: "km",
+	kilometre: "km",
+	kilometres: "km",
+	centimeter: "cm",
+	centimeters: "cm",
+	centimetre: "cm",
+	centimetres: "cm",
+	millimeter: "mm",
+	millimeters: "mm",
+	millimetre: "mm",
+	millimetres: "mm",
+	inch: "in",
+	inches: "in",
+	foot: "ft",
+	feet: "ft",
+	yard: "yd",
+	yards: "yd",
+	mile: "mi",
+	miles: "mi",
+	kilogram: "kg",
+	kilograms: "kg",
+	gram: "g",
+	grams: "g",
+	milligram: "mg",
+	milligrams: "mg",
+	pound: "lb",
+	pounds: "lb",
+	ounce: "oz",
+	ounces: "oz",
+	ton: "t",
+	tons: "t",
+	tonne: "t",
+	tonnes: "t",
+	liter: "l",
+	liters: "l",
+	litre: "l",
+	litres: "l",
+	milliliter: "ml",
+	milliliters: "ml",
+	millilitre: "ml",
+	millilitres: "ml",
+	gallon: "gal",
+	gallons: "gal",
+	second: "s",
+	seconds: "s",
+	sec: "s",
+	minute: "min",
+	minutes: "min",
+	hour: "h",
+	hours: "h",
+	hr: "h",
+	day: "d",
+	days: "d",
+	week: "wk",
+	weeks: "wk",
+	month: "mo",
+	months: "mo",
+	year: "yr",
+	years: "yr",
+	byte: "B",
+	bytes: "B",
+	kilobyte: "KB",
+	kilobytes: "KB",
+	megabyte: "MB",
+	megabytes: "MB",
+	gigabyte: "GB",
+	gigabytes: "GB",
+	terabyte: "TB",
+	terabytes: "TB",
+	hectare: "ha",
+	hectares: "ha",
+	acre: "acre",
+	acres: "acre",
+};
+
+function resolveAlias(unit: string): string {
+	return UNIT_ALIASES[unit.toLowerCase()] ?? unit;
+}
+
 function findCategory(unit: string): [string, ConversionTable] | null {
-	const lower = unit.toLowerCase();
+	const resolved = resolveAlias(unit);
+	const lower = resolved.toLowerCase();
 	for (const [name, table] of Object.entries(CATEGORIES)) {
 		if (lower in table) return [name, table];
 	}
@@ -166,7 +252,9 @@ function isTemperature(unit: string): boolean {
 }
 
 export function execute(input: Input): string {
-	const { value, from, to } = input;
+	const { value } = input;
+	const from = resolveAlias(input.from);
+	const to = resolveAlias(input.to);
 
 	// Temperature is special (not linear)
 	if (

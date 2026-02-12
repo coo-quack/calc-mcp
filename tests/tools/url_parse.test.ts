@@ -41,4 +41,11 @@ describe("url_parse", () => {
 	test("rejects invalid URL", () => {
 		expect(() => execute({ url: "not a url" })).toThrow();
 	});
+
+	test("auto-adds https:// protocol", () => {
+		const result = JSON.parse(execute({ url: "example.com/path" }));
+		expect(result.protocol).toBe("https:");
+		expect(result.hostname).toBe("example.com");
+		expect(result.href).toBe("https://example.com/path");
+	});
 });

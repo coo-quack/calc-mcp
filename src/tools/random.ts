@@ -118,7 +118,8 @@ function generatePassword(length: number, charset: string): string {
 }
 
 function generateRandomNumber(min: number, max: number): number {
-	if (min >= max) throw new Error("min must be less than max");
+	if (min > max) throw new Error("min must be less than or equal to max");
+	if (min === max) return min;
 	const range = max - min;
 	const array = new Uint32Array(1);
 	crypto.getRandomValues(array);

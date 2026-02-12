@@ -107,6 +107,38 @@ describe("datetime - format", () => {
 		expect(result).toContain("25");
 		expect(result).toContain("2025");
 	});
+
+	test("formats with date-fns pattern yyyy/MM/dd", () => {
+		const result = execute({
+			action: "format",
+			datetime: "2025-12-25T10:30:00Z",
+			timezone: "UTC",
+			format: "yyyy/MM/dd",
+		});
+		expect(result).toBe("2025/12/25");
+	});
+
+	test("formats with date-fns pattern yyyy-MM-dd HH:mm", () => {
+		const result = execute({
+			action: "format",
+			datetime: "2025-12-25T10:30:00Z",
+			timezone: "UTC",
+			format: "yyyy-MM-dd HH:mm",
+		});
+		expect(result).toBe("2025-12-25 10:30");
+	});
+
+	test("formats with short format", () => {
+		const result = execute({
+			action: "format",
+			datetime: "2025-12-25T10:30:00Z",
+			timezone: "UTC",
+			format: "short",
+		});
+		expect(result).toContain("Dec");
+		expect(result).toContain("25");
+		expect(result).toContain("2025");
+	});
 });
 
 describe("datetime - timestamp", () => {

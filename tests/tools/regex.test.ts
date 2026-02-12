@@ -64,4 +64,46 @@ describe("regex", () => {
 		);
 		expect(result.match).toBe(true);
 	});
+
+	test("match returns all matches with g flag", () => {
+		const result = JSON.parse(
+			execute({
+				pattern: "\\d+",
+				text: "a1b2c3",
+				action: "match",
+			}),
+		);
+		expect(result.matches).toEqual(["1", "2", "3"]);
+	});
+
+	test("match adds g flag automatically", () => {
+		const result = JSON.parse(
+			execute({
+				pattern: "\\d",
+				text: "a1b2c3",
+				action: "match",
+			}),
+		);
+		expect(result.matches).toHaveLength(3);
+	});
+
+	test("replace replaces all occurrences", () => {
+		const result = execute({
+			pattern: "\\d",
+			text: "a1b2c3",
+			action: "replace",
+			replacement: "X",
+		});
+		expect(result).toBe("aXbXcX");
+	});
+
+	test("replace adds g flag automatically", () => {
+		const result = execute({
+			pattern: "o",
+			text: "hello world",
+			action: "replace",
+			replacement: "O",
+		});
+		expect(result).toBe("hellO wOrld");
+	});
 });

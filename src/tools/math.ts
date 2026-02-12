@@ -1,6 +1,8 @@
-import { evaluate } from "mathjs";
+import { all, create } from "mathjs";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+
+const math = create(all, { number: "BigNumber", precision: 64 });
 
 const schema = {
 	expression: z.string().optional().describe("Math expression to evaluate"),
@@ -20,31 +22,37 @@ type Input = z.infer<typeof inputSchema>;
 function computeStatistics(values: number[]): string {
 	if (values.length === 0) throw new Error("values array is empty");
 
-	const sorted = [...values].sort((a, b) => a - b);
-	const sum = values.reduce((a, b) => a + b, 0);
-	const mean = sum / values.length;
-	const variance =
-		values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
-	const stddev = Math.sqrt(variance);
+	const bn = values.map((v) => math.bignumber(v));
+	const sorted = [...bn].sort((a, b) => a.comparedTo(b));
+	const sum = sorted.reduce((a, b) => math.add(a, b));
+	const mean = math.divide(sum, values.length);
+	const variance = math.divide(
+		bn.reduce(
+			(acc, v) => math.add(acc, math.pow(math.subtract(v, mean), 2)),
+			math.bignumber(0),
+		),
+		values.length,
+	);
+	const stddev = math.sqrt(variance);
 
-	let median: number;
 	const mid = Math.floor(sorted.length / 2);
-	if (sorted.length % 2 === 0) {
-		median = (sorted[mid - 1] + sorted[mid]) / 2;
-	} else {
-		median = sorted[mid];
-	}
+	const median =
+		sorted.length % 2 === 0
+			? math.divide(math.add(sorted[mid - 1], sorted[mid]), 2)
+			: sorted[mid];
+
+	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
 
 	return JSON.stringify(
 		{
 			count: values.length,
-			sum,
-			mean,
-			median,
-			min: sorted[0],
-			max: sorted[sorted.length - 1],
-			variance,
-			stddev,
+			sum: fmt(sum),
+			mean: fmt(mean),
+			median: fmt(median),
+			min: fmt(sorted[0]),
+			max: fmt(sorted[sorted.length - 1]),
+			variance: fmt(variance),
+			stddev: fmt(stddev),
 		},
 		null,
 		2,
@@ -61,8 +69,11 @@ export function execute(input: Input): string {
 
 	// eval
 	if (!input.expression) throw new Error("expression is required for eval");
-	const result = evaluate(input.expression);
-	return String(result);
+	const result = math.evaluate(input.expression);
+	if (result?.isInteger?.()) {
+		return result.toFixed(0);
+	}
+	return math.format(result, { precision: 14 });
 }
 
 export const tool: ToolDefinition = {

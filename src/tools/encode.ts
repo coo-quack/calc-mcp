@@ -46,10 +46,7 @@ function unicodeEncode(str: string): string {
 			if (code > 0xffff) {
 				return `\\u{${code.toString(16)}}`;
 			}
-			if (code > 0x7e || code < 0x20) {
-				return `\\u${code.toString(16).padStart(4, "0")}`;
-			}
-			return ch;
+			return `\\u${code.toString(16).padStart(4, "0")}`;
 		})
 		.join("");
 }

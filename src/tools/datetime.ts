@@ -1,3 +1,4 @@
+import { format as dateFnsFormat } from "date-fns";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -24,7 +25,7 @@ const schema = {
 		.string()
 		.optional()
 		.describe(
-			"Output format: iso, date, time, full, or Intl options like {dateStyle:long}",
+			"Output format: iso, date, time, full, short, or date-fns pattern (e.g. yyyy/MM/dd HH:mm), or Intl JSON options",
 		),
 	timestamp: z
 		.number()
@@ -70,6 +71,33 @@ function getOffsetString(date: Date, timezone: string): string {
 	return `${sign}${hours}:${minutes}`;
 }
 
+function toDateInTimezone(date: Date, timezone: string): Date {
+	const parts = new Intl.DateTimeFormat("en-US", {
+		timeZone: timezone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		fractionalSecondDigits: 3,
+		hour12: false,
+	}).formatToParts(date);
+
+	const get = (type: string) =>
+		Number.parseInt(parts.find((p) => p.type === type)?.value ?? "0", 10);
+	const hour = get("hour") === 24 ? 0 : get("hour");
+
+	return new Date(
+		get("year"),
+		get("month") - 1,
+		get("day"),
+		hour,
+		get("minute"),
+		get("second"),
+	);
+}
+
 function formatOutput(date: Date, timezone: string, format?: string): string {
 	const offset = getOffsetString(date, timezone);
 	const isoLocal = toISOInTimezone(date, timezone);
@@ -79,6 +107,16 @@ function formatOutput(date: Date, timezone: string, format?: string): string {
 			return isoLocal.split("T")[0];
 		case "time":
 			return `${isoLocal.split("T")[1]}${offset}`;
+		case "short":
+			return date.toLocaleString("en-US", {
+				timeZone: timezone,
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+				hour: "2-digit",
+				minute: "2-digit",
+				hour12: true,
+			});
 		case "full":
 			return date.toLocaleString("en-US", {
 				timeZone: timezone,
@@ -96,10 +134,20 @@ function formatOutput(date: Date, timezone: string, format?: string): string {
 		case undefined:
 			return `${isoLocal}${offset}`;
 		default: {
+			// Try as Intl.DateTimeFormatOptions JSON first
+			if (format.startsWith("{")) {
+				try {
+					const opts = JSON.parse(format) as Intl.DateTimeFormatOptions;
+					opts.timeZone = timezone;
+					return date.toLocaleString("en-US", opts);
+				} catch {
+					// fall through to date-fns
+				}
+			}
+			// Use date-fns format pattern (e.g. "yyyy/MM/dd HH:mm")
 			try {
-				const opts = JSON.parse(format) as Intl.DateTimeFormatOptions;
-				opts.timeZone = timezone;
-				return date.toLocaleString("en-US", opts);
+				const tzDate = toDateInTimezone(date, timezone);
+				return dateFnsFormat(tzDate, format);
 			} catch {
 				return `${isoLocal}${offset}`;
 			}
