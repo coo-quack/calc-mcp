@@ -102,11 +102,11 @@ describe("cron_parse", () => {
 		const withoutTz = JSON.parse(
 			execute({ expression: "0 0 * * *", count: 1 }),
 		);
-		const withUtc = JSON.parse(
-			execute({ expression: "0 0 * * *", count: 1, timezone: "UTC" }),
-		);
 
-		expect(withoutTz.nextOccurrences[0]).toBe(withUtc.nextOccurrences[0]);
+		// Verify the occurrence is at midnight UTC
+		const occurrence = new Date(withoutTz.nextOccurrences[0]);
+		expect(occurrence.getUTCHours()).toBe(0);
+		expect(occurrence.getUTCMinutes()).toBe(0);
 	});
 
 	test("throws clear error for invalid timezone", () => {
