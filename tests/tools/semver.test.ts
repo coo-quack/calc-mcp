@@ -204,4 +204,90 @@ describe("semver", () => {
 		);
 		expect(result.prerelease).toBe("alpha.1.beta.2");
 	});
+
+	test("satisfies OR range (||)", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "1.5.0",
+				range: "^2.0.0 || ^1.0.0",
+			}),
+		);
+		expect(result.satisfies).toBe(true);
+	});
+
+	test("does not satisfy OR range", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "3.0.0",
+				range: "^1.0.0 || ^2.0.0",
+			}),
+		);
+		expect(result.satisfies).toBe(false);
+	});
+
+	test("satisfies AND range (space-separated)", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "1.5.0",
+				range: ">=1.0.0 <2.0.0",
+			}),
+		);
+		expect(result.satisfies).toBe(true);
+	});
+
+	test("does not satisfy AND range", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "2.5.0",
+				range: ">=1.0.0 <2.0.0",
+			}),
+		);
+		expect(result.satisfies).toBe(false);
+	});
+
+	test("satisfies hyphen range", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "1.5.0",
+				range: "1.0.0 - 2.0.0",
+			}),
+		);
+		expect(result.satisfies).toBe(true);
+	});
+
+	test("satisfies hyphen range (boundary)", () => {
+		const result1 = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "1.0.0",
+				range: "1.0.0 - 2.0.0",
+			}),
+		);
+		expect(result1.satisfies).toBe(true);
+
+		const result2 = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "2.0.0",
+				range: "1.0.0 - 2.0.0",
+			}),
+		);
+		expect(result2.satisfies).toBe(true);
+	});
+
+	test("does not satisfy hyphen range", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "2.5.0",
+				range: "1.0.0 - 2.0.0",
+			}),
+		);
+		expect(result.satisfies).toBe(false);
+	});
 });

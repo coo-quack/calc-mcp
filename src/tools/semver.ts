@@ -77,6 +77,28 @@ function compare(a: SemVer, b: SemVer): number {
 function satisfies(version: SemVer, range: string): boolean {
 	const trimmed = range.trim();
 
+	// Handle OR (||)
+	if (trimmed.includes("||")) {
+		return trimmed.split("||").some((r) => satisfies(version, r.trim()));
+	}
+
+	// Handle AND (space-separated ranges like ">=1.0.0 <2.0.0")
+	const parts = trimmed.split(/\s+/);
+	if (parts.length > 1 && parts.every((p) => /^[><=~^]/.test(p))) {
+		return parts.every((p) => satisfies(version, p));
+	}
+
+	// Handle hyphen range (1.0.0 - 2.0.0)
+	const hyphenMatch = trimmed.match(/^(.+?)\s*-\s*(.+)$/);
+	if (hyphenMatch) {
+		const [, start, end] = hyphenMatch;
+		const startVer = parse(start);
+		const endVer = parse(end);
+		if (startVer && endVer) {
+			return compare(version, startVer) >= 0 && compare(version, endVer) <= 0;
+		}
+	}
+
 	// Exact match
 	const exact = parse(trimmed);
 	if (exact) return compare(version, exact) === 0;
