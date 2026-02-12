@@ -15,17 +15,54 @@ const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
 const TIMEOUT_MS = 1000;
+const MAX_PATTERN_LENGTH = 500;
+
+// Check for potentially dangerous ReDoS patterns
+function validatePattern(pattern: string): void {
+	if (pattern.length > MAX_PATTERN_LENGTH) {
+		throw new Error(
+			`Pattern too long (${pattern.length} chars, max: ${MAX_PATTERN_LENGTH})`,
+		);
+	}
+
+	// Detect common ReDoS patterns (nested quantifiers)
+	const dangerousPatterns = [
+		/\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
+		/\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
+		/\([^)]*\+[^)]*\)\*/, // (x+)* style nesting
+		/\([^)]*\*[^)]*\)\+/, // (x*)+ style nesting
+		/\([^)]*\{[^}]+\}[^)]*\)\{/, // ({n,m}){...} style nesting
+	];
+
+	for (const pattern_re of dangerousPatterns) {
+		if (pattern_re.test(pattern)) {
+			throw new Error(
+				"Pattern contains nested quantifiers (possible ReDoS risk)",
+			);
+		}
+	}
+}
 
 function withTimeout<T>(fn: () => T): T {
+	// Note: JavaScript regex operations are synchronous and cannot be truly interrupted.
+	// This timeout check happens *after* execution, so it won't prevent actual ReDoS attacks
+	// where the regex engine blocks for extended periods.
+	// The pattern validation above provides the main ReDoS protection.
 	const start = Date.now();
 	const result = fn();
-	if (Date.now() - start > TIMEOUT_MS) {
-		throw new Error("Regex execution timed out (possible ReDoS)");
+	const elapsed = Date.now() - start;
+	if (elapsed > TIMEOUT_MS) {
+		throw new Error(
+			`Regex execution took ${elapsed}ms (timeout: ${TIMEOUT_MS}ms, possible ReDoS)`,
+		);
 	}
 	return result;
 }
 
 export function execute(input: Input): string {
+	// Validate pattern for ReDoS risks
+	validatePattern(input.pattern);
+
 	let flags = input.flags ?? "";
 	if (input.action === "match" && !flags.includes("g")) {
 		flags = `g${flags}`;

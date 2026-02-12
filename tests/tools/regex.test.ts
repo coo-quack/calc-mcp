@@ -109,4 +109,45 @@ describe("regex", () => {
 		});
 		expect(result).toBe("hellO wOrld");
 	});
+
+	test("rejects pattern with nested quantifiers (x+)+", () => {
+		expect(() =>
+			execute({
+				pattern: "(a+)+",
+				text: "aaaaaaaaaaaaaaaaaaaaaa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("rejects pattern with nested quantifiers (x*)*", () => {
+		expect(() =>
+			execute({
+				pattern: "(a*)*",
+				text: "aaa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("rejects pattern with nested quantifiers (x+)*", () => {
+		expect(() =>
+			execute({
+				pattern: "(a+)*",
+				text: "aaa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("rejects overly long pattern", () => {
+		const longPattern = "a".repeat(501);
+		expect(() =>
+			execute({
+				pattern: longPattern,
+				text: "test",
+				action: "test",
+			}),
+		).toThrow(/too long/);
+	});
 });
