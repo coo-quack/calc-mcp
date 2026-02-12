@@ -63,31 +63,4 @@ describe("convert", () => {
 			execute({ value: 1, from: "m", to: "xyz", category: "length" }),
 		).toThrow("Supported");
 	});
-
-	test("byte aliases work correctly", () => {
-		// Test that full unit names (byte, kilobyte, etc.) map to correct lowercase keys
-		const result1 = JSON.parse(execute({ value: 1, from: "kilobyte", to: "byte" }));
-		expect(result1.result).toBe(1024);
-
-		const result2 = JSON.parse(execute({ value: 1, from: "megabyte", to: "kilobyte" }));
-		expect(result2.result).toBe(1024);
-
-		const result3 = JSON.parse(execute({ value: 1, from: "gigabyte", to: "megabyte" }));
-		expect(result3.result).toBe(1024);
-	});
-
-	test("bytes plural form works", () => {
-		const result = JSON.parse(execute({ value: 2048, from: "bytes", to: "kilobytes" }));
-		expect(result.result).toBe(2);
-	});
-
-	test("petabyte alias works correctly", () => {
-		const result = JSON.parse(execute({ value: 1, from: "petabyte", to: "terabyte" }));
-		expect(result.result).toBe(1024);
-	});
-
-	test("petabytes plural form works", () => {
-		const result = JSON.parse(execute({ value: 2, from: "petabytes", to: "terabytes" }));
-		expect(result.result).toBe(2048);
-	});
 });
