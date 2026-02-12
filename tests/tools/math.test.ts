@@ -42,4 +42,16 @@ describe("math", () => {
 		const result = execute({ expression: "det([1, 2; 3, 4])" });
 		expect(Number(result)).toBeCloseTo(-2);
 	});
+
+	test("0.1 + 0.2 returns exactly 0.3 (BigNumber precision)", () => {
+		expect(execute({ expression: "0.1 + 0.2" })).toBe("0.3");
+	});
+
+	test("0.1 * 0.1 returns exactly 0.01", () => {
+		expect(execute({ expression: "0.1 * 0.1" })).toBe("0.01");
+	});
+
+	test("large integer 2^53 + 1 is exact", () => {
+		expect(execute({ expression: "2^53 + 1" })).toBe("9007199254740993");
+	});
 });

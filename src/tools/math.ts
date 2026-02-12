@@ -1,6 +1,8 @@
-import { evaluate, format as mathFormat } from "mathjs";
+import { all, create } from "mathjs";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+
+const math = create(all, { number: "BigNumber", precision: 64 });
 
 const schema = {
 	expression: z.string().optional().describe("Math expression to evaluate"),
@@ -61,11 +63,11 @@ export function execute(input: Input): string {
 
 	// eval
 	if (!input.expression) throw new Error("expression is required for eval");
-	const result = evaluate(input.expression);
-	if (typeof result === "number") {
-		return mathFormat(result, { precision: 14 });
+	const result = math.evaluate(input.expression);
+	if (result?.isInteger?.()) {
+		return result.toFixed(0);
 	}
-	return String(result);
+	return math.format(result, { precision: 14 });
 }
 
 export const tool: ToolDefinition = {
