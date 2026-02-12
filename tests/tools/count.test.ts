@@ -78,4 +78,20 @@ describe("count", () => {
 		// ¥ = 1 byte, 100 = 3 bytes, ‾ = 1 byte, total = 5
 		expect(result.bytesShiftJis).toBe(5);
 	});
+
+	test("shift_jis: non-representable characters (emoji)", () => {
+		const result = JSON.parse(
+			execute({ text: "Hello😀World", encoding: "shift_jis" }),
+		);
+		// Hello = 5 bytes, 😀 = 1 byte (replacement), World = 5 bytes, total = 11
+		expect(result.bytesShiftJis).toBe(11);
+	});
+
+	test("shift_jis: supplementary plane character", () => {
+		const result = JSON.parse(
+			execute({ text: "𠮷", encoding: "shift_jis" }),
+		);
+		// Supplementary plane character → 1 byte replacement
+		expect(result.bytesShiftJis).toBe(1);
+	});
 });
