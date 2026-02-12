@@ -69,4 +69,72 @@ describe("cron_parse", () => {
 			"@reboot is not supported",
 		);
 	});
+
+	test("respects timezone parameter", () => {
+		// This test verifies that timezone affects the output
+		// Using a cron expression that runs at a specific hour
+		const utc = JSON.parse(
+			execute({ expression: "0 12 * * *", count: 1, timezone: "UTC" }),
+		);
+		const tokyo = JSON.parse(
+			execute({ expression: "0 12 * * *", count: 1, timezone: "Asia/Tokyo" }),
+		);
+
+		// The ISO timestamps should be different when interpreted in different timezones
+		expect(utc.nextOccurrences[0]).not.toBe(tokyo.nextOccurrences[0]);
+
+		// Verify the UTC result is actually at 12:00 UTC
+		const utcDate = new Date(utc.nextOccurrences[0]);
+		expect(utcDate.getUTCHours()).toBe(12);
+		expect(utcDate.getUTCMinutes()).toBe(0);
+
+		// Verify the Tokyo result is at 12:00 in Tokyo time (which is 03:00 UTC)
+		const tokyoDate = new Date(tokyo.nextOccurrences[0]);
+		const tokyoHour = new Intl.DateTimeFormat("en-US", {
+			timeZone: "Asia/Tokyo",
+			hour: "2-digit",
+			hour12: false,
+		}).format(tokyoDate);
+		expect(tokyoHour).toBe("12");
+	});
+
+	test("defaults to UTC when timezone not specified", () => {
+		const withoutTz = JSON.parse(
+			execute({ expression: "0 0 * * *", count: 1 }),
+		);
+
+		// Verify the occurrence is at midnight UTC
+		const occurrence = new Date(withoutTz.nextOccurrences[0]);
+		expect(occurrence.getUTCHours()).toBe(0);
+		expect(occurrence.getUTCMinutes()).toBe(0);
+	});
+
+	test("throws clear error for invalid timezone", () => {
+		expect(() =>
+			execute({ expression: "0 0 * * *", timezone: "Invalid/Timezone" }),
+		).toThrow(/Invalid timezone.*Invalid\/Timezone/);
+	});
+
+	test("handles midnight (hour 24) correctly", () => {
+		// Some Intl implementations return hour=24 at midnight instead of hour=0
+		// This test verifies that midnight cron schedules still match
+		const result = JSON.parse(
+			execute({
+				expression: "0 0 * * *",
+				count: 1,
+				timezone: "America/New_York",
+			}),
+		);
+
+		// Should find the next midnight occurrence
+		const date = new Date(result.nextOccurrences[0]);
+		const nyHour = new Intl.DateTimeFormat("en-US", {
+			timeZone: "America/New_York",
+			hour: "2-digit",
+			hour12: false,
+			hourCycle: "h23",
+		}).format(date);
+
+		expect(nyHour).toBe("00");
+	});
 });

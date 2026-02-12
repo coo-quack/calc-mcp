@@ -60,7 +60,11 @@ function parseField(field: string, min: number, max: number): CronField {
 	return { values };
 }
 
-function getNextOccurrences(fields: string[], count: number): Date[] {
+function getNextOccurrences(
+	fields: string[],
+	count: number,
+	timezone = "UTC",
+): Date[] {
 	const minute = parseField(fields[0], 0, 59);
 	const hour = parseField(fields[1], 0, 23);
 	const dom = parseField(fields[2], 1, 31);
@@ -69,9 +73,75 @@ function getNextOccurrences(fields: string[], count: number): Date[] {
 
 	const results: Date[] = [];
 	const now = new Date();
-	const current = new Date(now);
+
+	// Validate timezone early to provide clear error message
+	let formatter: Intl.DateTimeFormat;
+	try {
+		formatter = new Intl.DateTimeFormat("en-US", {
+			timeZone: timezone,
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		});
+	} catch (_error) {
+		throw new Error(
+			`Invalid timezone: "${timezone}". Must be a valid IANA timezone identifier.`,
+		);
+	}
+
+	// Reuse Map to avoid per-iteration allocations
+	const partMap = new Map<string, string>();
+
+	// Parse the formatted date to get components in the target timezone
+	function parseInTimezone(date: Date): {
+		year: number;
+		month: number;
+		day: number;
+		hour: number;
+		minute: number;
+		dow: number;
+	} {
+		const parts = formatter.formatToParts(date);
+
+		// Clear and rebuild lookup map
+		partMap.clear();
+		for (const part of parts) {
+			partMap.set(part.type, part.value);
+		}
+
+		const get = (type: string) => partMap.get(type) ?? "0";
+
+		const year = Number.parseInt(get("year"), 10);
+		const month = Number.parseInt(get("month"), 10);
+		const day = Number.parseInt(get("day"), 10);
+		let parsedHour = Number.parseInt(get("hour"), 10);
+		const parsedMinute = Number.parseInt(get("minute"), 10);
+
+		// Normalize potential "24" hour at midnight to 0 to ensure cron hour=0 matches
+		if (parsedHour === 24) {
+			parsedHour = 0;
+		}
+
+		// Compute day-of-week from the UTC date derived from year/month/day only,
+		// to avoid hour/minute parsing edge cases
+		const parsedDow = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+
+		return {
+			year,
+			month,
+			day,
+			hour: parsedHour,
+			minute: parsedMinute,
+			dow: parsedDow,
+		};
+	}
+
+	// Start from next minute in the target timezone
+	const current = new Date(now.getTime() + 60000);
 	current.setSeconds(0, 0);
-	current.setMinutes(current.getMinutes() + 1);
 
 	const maxIterations = 525600; // 1 year of minutes
 	let iterations = 0;
@@ -79,17 +149,19 @@ function getNextOccurrences(fields: string[], count: number): Date[] {
 	while (results.length < count && iterations < maxIterations) {
 		iterations++;
 
+		const parsed = parseInTimezone(current);
+
 		if (
-			month.values.has(current.getMonth() + 1) &&
-			dom.values.has(current.getDate()) &&
-			dow.values.has(current.getDay()) &&
-			hour.values.has(current.getHours()) &&
-			minute.values.has(current.getMinutes())
+			month.values.has(parsed.month) &&
+			dom.values.has(parsed.day) &&
+			dow.values.has(parsed.dow) &&
+			hour.values.has(parsed.hour) &&
+			minute.values.has(parsed.minute)
 		) {
 			results.push(new Date(current));
 		}
 
-		current.setMinutes(current.getMinutes() + 1);
+		current.setTime(current.getTime() + 60000); // Add 1 minute
 	}
 
 	return results;
@@ -113,7 +185,8 @@ export function execute(input: Input): string {
 	}
 
 	const count = input.count ?? 5;
-	const occurrences = getNextOccurrences(fields, count);
+	const timezone = input.timezone ?? "UTC";
+	const occurrences = getNextOccurrences(fields, count, timezone);
 
 	return JSON.stringify(
 		{
