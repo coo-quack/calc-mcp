@@ -7,7 +7,7 @@ Calc MCP works with any MCP-compatible client. Below are setup guides for popula
 The fastest way to add Calc MCP to Claude Code:
 
 ```bash
-claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp
 ```
 
 This adds the server to your user config (`~/.config/openclaw/config.yml`).
@@ -40,7 +40,7 @@ Add to your Claude Desktop config file:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
     }
   }
 }
@@ -57,7 +57,7 @@ Add to `~/.cursor/mcp.json`:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
     }
   }
 }
@@ -74,7 +74,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
     }
   }
 }
@@ -91,7 +91,7 @@ For workspace-specific setup, add `.vscode/mcp.json` in your project:
   "servers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
     }
   }
 }
@@ -104,7 +104,7 @@ Reload VS Code after creating the file.
 You can also run the server directly for testing:
 
 ```bash
-npx -y @coo-quack/calc-mcp
+npx --prefix /tmp -y @coo-quack/calc-mcp
 ```
 
 Or install globally:
@@ -134,12 +134,26 @@ Install from [nodejs.org](https://nodejs.org/) if needed.
 3. **Validate JSON** — use a JSON validator to check for syntax errors
 4. **Check logs** — Claude Desktop and other apps may have logs showing connection errors
 
+### "calc-mcp: command not found" inside a Node.js project
+
+If you run `npx` inside a directory that contains `node_modules`, npx may fail with:
+
+```
+sh: calc-mcp: command not found
+```
+
+This happens because npx resolves the scoped package locally but fails to link the binary correctly. All the examples on this page already include the fix (`--prefix /tmp`), which forces npx to use a separate directory for package resolution:
+
+```bash
+npx --prefix /tmp -y @coo-quack/calc-mcp
+```
+
 ### Version info
 
 To check the installed version:
 
 ```bash
-npx @coo-quack/calc-mcp --version
+npx --prefix /tmp @coo-quack/calc-mcp --version
 ```
 
 ## Next Steps
