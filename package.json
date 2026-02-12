@@ -1,6 +1,6 @@
 {
 	"name": "@coo-quack/calc-mcp",
-	"version": "1.7.1",
+	"version": "1.7.2",
 	"type": "module",
 	"bin": {
 		"calc-mcp": "dist/index.js"

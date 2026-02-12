@@ -2,6 +2,13 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.7.2 (2026-02-13)
+
+### Bug Fixes
+
+- **cron_parse** — Now respects the `timezone` parameter (was previously ignored; all calculations used local time)
+- **count** — Improve Shift_JIS byte calculation accuracy (handle ¥, ‾, and supplementary plane characters correctly)
+
 ## v1.7.1 (2026-02-12)
 
 ### Bug Fixes
