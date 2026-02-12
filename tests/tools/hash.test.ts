@@ -41,4 +41,47 @@ describe("hash", () => {
 	test("crc32 of empty string", () => {
 		expect(execute({ input: "", algorithm: "crc32" })).toBe("00000000");
 	});
+
+	test("hmac-sha256 with key", () => {
+		const result = execute({
+			input: "message",
+			algorithm: "sha256",
+			action: "hmac",
+			key: "secret",
+		});
+		expect(result).toBe(
+			"8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b",
+		);
+	});
+
+	test("hmac-sha512 with key", () => {
+		const result = execute({
+			input: "test",
+			algorithm: "sha512",
+			action: "hmac",
+			key: "key123",
+		});
+		expect(result).toHaveLength(128);
+	});
+
+	test("hmac requires key", () => {
+		expect(() =>
+			execute({
+				input: "test",
+				algorithm: "sha256",
+				action: "hmac",
+			}),
+		).toThrow(/key is required/);
+	});
+
+	test("crc32 does not support hmac", () => {
+		expect(() =>
+			execute({
+				input: "test",
+				algorithm: "crc32",
+				action: "hmac",
+				key: "secret",
+			}),
+		).toThrow(/CRC32 does not support HMAC/);
+	});
 });
