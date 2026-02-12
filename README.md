@@ -14,10 +14,10 @@ LLMs hallucinate calculations, can't generate true random numbers, and struggle 
 
 ```bash
 # Claude Code
-claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp
 
 # Or just run it
-npx -y @coo-quack/calc-mcp
+npx --prefix /tmp -y @coo-quack/calc-mcp
 ```
 
 > Works with Claude Desktop, VS Code Copilot, Cursor, Windsurf — [setup guides below](#install).
@@ -130,7 +130,7 @@ Ask in natural language — the AI picks the right tool automatically.
 ### Claude Code
 
 ```bash
-claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp
 ```
 
 ### Claude Desktop / Cursor / Windsurf
@@ -149,7 +149,7 @@ Add to your config file:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
     }
   }
 }
@@ -164,7 +164,7 @@ Add to `.vscode/mcp.json` in your workspace:
   "servers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
     }
   }
 }
