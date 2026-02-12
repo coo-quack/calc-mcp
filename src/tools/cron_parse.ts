@@ -92,6 +92,9 @@ function getNextOccurrences(
 		);
 	}
 
+	// Reuse Map to avoid per-iteration allocations
+	const partMap = new Map<string, string>();
+
 	// Parse the formatted date to get components in the target timezone
 	function parseInTimezone(date: Date): {
 		year: number;
@@ -103,8 +106,8 @@ function getNextOccurrences(
 	} {
 		const parts = formatter.formatToParts(date);
 
-		// Build lookup map to avoid multiple find() calls
-		const partMap = new Map<string, string>();
+		// Clear and rebuild lookup map
+		partMap.clear();
 		for (const part of parts) {
 			partMap.set(part.type, part.value);
 		}

@@ -132,6 +132,7 @@ describe("cron_parse", () => {
 			timeZone: "America/New_York",
 			hour: "2-digit",
 			hour12: false,
+			hourCycle: "h23",
 		}).format(date);
 
 		expect(nyHour).toBe("00");
