@@ -74,17 +74,23 @@ function getNextOccurrences(
 	const results: Date[] = [];
 	const now = new Date();
 
-	// Convert current time to the target timezone
-	const formatter = new Intl.DateTimeFormat("en-US", {
-		timeZone: timezone,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
+	// Validate timezone early to provide clear error message
+	let formatter: Intl.DateTimeFormat;
+	try {
+		formatter = new Intl.DateTimeFormat("en-US", {
+			timeZone: timezone,
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		});
+	} catch (_error) {
+		throw new Error(
+			`Invalid timezone: "${timezone}". Must be a valid IANA timezone identifier.`,
+		);
+	}
 
 	// Parse the formatted date to get components in the target timezone
 	function parseInTimezone(date: Date): {
@@ -96,18 +102,37 @@ function getNextOccurrences(
 		dow: number;
 	} {
 		const parts = formatter.formatToParts(date);
-		const get = (type: string) =>
-			parts.find((p) => p.type === type)?.value ?? "0";
+
+		// Build lookup map to avoid multiple find() calls
+		const partMap = new Map<string, string>();
+		for (const part of parts) {
+			partMap.set(part.type, part.value);
+		}
+
+		const get = (type: string) => partMap.get(type) ?? "0";
+
+		const year = Number.parseInt(get("year"), 10);
+		const month = Number.parseInt(get("month"), 10);
+		const day = Number.parseInt(get("day"), 10);
+		let parsedHour = Number.parseInt(get("hour"), 10);
+		const parsedMinute = Number.parseInt(get("minute"), 10);
+
+		// Normalize potential "24" hour at midnight to 0 to ensure cron hour=0 matches
+		if (parsedHour === 24) {
+			parsedHour = 0;
+		}
+
+		// Compute day-of-week from the UTC date derived from year/month/day only,
+		// to avoid hour/minute parsing edge cases
+		const parsedDow = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 
 		return {
-			year: Number.parseInt(get("year"), 10),
-			month: Number.parseInt(get("month"), 10),
-			day: Number.parseInt(get("day"), 10),
-			hour: Number.parseInt(get("hour"), 10),
-			minute: Number.parseInt(get("minute"), 10),
-			dow: new Date(
-				`${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:00Z`,
-			).getUTCDay(),
+			year,
+			month,
+			day,
+			hour: parsedHour,
+			minute: parsedMinute,
+			dow: parsedDow,
 		};
 	}
 

@@ -108,4 +108,32 @@ describe("cron_parse", () => {
 
 		expect(withoutTz.nextOccurrences[0]).toBe(withUtc.nextOccurrences[0]);
 	});
+
+	test("throws clear error for invalid timezone", () => {
+		expect(() =>
+			execute({ expression: "0 0 * * *", timezone: "Invalid/Timezone" }),
+		).toThrow(/Invalid timezone.*Invalid\/Timezone/);
+	});
+
+	test("handles midnight (hour 24) correctly", () => {
+		// Some Intl implementations return hour=24 at midnight instead of hour=0
+		// This test verifies that midnight cron schedules still match
+		const result = JSON.parse(
+			execute({
+				expression: "0 0 * * *",
+				count: 1,
+				timezone: "America/New_York",
+			}),
+		);
+
+		// Should find the next midnight occurrence
+		const date = new Date(result.nextOccurrences[0]);
+		const nyHour = new Intl.DateTimeFormat("en-US", {
+			timeZone: "America/New_York",
+			hour: "2-digit",
+			hour12: false,
+		}).format(date);
+
+		expect(nyHour).toBe("00");
+	});
 });
