@@ -128,9 +128,14 @@ describe("MCP Server E2E", () => {
 		assert.equal(text, "<div>");
 	});
 
-	it("encode — Unicode encode", async () => {
+	it("encode — Unicode encode (non-ASCII)", async () => {
 		const text = await callTool("encode", { input: "こんにちは", type: "unicode", action: "encode" });
 		assert.ok(text.includes("\\u"));
+	});
+
+	it("encode — Unicode encode (ASCII)", async () => {
+		const text = await callTool("encode", { input: "A", type: "unicode", action: "encode" });
+		assert.equal(text, "\\u0041");
 	});
 
 	it("encode — Unicode decode", async () => {
@@ -145,12 +150,31 @@ describe("MCP Server E2E", () => {
 		assert.match(text, /\d{4}/);
 	});
 
-	it("datetime — format", async () => {
+	it("datetime — format (default ISO)", async () => {
 		const text = await callTool("datetime", {
 			action: "format",
 			datetime: "2026-01-15T10:30:00Z",
 		});
 		assert.ok(text.includes("2026-01-15"));
+	});
+
+	it("datetime — format (date-fns pattern)", async () => {
+		const text = await callTool("datetime", {
+			action: "format",
+			datetime: "2026-01-15T10:30:00Z",
+			format: "yyyy/MM/dd",
+		});
+		assert.equal(text, "2026/01/15");
+	});
+
+	it("datetime — format (short)", async () => {
+		const text = await callTool("datetime", {
+			action: "format",
+			datetime: "2026-12-25T10:30:00Z",
+			timezone: "UTC",
+			format: "short",
+		});
+		assert.ok(text.includes("Dec") && text.includes("25"));
 	});
 
 	it("datetime — convert timezone", async () => {
@@ -523,6 +547,11 @@ describe("MCP Server E2E", () => {
 		const text = await callTool("random", { type: "number", min: 1, max: 100 });
 		const num = Number(text);
 		assert.ok(num >= 1 && num <= 100);
+	});
+
+	it("random — number (min equals max)", async () => {
+		const text = await callTool("random", { type: "number", min: 42, max: 42 });
+		assert.equal(Number(text), 42);
 	});
 
 	it("random — shuffle", async () => {

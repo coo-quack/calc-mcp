@@ -167,10 +167,15 @@ describe("random", () => {
 		expect(result).toBeLessThanOrEqual(20);
 	});
 
-	test("throws when min >= max", () => {
+	test("throws when min > max", () => {
 		expect(() => execute({ type: "number", min: 10, max: 5 })).toThrow(
-			"min must be less than max",
+			"min must be less than or equal to max",
 		);
+	});
+
+	test("returns the value when min === max", () => {
+		const result = Number(execute({ type: "number", min: 7, max: 7 }));
+		expect(result).toBe(7);
 	});
 
 	// Shuffle tests
