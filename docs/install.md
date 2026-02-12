@@ -7,7 +7,7 @@ Calc MCP works with any MCP-compatible client. Below are setup guides for popula
 The fastest way to add Calc MCP to Claude Code:
 
 ```bash
-claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
 This adds the server to your user config (`~/.config/openclaw/config.yml`).
@@ -40,7 +40,7 @@ Add to your Claude Desktop config file:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@latest"]
     }
   }
 }
@@ -57,7 +57,7 @@ Add to `~/.cursor/mcp.json`:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@latest"]
     }
   }
 }
@@ -74,7 +74,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@latest"]
     }
   }
 }
@@ -91,7 +91,7 @@ For workspace-specific setup, add `.vscode/mcp.json` in your project:
   "servers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@latest"]
     }
   }
 }
@@ -104,13 +104,13 @@ Reload VS Code after creating the file.
 You can also run the server directly for testing:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp
+npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
 Or install globally:
 
 ```bash
-npm install -g @coo-quack/calc-mcp
+npm install -g @coo-quack/calc-mcp@latest
 calc-mcp
 ```
 
@@ -145,7 +145,7 @@ sh: calc-mcp: command not found
 This happens because npx resolves the scoped package locally but fails to link the binary correctly. All the examples on this page already include the fix (`--prefix /tmp`), which forces npx to use a separate directory for package resolution:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp
+npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
 ### Version info
@@ -153,7 +153,7 @@ npx --prefix /tmp -y @coo-quack/calc-mcp
 To check the installed version:
 
 ```bash
-npx --prefix /tmp @coo-quack/calc-mcp --version
+npx --prefix /tmp @coo-quack/calc-mcp@latest --version
 ```
 
 ## Next Steps
