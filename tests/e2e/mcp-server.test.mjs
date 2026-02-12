@@ -40,6 +40,17 @@ async function callTool(name, args) {
 	return content[0].text;
 }
 
+async function callToolRaw(name, args) {
+	try {
+		const result = await client.callTool({ name, arguments: args });
+		const content = result.content;
+		if (!content || content.length === 0) return "";
+		return content[0].text;
+	} catch (e) {
+		return e.message || String(e);
+	}
+}
+
 // ─── Tool listing ───
 
 describe("MCP Server E2E", () => {
@@ -557,5 +568,312 @@ describe("MCP Server E2E", () => {
 	it("random — shuffle", async () => {
 		const text = await callTool("random", { type: "shuffle", items: ["a", "b", "c", "d"] });
 		assert.ok(text.includes("a") && text.includes("b") && text.includes("c") && text.includes("d"));
+	});
+
+	// ─── Error Handling ───
+
+	it("math — missing expression", async () => {
+		const text = await callToolRaw("math", {});
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("required"));
+	});
+
+	it("math — division by zero (1/0)", async () => {
+		const text = await callTool("math", { expression: "1/0" });
+		assert.ok(text.includes("Infinity"));
+	});
+
+	it("math — syntax error '2 +'", async () => {
+		const text = await callToolRaw("math", { expression: "2 +" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("syntax"));
+	});
+
+	it("hash — empty string", async () => {
+		const text = await callTool("hash", { input: "", algorithm: "md5" });
+		assert.equal(text, "d41d8cd98f00b204e9800998ecf8427e");
+	});
+
+	it("datetime — invalid date string 'not-a-date'", async () => {
+		const text = await callToolRaw("datetime", { action: "format", datetime: "not-a-date" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("date — invalid date '2026-13-01'", async () => {
+		const text = await callToolRaw("date", { action: "weekday", date: "2026-13-01" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("regex — invalid pattern '[invalid'", async () => {
+		const text = await callToolRaw("regex", { action: "test", text: "test", pattern: "[invalid" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("convert — unknown unit 'xyz'", async () => {
+		const text = await callToolRaw("convert", { value: 1, from: "xyz", to: "km" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("unknown") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("semver — invalid version 'not.a.version'", async () => {
+		const text = await callTool("semver", { action: "valid", version: "not.a.version" });
+		assert.ok(text.toLowerCase().includes("false") || text.toLowerCase().includes("invalid") || text === "null");
+	});
+
+	it("jwt_decode — completely invalid token 'not.a.jwt'", async () => {
+		const text = await callToolRaw("jwt_decode", { token: "not.a.jwt" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("random — min > max", async () => {
+		const text = await callToolRaw("random", { type: "number", min: 100, max: 10 });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("ip — invalid IP '999.999.999.999'", async () => {
+		const text = await callToolRaw("ip", { action: "info", ip: "999.999.999.999" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	it("color — invalid color 'notacolor'", async () => {
+		const text = await callToolRaw("color", { color: "notacolor", to: "rgb" });
+		assert.ok(text.toLowerCase().includes("error") || text.toLowerCase().includes("invalid"));
+	});
+
+	// ─── Edge Cases ───
+
+	it("base64 — Japanese text roundtrip", async () => {
+		const encoded = await callTool("base64", { input: "こんにちは", action: "encode" });
+		const decoded = await callTool("base64", { input: encoded, action: "decode" });
+		assert.equal(decoded, "こんにちは");
+	});
+
+	it("hash — empty string hashes (md5)", async () => {
+		const text = await callTool("hash", { input: "", algorithm: "md5" });
+		assert.equal(text, "d41d8cd98f00b204e9800998ecf8427e");
+	});
+
+	it("hash — Japanese text (multibyte input)", async () => {
+		const text = await callTool("hash", { input: "東京都", algorithm: "sha256" });
+		assert.ok(text.length === 64); // SHA-256 produces 64 hex chars
+	});
+
+	it("count — empty string", async () => {
+		const text = await callTool("count", { text: "" });
+		assert.ok(text.includes("0"));
+	});
+
+	it("count — Japanese text '東京都'", async () => {
+		const text = await callTool("count", { text: "東京都" });
+		assert.ok(text.includes("3"));
+	});
+
+	it("count — shift_jis encoding byte count for 'あいう'", async () => {
+		const text = await callTool("count", { text: "あいう", encoding: "shift_jis" });
+		assert.ok(text.includes("6")); // 3 chars × 2 bytes in Shift_JIS
+	});
+
+	it("math — complex expression with functions", async () => {
+		const text = await callTool("math", { expression: "sqrt(144) + pow(2, 10)" });
+		assert.ok(text.includes("1036"));
+	});
+
+	it("math — floating point precision '0.1 + 0.2'", async () => {
+		const text = await callTool("math", { expression: "0.1 + 0.2" });
+		const num = parseFloat(text);
+		assert.ok(Math.abs(num - 0.3) < 0.0001);
+	});
+
+	it("date — leap year Feb 29 add 1 year", async () => {
+		const text = await callTool("date", { action: "add", date: "2024-02-29", amount: 1, unit: "years" });
+		assert.ok(text.includes("2025-02-28"));
+	});
+
+	it("date — wareki era boundary (昭和64)", async () => {
+		const text = await callTool("date", { action: "wareki", date: "1989-01-07" });
+		assert.ok(text.includes("昭和") && text.includes("64"));
+	});
+
+	it("date — wareki era boundary (平成元)", async () => {
+		const text = await callTool("date", { action: "wareki", date: "1989-01-08" });
+		assert.ok(text.includes("平成") && text.includes("元"));
+	});
+
+	it("date — wareki era boundary (令和元)", async () => {
+		const text = await callTool("date", { action: "wareki", date: "2019-05-01" });
+		assert.ok(text.includes("令和") && text.includes("元"));
+	});
+
+	it("convert — same unit (km to km)", async () => {
+		const text = await callTool("convert", { value: 1, from: "km", to: "km" });
+		assert.ok(text.includes("1"));
+	});
+
+	it("convert — zero Celsius to Fahrenheit", async () => {
+		const text = await callTool("convert", { value: 0, from: "C", to: "F" });
+		assert.ok(text.includes("32"));
+	});
+
+	it("convert — negative temperature -40C = -40F", async () => {
+		const text = await callTool("convert", { value: -40, from: "C", to: "F" });
+		assert.ok(text.includes("-40"));
+	});
+
+	it("base — octal conversion (8 to 10, '77' → '63')", async () => {
+		const text = await callTool("base", { value: "77", from: 8, to: 10 });
+		assert.ok(text.includes("63"));
+	});
+
+	it("diff — identical strings", async () => {
+		const text = await callTool("diff", { text1: "hello", text2: "hello" });
+		// Identical strings should have minimal or empty diff
+		assert.ok(text.length < 50); // Should be short
+	});
+
+	it("diff — completely different strings", async () => {
+		const text = await callTool("diff", { text1: "abcdefgh", text2: "12345678" });
+		assert.ok(text.length > 0); // Should have differences
+	});
+
+	it("json_validate — CSV format", async () => {
+		const text = await callTool("json_validate", { input: "name,age\nJohn,30" });
+		assert.ok(text.toLowerCase().includes("invalid") || text.toLowerCase().includes("error"));
+	});
+
+	it("json_validate — XML format", async () => {
+		const text = await callTool("json_validate", { input: "<root><item>test</item></root>" });
+		assert.ok(text.toLowerCase().includes("invalid") || text.toLowerCase().includes("error"));
+	});
+
+	it("json_validate — YAML format", async () => {
+		const text = await callTool("json_validate", { input: "key: value\nlist:\n  - item1" });
+		assert.ok(text.toLowerCase().includes("invalid") || text.toLowerCase().includes("error"));
+	});
+
+	it("regex — global replace with flags 'g'", async () => {
+		const text = await callTool("regex", { action: "replace", text: "a1b2c3", pattern: "\\d", replacement: "X", flags: "g" });
+		assert.ok(text.includes("aXbXcX"));
+	});
+
+	it("semver — prerelease version '1.0.0-beta.1' is valid", async () => {
+		const text = await callTool("semver", { action: "valid", version: "1.0.0-beta.1" });
+		assert.ok(text.includes("1.0.0-beta.1") || text.toLowerCase().includes("valid"));
+	});
+
+	it("semver — satisfies with prerelease range", async () => {
+		const text = await callTool("semver", { action: "satisfies", version: "1.0.0-beta.1", range: ">=1.0.0-beta" });
+		assert.ok(text.toLowerCase().includes("true") || text.toLowerCase().includes("satisf"));
+	});
+
+	it("random — password with length 1", async () => {
+		const text = await callTool("random", { type: "password", length: 1 });
+		assert.equal(text.length, 1);
+	});
+
+	it("random — password with no symbols", async () => {
+		const text = await callTool("random", { type: "password", length: 20, symbols: false });
+		assert.equal(text.length, 20);
+		assert.ok(!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(text));
+	});
+
+	it("url_parse — minimal URL 'http://a.com'", async () => {
+		const text = await callTool("url_parse", { url: "http://a.com" });
+		assert.ok(text.includes("a.com"));
+	});
+
+	it("url_parse — URL with unicode path", async () => {
+		const text = await callTool("url_parse", { url: "https://example.com/日本語/パス" });
+		assert.ok(text.includes("example.com"));
+	});
+
+	it("ip — contains - out of range returns false", async () => {
+		const text = await callTool("ip", { action: "contains", cidr: "192.168.1.0/24", target: "10.0.0.1" });
+		assert.ok(text.toLowerCase().includes("false") || text.toLowerCase().includes("no") || !text.toLowerCase().includes("true"));
+	});
+
+	it("ip — IPv6 info", async () => {
+		const text = await callTool("ip", { action: "info", ip: "2001:4860:4860::8888" });
+		assert.ok(text.includes("2001") || text.includes("IPv6"));
+	});
+
+	it("color — rgb to hsl conversion", async () => {
+		const text = await callTool("color", { color: "rgb(128, 128, 128)", to: "hsl" });
+		assert.ok(text.toLowerCase().includes("hsl") || text.includes("0"));
+	});
+
+	it("char_info — multibyte Japanese character", async () => {
+		const text = await callTool("char_info", { char: "漢" });
+		assert.ok(text.includes("U+") || text.includes("6F22"));
+	});
+
+	// ─── Real-world AI Use Cases ───
+
+	it("datetime — format in Asia/Tokyo timezone with pattern", async () => {
+		const text = await callTool("datetime", {
+			action: "format",
+			datetime: "2026-01-15T10:00:00Z",
+			timezone: "Asia/Tokyo",
+			format: "yyyy-MM-dd HH:mm:ss"
+		});
+		assert.ok(text.includes("2026-01-15") && text.includes("19:00"));
+	});
+
+	it("datetime — 'what day of the week is 2026-12-25?'", async () => {
+		const text = await callTool("date", { action: "weekday", date: "2026-12-25" });
+		assert.ok(text.toLowerCase().includes("fri"));
+	});
+
+	it("math — percentage calculation '15% of 2500'", async () => {
+		const text = await callTool("math", { expression: "2500 * 0.15" });
+		assert.ok(text.includes("375"));
+	});
+
+	it("math — compound interest '(1 + 0.05)^10 * 1000'", async () => {
+		const text = await callTool("math", { expression: "(1 + 0.05)^10 * 1000" });
+		const num = parseFloat(text);
+		assert.ok(num > 1628 && num < 1629);
+	});
+
+	it("count — count bytes of Japanese text (UTF-8: 東京 = 6 bytes)", async () => {
+		const text = await callTool("count", { text: "東京", encoding: "utf-8" });
+		assert.ok(text.includes("6"));
+	});
+
+	it("hash — verify password hash (same input = same result)", async () => {
+		const hash1 = await callTool("hash", { input: "mypassword123", algorithm: "sha256" });
+		const hash2 = await callTool("hash", { input: "mypassword123", algorithm: "sha256" });
+		assert.equal(hash1, hash2);
+	});
+
+	it("base64 — encode URL-unsafe characters", async () => {
+		const text = await callTool("base64", { input: "hello+world/test=", action: "encode" });
+		const decoded = await callTool("base64", { input: text, action: "decode" });
+		assert.equal(decoded, "hello+world/test=");
+	});
+
+	it("encode — roundtrip URL encode/decode with special chars", async () => {
+		const encoded = await callTool("encode", { input: "&foo=bar baz", type: "url", action: "encode" });
+		assert.ok(encoded.includes("%"));
+		const decoded = await callTool("encode", { input: encoded, type: "url", action: "decode" });
+		assert.equal(decoded, "&foo=bar baz");
+	});
+
+	it("convert — speed (km/h to m/s)", async () => {
+		const text = await callTool("convert", { value: 100, from: "km/h", to: "m/s" });
+		assert.ok(text.includes("27.7") || text.includes("27.8"));
+	});
+
+	it("json_validate — validate API response structure", async () => {
+		const input = '{"status": "success", "data": {"id": 123, "name": "Test"}}';
+		const schema = '{"type": "object", "properties": {"status": {"type": "string"}, "data": {"type": "object"}}, "required": ["status", "data"]}';
+		const text = await callTool("json_validate", { input, schema });
+		assert.ok(text.toLowerCase().includes("valid"));
+	});
+
+	it("cron_parse — complex cron (business hours)", async () => {
+		const text = await callTool("cron_parse", { expression: "0 9-17 * * 1-5" });
+		assert.ok(text.includes("9") || text.includes("17") || text.toLowerCase().includes("weekday"));
+	});
+
+	it("luhn — validate real-world card format with spaces", async () => {
+		const text = await callTool("luhn", { number: "4532 0151 1283 0366" });
+		assert.ok(text.toLowerCase().includes("valid") || text.toLowerCase().includes("true"));
 	});
 });
