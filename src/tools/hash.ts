@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -32,9 +33,7 @@ export function execute(input: Input): string {
 	if (input.algorithm === "crc32") {
 		return crc32(input.input);
 	}
-	const hasher = new Bun.CryptoHasher(input.algorithm);
-	hasher.update(input.input);
-	return hasher.digest("hex");
+	return createHash(input.algorithm).update(input.input).digest("hex");
 }
 
 export const tool: ToolDefinition = {
