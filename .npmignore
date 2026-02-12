@@ -1,7 +1,10 @@
 src/
 tests/
+docs/
 bun.lock
 biome.json
 renovate.json
 tsconfig.json
 .github/
+*.jpg
+*.png

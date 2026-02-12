@@ -2,6 +2,13 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.6.2 (2026-02-12)
+
+### Fixes
+
+- **ci** — Publish workflow now skips tag/release creation if already exists (idempotent) (#20)
+- **npm** — Trim package size by excluding docs, images from npm tarball (#20)
+
 ## v1.6.1 (2026-02-12)
 
 ### Bug Fixes

@@ -53,8 +53,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           VERSION="v${{ needs.check.outputs.version }}"
-          git tag "$VERSION"
-          git push origin "$VERSION"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists, skipping"
+          else
+            git tag "$VERSION"
+            git push origin "$VERSION"
+          fi
 
       - name: Extract changelog
         id: changelog
@@ -73,6 +77,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="v${{ needs.check.outputs.version }}"
-          gh release create "$VERSION" \
-            --title "$VERSION" \
-            --notes-file /tmp/release-notes.md
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists, skipping"
+          else
+            gh release create "$VERSION" \
+              --title "$VERSION" \
+              --notes-file /tmp/release-notes.md
+          fi
