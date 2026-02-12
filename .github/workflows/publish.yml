@@ -53,7 +53,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           VERSION="v${{ needs.check.outputs.version }}"
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+          if git ls-remote --tags origin "$VERSION" | grep -q "$VERSION"; then
             echo "Tag $VERSION already exists, skipping"
           else
             git tag "$VERSION"
