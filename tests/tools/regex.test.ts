@@ -47,10 +47,13 @@ describe("regex", () => {
 		expect(result).toBe("hello earth");
 	});
 
-	test("matchAll requires g flag", () => {
-		expect(() =>
-			execute({ pattern: "\\d+", text: "abc", action: "matchAll" }),
-		).toThrow("matchAll requires the 'g' flag");
+	test("matchAll adds g flag automatically", () => {
+		const result = JSON.parse(
+			execute({ pattern: "\\d+", text: "a1b2c3", action: "matchAll" }),
+		);
+		expect(result).toHaveLength(3);
+		expect(result[0].match).toBe("1");
+		expect(result[2].match).toBe("3");
 	});
 
 	test("works with flags", () => {

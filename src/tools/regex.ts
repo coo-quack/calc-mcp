@@ -33,6 +33,9 @@ export function execute(input: Input): string {
 	if (input.action === "replace" && !flags.includes("g")) {
 		flags = `g${flags}`;
 	}
+	if (input.action === "matchAll" && !flags.includes("g")) {
+		flags = `g${flags}`;
+	}
 	const regex = new RegExp(input.pattern, flags);
 
 	switch (input.action) {
@@ -52,9 +55,6 @@ export function execute(input: Input): string {
 			});
 		}
 		case "matchAll": {
-			if (!input.flags?.includes("g")) {
-				throw new Error("matchAll requires the 'g' flag");
-			}
 			const matches = withTimeout(() => [...input.text.matchAll(regex)]);
 			return JSON.stringify(
 				matches.map((m) => ({
