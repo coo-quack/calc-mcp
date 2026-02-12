@@ -80,4 +80,14 @@ describe("convert", () => {
 		const result = JSON.parse(execute({ value: 2048, from: "bytes", to: "kilobytes" }));
 		expect(result.result).toBe(2);
 	});
+
+	test("petabyte alias works correctly", () => {
+		const result = JSON.parse(execute({ value: 1, from: "petabyte", to: "terabyte" }));
+		expect(result.result).toBe(1024);
+	});
+
+	test("petabytes plural form works", () => {
+		const result = JSON.parse(execute({ value: 2, from: "petabytes", to: "terabytes" }));
+		expect(result.result).toBe(2048);
+	});
 });
