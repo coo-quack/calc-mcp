@@ -53,4 +53,47 @@ describe("color", () => {
 		expect(execute({ color: "RED", to: "hex" })).toBe("#ff0000");
 		expect(execute({ color: "Blue", to: "hex" })).toBe("#0000ff");
 	});
+
+	test("parses 8-digit hex with alpha", () => {
+		const result = execute({ color: "#ff000080", to: "rgb" });
+		expect(result).toBe("rgba(255, 0, 0, 0.5019607843137255)");
+	});
+
+	test("converts 8-digit hex to hex (preserves alpha)", () => {
+		const result = execute({ color: "#ff000080", to: "hex" });
+		expect(result).toBe("#ff000080");
+	});
+
+	test("parses 4-digit hex shorthand with alpha", () => {
+		const result = execute({ color: "#f008", to: "hex" });
+		expect(result).toBe("#ff000088");
+	});
+
+	test("parses rgba", () => {
+		const result = execute({ color: "rgba(255, 0, 0, 0.5)", to: "rgb" });
+		expect(result).toBe("rgba(255, 0, 0, 0.5)");
+	});
+
+	test("parses hsla", () => {
+		const result = execute({ color: "hsla(0, 100%, 50%, 0.8)", to: "hsl" });
+		expect(result).toBe("hsla(0, 100%, 50%, 0.8)");
+	});
+
+	test("converts rgba to hex with alpha", () => {
+		const result = execute({ color: "rgba(255, 0, 0, 0.5)", to: "hex" });
+		expect(result).toBe("#ff000080");
+	});
+
+	test("converts hsla to hex with alpha", () => {
+		const result = execute({ color: "hsla(120, 100%, 50%, 0.25)", to: "hex" });
+		expect(result).toBe("#00ff0040");
+	});
+
+	test("returns all formats with alpha", () => {
+		const result = JSON.parse(execute({ color: "#ff000080" }));
+		expect(result.hex).toBe("#ff000080");
+		expect(result.rgb).toContain("rgba");
+		expect(result.hsl).toContain("hsla");
+		expect(result.values.a).toBeCloseTo(0.5, 1);
+	});
 });
