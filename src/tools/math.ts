@@ -1,4 +1,4 @@
-import { evaluate } from "mathjs";
+import { evaluate, format as mathFormat } from "mathjs";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -62,6 +62,9 @@ export function execute(input: Input): string {
 	// eval
 	if (!input.expression) throw new Error("expression is required for eval");
 	const result = evaluate(input.expression);
+	if (typeof result === "number") {
+		return mathFormat(result, { precision: 14 });
+	}
 	return String(result);
 }
 

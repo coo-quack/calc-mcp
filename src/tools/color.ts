@@ -24,7 +24,7 @@ interface HSL {
 }
 
 function parseColor(color: string): RGB {
-	const trimmed = color.trim();
+	const trimmed = color.trim().toLowerCase();
 
 	// HEX
 	const hexMatch = trimmed.match(/^#?([0-9a-fA-F]{3,8})$/);

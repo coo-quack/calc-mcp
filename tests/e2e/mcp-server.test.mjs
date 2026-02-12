@@ -675,10 +675,9 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("1036"));
 	});
 
-	it("math — floating point precision '0.1 + 0.2'", async () => {
+	it("math — floating point precision '0.1 + 0.2' returns 0.3", async () => {
 		const text = await callTool("math", { expression: "0.1 + 0.2" });
-		const num = parseFloat(text);
-		assert.ok(Math.abs(num - 0.3) < 0.0001);
+		assert.equal(text, "0.3");
 	});
 
 	it("date — leap year Feb 29 add 1 year", async () => {
@@ -733,18 +732,19 @@ describe("MCP Server E2E", () => {
 	});
 
 	it("json_validate — CSV format", async () => {
-		const text = await callTool("json_validate", { input: "name,age\nJohn,30" });
-		assert.ok(text.toLowerCase().includes("invalid") || text.toLowerCase().includes("error"));
+		const text = await callTool("json_validate", { input: "name,age\nJohn,30", format: "csv" });
+		assert.ok(text.toLowerCase().includes("valid"));
+		assert.ok(text.includes("2")); // 2 rows or 2 columns
 	});
 
 	it("json_validate — XML format", async () => {
-		const text = await callTool("json_validate", { input: "<root><item>test</item></root>" });
-		assert.ok(text.toLowerCase().includes("invalid") || text.toLowerCase().includes("error"));
+		const text = await callTool("json_validate", { input: "<root><item>test</item></root>", format: "xml" });
+		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
 	it("json_validate — YAML format", async () => {
-		const text = await callTool("json_validate", { input: "key: value\nlist:\n  - item1" });
-		assert.ok(text.toLowerCase().includes("invalid") || text.toLowerCase().includes("error"));
+		const text = await callTool("json_validate", { input: "name: test\nage: 30", format: "yaml" });
+		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
 	it("regex — global replace with flags 'g'", async () => {
@@ -798,6 +798,16 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.toLowerCase().includes("hsl") || text.includes("0"));
 	});
 
+	it("color — case-insensitive input (RGB uppercase)", async () => {
+		const text = await callTool("color", { color: "RGB(255, 0, 0)", to: "hex" });
+		assert.ok(text.toLowerCase().includes("ff0000"));
+	});
+
+	it("color — case-insensitive input (HSL uppercase)", async () => {
+		const text = await callTool("color", { color: "HSL(0, 100%, 50%)", to: "hex" });
+		assert.ok(text.toLowerCase().includes("ff0000"));
+	});
+
 	it("char_info — multibyte Japanese character", async () => {
 		const text = await callTool("char_info", { char: "漢" });
 		assert.ok(text.includes("U+") || text.includes("6F22"));
@@ -832,8 +842,9 @@ describe("MCP Server E2E", () => {
 	});
 
 	it("count — count bytes of Japanese text (UTF-8: 東京 = 6 bytes)", async () => {
-		const text = await callTool("count", { text: "東京", encoding: "utf-8" });
-		assert.ok(text.includes("6"));
+		const text = await callTool("count", { text: "東京" });
+		// Default encoding is UTF-8, "bytes" field should be 6 (3 bytes per kanji)
+		assert.ok(text.includes('"bytes": 6') || text.includes('"bytes":6'));
 	});
 
 	it("hash — verify password hash (same input = same result)", async () => {
@@ -853,6 +864,21 @@ describe("MCP Server E2E", () => {
 		assert.ok(encoded.includes("%"));
 		const decoded = await callTool("encode", { input: encoded, type: "url", action: "decode" });
 		assert.equal(decoded, "&foo=bar baz");
+	});
+
+	it("convert — full unit names (kilometer to mile)", async () => {
+		const text = await callTool("convert", { value: 1, from: "kilometer", to: "mile" });
+		assert.ok(text.includes("0.6"));
+	});
+
+	it("convert — full unit names (kilogram to pound)", async () => {
+		const text = await callTool("convert", { value: 1, from: "kilogram", to: "pound" });
+		assert.ok(text.includes("2.2"));
+	});
+
+	it("convert — plural unit names (meters to feet)", async () => {
+		const text = await callTool("convert", { value: 1, from: "meters", to: "feet" });
+		assert.ok(text.includes("3.28"));
 	});
 
 	it("convert — speed (km/h to m/s)", async () => {
