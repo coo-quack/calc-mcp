@@ -7,7 +7,7 @@
 	},
 	"scripts": {
 		"dev": "bun run src/index.ts",
-		"build": "bun build src/index.ts --outdir dist --target node && printf '#!/usr/bin/env node\\n' | cat - dist/index.js > dist/tmp && mv dist/tmp dist/index.js && chmod +x dist/index.js",
+		"build": "bun build src/index.ts --outdir dist --target node --sourcemap=external --minify && printf '#!/usr/bin/env node\\n' | cat - dist/index.js > dist/tmp && mv dist/tmp dist/index.js && chmod +x dist/index.js",
 		"test": "bun test",
 		"lint": "biome check .",
 		"format": "biome format . --write",
