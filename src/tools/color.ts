@@ -184,7 +184,9 @@ function parseColor(color: string): RGB {
 	}
 
 	// HEX (3, 4, 6, or 8 digits only)
-	const hexMatch = trimmed.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/);
+	const hexMatch = trimmed.match(
+		/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
+	);
 	if (hexMatch) {
 		let hex = hexMatch[1];
 		let alpha: number | undefined;
@@ -367,8 +369,8 @@ export function execute(input: Input): string {
 		s: hsl.s,
 		l: hsl.l,
 	};
-	if (hasAlpha) {
-		values.a = rgb.a!;
+	if (hasAlpha && rgb.a !== undefined) {
+		values.a = rgb.a;
 	}
 
 	return JSON.stringify({
