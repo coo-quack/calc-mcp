@@ -17,6 +17,15 @@ type Input = z.infer<typeof inputSchema>;
 const TIMEOUT_MS = 1000;
 const MAX_PATTERN_LENGTH = 500;
 
+// Detect common ReDoS patterns (nested quantifiers)
+const DANGEROUS_PATTERNS = [
+	/\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
+	/\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
+	/\([^)]*\+[^)]*\)\*/, // (x+)* style nesting
+	/\([^)]*\*[^)]*\)\+/, // (x*)+ style nesting
+	/\([^)]*\{[^}]+\}[^)]*\)\{/, // ({n,m}){...} style nesting
+];
+
 // Check for potentially dangerous ReDoS patterns
 function validatePattern(pattern: string): void {
 	if (pattern.length > MAX_PATTERN_LENGTH) {
@@ -25,17 +34,8 @@ function validatePattern(pattern: string): void {
 		);
 	}
 
-	// Detect common ReDoS patterns (nested quantifiers)
-	const dangerousPatterns = [
-		/\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
-		/\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
-		/\([^)]*\+[^)]*\)\*/, // (x+)* style nesting
-		/\([^)]*\*[^)]*\)\+/, // (x*)+ style nesting
-		/\([^)]*\{[^}]+\}[^)]*\)\{/, // ({n,m}){...} style nesting
-	];
-
-	for (const pattern_re of dangerousPatterns) {
-		if (pattern_re.test(pattern)) {
+	for (const dangerousPattern of DANGEROUS_PATTERNS) {
+		if (dangerousPattern.test(pattern)) {
 			throw new Error(
 				"Pattern contains nested quantifiers (possible ReDoS risk)",
 			);

@@ -140,6 +140,26 @@ describe("regex", () => {
 		).toThrow(/nested quantifiers/);
 	});
 
+	test("rejects pattern with nested quantifiers ({n,m}){...}", () => {
+		expect(() =>
+			execute({
+				pattern: "(a{1,3}){2}",
+				text: "aa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("allows pattern with single quantified group ({n,m})", () => {
+		expect(() =>
+			execute({
+				pattern: "(a{1,3})b",
+				text: "aaab",
+				action: "test",
+			}),
+		).not.toThrow();
+	});
+
 	test("rejects overly long pattern", () => {
 		const longPattern = "a".repeat(501);
 		expect(() =>
