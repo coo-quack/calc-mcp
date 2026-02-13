@@ -87,7 +87,10 @@ export function execute(input: Input): string {
 	if (!input.expression) throw new Error("expression is required for eval");
 
 	// Check for dangerous patterns before evaluation
-	// (includes additional runtime checks beyond the filtered functions)
+	// Note: mathjs uses its own parser and does not support JavaScript syntax
+	// like bracket notation (['import']) or global objects (window).
+	// This simple string check is sufficient because mathjs will reject
+	// any JavaScript-style code injection attempts as syntax errors.
 	const runtimeDangerousPatterns = [...dangerousFunctions, "eval", "Function"];
 	for (const pattern of runtimeDangerousPatterns) {
 		if (input.expression.includes(pattern)) {
