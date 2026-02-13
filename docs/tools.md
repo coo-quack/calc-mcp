@@ -190,17 +190,17 @@ When does "30 9 * * 1-5" run?
 
 ### hash
 
-Compute cryptographic hashes or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32.
+Compute cryptographic hashes or HMAC signatures (MD5, SHA-1, SHA-256, SHA-512) or a non-cryptographic checksum (CRC32).
 
 :::warning Security Notice
-MD5 and SHA1 are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
+MD5 and SHA1 are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications. CRC32 is a checksum and is **not** cryptographically secure; use it only for non-security-sensitive integrity checks.
 :::
 
 **Parameters:**
-- `input` (string) — String to hash
+- `input` (string) — String to hash or checksum
 - `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32`
-- `action` (enum, optional) — `hash` (default) or `hmac`
-- `key` (string, optional) — Secret key for HMAC (required when action=hmac)
+- `action` (enum, optional) — `hash` (default) or `hmac` (HMAC is only supported with `md5`, `sha1`, `sha256`, or `sha512`, not `crc32`)
+- `key` (string, optional) — Secret key for HMAC (required when `action=hmac` with a supported cryptographic hash; HMAC is not available with `crc32`)
 
 **Examples:**
 ```
@@ -344,7 +344,7 @@ Generate check digit for 453957876362148
 
 Semantic versioning operations: compare, validate, or check range satisfaction.
 
-Supports npm-style complex ranges: OR (`||`), AND (space-separated), and hyphen ranges.
+Supports a subset of npm-style range operators: OR (`||`), AND (space-separated), hyphen ranges, `^`, `~`, basic comparators, and limited wildcards.
 
 **Parameters:**
 - `action` (enum) — `compare`, `valid`, or `satisfies`
@@ -406,7 +406,7 @@ Convert rgb(100, 200, 50) to HSL
 → hsl(100, 60%, 49%)
 
 Convert #FF573380 to RGBA (8-digit HEX with alpha)
-→ rgba(255, 87, 51, 0.502)
+→ rgba(255, 87, 51, 0.5019607843137255)
 
 Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
 → #ff000080

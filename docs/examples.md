@@ -341,7 +341,7 @@ Convert hsl(120, 100%, 50%) to HEX
 → #00FF00 (color)
 
 Convert #FF573380 to RGBA (8-digit HEX with 50% opacity)
-→ rgba(255, 87, 51, 0.502) (color)
+→ rgba(255, 87, 51, 0.5019607843137255) (color)
 
 Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
 → #ff000080 (color)
