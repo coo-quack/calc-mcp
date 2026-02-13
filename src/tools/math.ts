@@ -76,7 +76,7 @@ function computeStatistics(values: number[]): string {
 	const sortedMidPrev = sorted[mid - 1];
 	const median =
 		sorted.length % 2 === 0 && sortedMidPrev && sortedMid
-			? math.divide(math.add(sortedMidPrev as any, sortedMid as any) as any, 2)
+			? (math.divide(math.add(sortedMidPrev, sortedMid), 2) as number)
 			: sortedMid;
 
 	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
