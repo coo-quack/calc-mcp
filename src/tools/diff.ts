@@ -28,7 +28,12 @@ function lcs(a: string[], b: string[]): boolean[][] {
 			const prevRowCurrCol = prevRow[j];
 			const currRowPrevCol = currRow[j - 1];
 			const prevRowPrevCol = prevRow[j - 1];
-			if (prevRowCurrCol === undefined || currRowPrevCol === undefined || prevRowPrevCol === undefined) continue;
+			if (
+				prevRowCurrCol === undefined ||
+				currRowPrevCol === undefined ||
+				prevRowPrevCol === undefined
+			)
+				continue;
 
 			if (a[i - 1] === b[j - 1]) {
 				currRow[j] = prevRowPrevCol + 1;
@@ -89,7 +94,11 @@ function lineDiff(text1: string, text2: string): string {
 		if (i < lines1.length && inLcs1Val === false && line1 !== undefined) {
 			output.push(`- ${line1}`);
 			i++;
-		} else if (j < lines2.length && inLcs2Val === false && line2 !== undefined) {
+		} else if (
+			j < lines2.length &&
+			inLcs2Val === false &&
+			line2 !== undefined
+		) {
 			output.push(`+ ${line2}`);
 			j++;
 		} else {
@@ -129,12 +138,13 @@ function levenshteinDistance(s: string, t: string): number {
 			const currJPrev = currRow[j - 1];
 			const prevJ = prevRow[j];
 			const prevJPrev = prevRow[j - 1];
-			if (currJPrev === undefined || prevJ === undefined || prevJPrev === undefined) continue;
-			currRow[j] = Math.min(
-				prevJ + 1,
-				currJPrev + 1,
-				prevJPrev + cost,
-			);
+			if (
+				currJPrev === undefined ||
+				prevJ === undefined ||
+				prevJPrev === undefined
+			)
+				continue;
+			currRow[j] = Math.min(prevJ + 1, currJPrev + 1, prevJPrev + cost);
 		}
 	}
 

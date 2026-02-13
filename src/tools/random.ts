@@ -124,7 +124,8 @@ function generateRandomNumber(min: number, max: number): number {
 	const array = new Uint32Array(1);
 	crypto.getRandomValues(array);
 	const randomValue = array[0];
-	if (randomValue === undefined) throw new Error("Failed to generate random value");
+	if (randomValue === undefined)
+		throw new Error("Failed to generate random value");
 	return min + (randomValue % (range + 1));
 }
 
@@ -133,9 +134,14 @@ function generateUUIDv7(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
 	const ms = BigInt(now);
-	const b0 = bytes[0]; const b1 = bytes[1]; const b2 = bytes[2];
-	const b3 = bytes[3]; const b4 = bytes[4]; const b5 = bytes[5];
-	const b6 = bytes[6]; const b8 = bytes[8];
+	const b0 = bytes[0];
+	const b1 = bytes[1];
+	const b2 = bytes[2];
+	const b3 = bytes[3];
+	const b4 = bytes[4];
+	const b5 = bytes[5];
+	const b6 = bytes[6];
+	const b8 = bytes[8];
 	if (b0 !== undefined) bytes[0] = Number((ms >> 40n) & 0xffn);
 	if (b1 !== undefined) bytes[1] = Number((ms >> 32n) & 0xffn);
 	if (b2 !== undefined) bytes[2] = Number((ms >> 24n) & 0xffn);
@@ -173,10 +179,7 @@ function generateULID(): string {
 			value = (byte1 >> (3 - bitOffset)) & 0x1f;
 		} else {
 			if (byte2 === undefined) continue;
-			value =
-				((byte1 << (bitOffset - 3)) |
-					(byte2 >> (11 - bitOffset))) &
-				0x1f;
+			value = ((byte1 << (bitOffset - 3)) | (byte2 >> (11 - bitOffset))) & 0x1f;
 		}
 		const encodedChar = ULID_ENCODING[value];
 		randomStr += encodedChar ?? "0";

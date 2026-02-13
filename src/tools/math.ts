@@ -28,10 +28,15 @@ const excludeFunctions = [
 // Filter out excluded functions
 const allFunctions = all as Record<string, unknown>;
 const safeFunctions = Object.fromEntries(
-	Object.entries(allFunctions).filter(([key]) => !excludeFunctions.includes(key)),
+	Object.entries(allFunctions).filter(
+		([key]) => !excludeFunctions.includes(key),
+	),
 );
 
-const math = create(safeFunctions as any, { number: "BigNumber", precision: 64 });
+const math = create(safeFunctions as any, {
+	number: "BigNumber",
+	precision: 64,
+});
 
 const schema = {
 	expression: z.string().optional().describe("Math expression to evaluate"),

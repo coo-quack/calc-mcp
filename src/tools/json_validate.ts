@@ -72,7 +72,9 @@ function validateCsv(input: string): string {
 		if (line) {
 			const cols = parseCsvLine(line).length;
 			if (cols !== headerCols) {
-				errors.push(`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`);
+				errors.push(
+					`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`,
+				);
 			}
 		}
 	}

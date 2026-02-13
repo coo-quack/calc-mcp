@@ -27,12 +27,15 @@ function ipv4ToNum(ip: string): number {
 	const p1 = parts[1];
 	const p2 = parts[2];
 	const p3 = parts[3];
-	if (p0 === undefined || p1 === undefined || p2 === undefined || p3 === undefined) {
+	if (
+		p0 === undefined ||
+		p1 === undefined ||
+		p2 === undefined ||
+		p3 === undefined
+	) {
 		throw new Error(`Invalid IPv4 address: ${ip}`);
 	}
-	return (
-		((p0 << 24) | (p1 << 16) | (p2 << 8) | p3) >>> 0
-	);
+	return ((p0 << 24) | (p1 << 16) | (p2 << 8) | p3) >>> 0;
 }
 
 function numToIpv4(num: number): string {

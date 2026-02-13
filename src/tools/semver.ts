@@ -94,7 +94,7 @@ function satisfies(version: SemVer, range: string): boolean {
 	// Handle hyphen range (1.0.0 - 2.0.0)
 	// Require whitespace around hyphen to avoid matching prerelease hyphens
 	const hyphenMatch = trimmed.match(/^(.+)\s+-\s+(.+)$/);
-	if (hyphenMatch && hyphenMatch[1] && hyphenMatch[2]) {
+	if (hyphenMatch?.[1] && hyphenMatch[2]) {
 		const start = hyphenMatch[1];
 		const end = hyphenMatch[2];
 		const startVer = parse(start);
@@ -110,7 +110,7 @@ function satisfies(version: SemVer, range: string): boolean {
 
 	// ^1.2.3 - compatible with
 	const caretMatch = trimmed.match(/^\^(.+)$/);
-	if (caretMatch && caretMatch[1]) {
+	if (caretMatch?.[1]) {
 		const base = parse(caretMatch[1]);
 		if (!base) return false;
 		if (compare(version, base) < 0) return false;
@@ -129,7 +129,7 @@ function satisfies(version: SemVer, range: string): boolean {
 
 	// ~1.2.3 - approximately equivalent
 	const tildeMatch = trimmed.match(/^~(.+)$/);
-	if (tildeMatch && tildeMatch[1]) {
+	if (tildeMatch?.[1]) {
 		const base = parse(tildeMatch[1]);
 		if (!base) return false;
 		if (compare(version, base) < 0) return false;
@@ -138,7 +138,7 @@ function satisfies(version: SemVer, range: string): boolean {
 
 	// >=, <=, >, <, =
 	const compMatch = trimmed.match(/^(>=|<=|>|<|=)\s*(.+)$/);
-	if (compMatch && compMatch[1] && compMatch[2]) {
+	if (compMatch?.[1] && compMatch[2]) {
 		const op = compMatch[1];
 		const base = parse(compMatch[2]);
 		if (!base) return false;
@@ -159,7 +159,7 @@ function satisfies(version: SemVer, range: string): boolean {
 
 	// x.x range (e.g., "1.x" or "1.*")
 	const wildcard = trimmed.match(/^(\d+)\.(?:x|\*)(?:\.(?:x|\*))?$/);
-	if (wildcard && wildcard[1]) {
+	if (wildcard?.[1]) {
 		return version.major === Number.parseInt(wildcard[1], 10);
 	}
 
