@@ -1,3 +1,4 @@
+import YAML from "yaml";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -131,42 +132,31 @@ function validateXml(input: string): string {
 }
 
 function validateYaml(input: string): string {
-	const errors: string[] = [];
-	const lines = input.split("\n");
+	try {
+		const parsed = YAML.parse(input);
 
-	let hasContent = false;
-	for (const line of lines) {
-		const trimmed = line.trim();
-		if (trimmed === "" || trimmed.startsWith("#")) continue;
-		hasContent = true;
+		// Determine type of parsed result
+		const type = Array.isArray(parsed)
+			? "array"
+			: parsed === null
+				? "null"
+				: typeof parsed;
 
-		// Check for tabs (YAML doesn't allow tabs for indentation)
-		if (line.match(/^\t/)) {
-			errors.push("Tab indentation detected (YAML requires spaces)");
-			break;
-		}
-
-		// Basic key: value structure check or list item
-		if (
-			!trimmed.startsWith("- ") &&
-			!trimmed.startsWith("---") &&
-			!trimmed.startsWith("...") &&
-			!trimmed.includes(": ") &&
-			!trimmed.endsWith(":") &&
-			!trimmed.startsWith("- ")
-		) {
-			// Could be a continuation or scalar value, skip strict checking
-		}
+		return JSON.stringify({
+			valid: true,
+			type,
+			keys:
+				typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+					? Object.keys(parsed)
+					: undefined,
+			length: Array.isArray(parsed) ? parsed.length : undefined,
+		});
+	} catch (e) {
+		return JSON.stringify({
+			valid: false,
+			error: e instanceof Error ? e.message : String(e),
+		});
 	}
-
-	if (!hasContent) {
-		return JSON.stringify({ valid: false, error: "Empty YAML" });
-	}
-
-	return JSON.stringify({
-		valid: errors.length === 0,
-		errors: errors.length > 0 ? errors : undefined,
-	});
 }
 
 export function execute(input: Input): string {

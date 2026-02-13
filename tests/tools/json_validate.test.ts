@@ -56,5 +56,80 @@ describe("json_validate", () => {
 			execute({ input: "key: value\nlist:\n  - item1", format: "yaml" }),
 		);
 		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+	});
+
+	test("validates YAML object with keys", () => {
+		const result = JSON.parse(
+			execute({
+				input: "name: Alice\nage: 30\ncity: Tokyo",
+				format: "yaml",
+			}),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+		expect(result.keys).toEqual(["name", "age", "city"]);
+	});
+
+	test("validates YAML array", () => {
+		const result = JSON.parse(
+			execute({ input: "- item1\n- item2\n- item3", format: "yaml" }),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("array");
+		expect(result.length).toBe(3);
+	});
+
+	test("validates invalid YAML (bad structure)", () => {
+		const result = JSON.parse(
+			execute({
+				input: "key: [unclosed array",
+				format: "yaml",
+			}),
+		);
+		expect(result.valid).toBe(false);
+		expect(result.error).toBeDefined();
+	});
+
+	test("validates invalid YAML (tab indentation)", () => {
+		const result = JSON.parse(
+			execute({
+				input: "key:\n\tvalue",
+				format: "yaml",
+			}),
+		);
+		expect(result.valid).toBe(false);
+		expect(result.error).toBeDefined();
+	});
+
+	test("validates YAML with null value", () => {
+		const result = JSON.parse(
+			execute({ input: "key: null", format: "yaml" }),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+		expect(result.keys).toEqual(["key"]);
+	});
+
+	test("validates YAML null document", () => {
+		const result = JSON.parse(execute({ input: "null", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("null");
+	});
+
+	test("validates complex YAML", () => {
+		const yaml = `
+name: Product
+version: 1.0.0
+dependencies:
+  - name: lib1
+    version: ^2.0.0
+  - name: lib2
+    version: ~1.5.0
+`;
+		const result = JSON.parse(execute({ input: yaml, format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+		expect(result.keys).toContain("dependencies");
 	});
 });
