@@ -56,6 +56,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | URL-decode "hello%20world" | `hello world` | encode |
 | HTML-decode `&lt;script&gt;` | `<script>` | encode |
 | SHA-256 hash of "password123" | `ef92b778bafe...` | hash |
+| HMAC-SHA256 of "message" with key "secret" | `8c4d2cdb5e7a...` | hash |
 
 ### Date & Time
 
@@ -80,6 +81,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | 100 miles in kilometers? | `160.93 km` | convert |
 | 72°F in Celsius? | `22.22°C` | convert |
 | Convert #FF5733 to RGB | `rgb(255, 87, 51)` | color |
+| Convert rgba(255, 0, 0, 0.5) to 8-digit HEX | `#ff000080` | color |
 
 ### Analysis & Parsing
 
@@ -87,6 +89,7 @@ Ask in natural language — the AI picks the right tool automatically.
 |---------|---------|------|
 | Extract numbers from "abc123def456" | `123, 456` | regex |
 | Does 1.5.3 satisfy ^1.0.0? | `true` | semver |
+| Does 1.8.0 satisfy ">=1.5.0 <2.0.0"? | `true` | semver |
 | IP range of 192.168.1.0/24? | `192.168.1.1 – .254 (254 hosts)` | ip |
 | Edit distance: "kitten" → "sitting" | `3` | diff |
 | Unicode info for "€" | `U+20AC, Currency Symbols` | char_info |

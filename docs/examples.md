@@ -97,7 +97,10 @@ HTML-decode "&lt;script&gt;"
 SHA-256 hash of "password123"
 → ef92b778bafe771e89b862eebf... (hash)
 
-MD5 of "hello world"
+HMAC-SHA256 of "message" with key "secret"
+→ 8c4d2cdb5e7a9f3a... (hash with action=hmac)
+
+MD5 of "hello world" (⚠️  warns about weakness)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
 
 CRC32 checksum of "test"
@@ -336,12 +339,27 @@ Convert rgb(100, 200, 50) to HSL
 
 Convert hsl(120, 100%, 50%) to HEX
 → #00FF00 (color)
+
+Convert #FF573380 to RGBA (8-digit HEX with 50% opacity)
+→ rgba(255, 87, 51, 0.502) (color)
+
+Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
+→ #ff000080 (color)
 ```
 
 ### Semver
 
 ```
 Does 1.5.3 satisfy ^1.0.0?
+→ true (semver)
+
+Does 1.8.0 satisfy ">=1.5.0 <2.0.0"? (AND range)
+→ true (semver)
+
+Does 2.1.0 satisfy "^1.0.0 || ^2.0.0"? (OR range)
+→ true (semver)
+
+Does 1.5.0 satisfy "1.0.0 - 2.0.0"? (hyphen range)
 → true (semver)
 
 Compare 2.0.0 and 1.9.9
