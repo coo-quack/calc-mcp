@@ -123,9 +123,8 @@ function generateRandomNumber(min: number, max: number): number {
 	const range = max - min;
 	const array = new Uint32Array(1);
 	crypto.getRandomValues(array);
-	const randomValue = array[0];
-	if (randomValue === undefined)
-		throw new Error("Failed to generate random value");
+	// Uint32Array[0] is always present
+	const randomValue = array[0]!;
 	return min + (randomValue % (range + 1));
 }
 
@@ -134,11 +133,6 @@ function generateUUIDv7(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
 	const ms = BigInt(now);
-	const b0 = bytes[0];
-	const b1 = bytes[1];
-	const b2 = bytes[2];
-	const b3 = bytes[3];
-	const b4 = bytes[4];
 	// Uint8Array(16) is always fully initialized
 	const b6 = bytes[6]!;
 	const b8 = bytes[8]!;

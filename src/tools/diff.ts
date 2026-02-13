@@ -13,7 +13,7 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
-function lcs(a: string[], b: string[]): boolean[][] {
+function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 	const m = a.length;
 	const n = b.length;
 	// dp[i][j] = length of LCS of a[0..i-1] and b[0..j-1]
@@ -61,18 +61,13 @@ function lcs(a: string[], b: string[]): boolean[][] {
 			}
 		}
 	}
-	return [inLcsA, inLcsB] as unknown as boolean[][];
+	return [inLcsA, inLcsB];
 }
 
 function lineDiff(text1: string, text2: string): string {
 	const lines1 = text1.split("\n");
 	const lines2 = text2.split("\n");
-	const lcsResult = lcs(lines1, lines2);
-	const inLcs1 = lcsResult[0];
-	const inLcs2 = lcsResult[1];
-	if (!inLcs1 || !inLcs2) {
-		throw new Error("Failed to compute diff");
-	}
+	const [inLcs1, inLcs2] = lcs(lines1, lines2);
 
 	const output: string[] = [];
 	let i = 0;
