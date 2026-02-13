@@ -160,7 +160,10 @@ function levenshteinDistance(s: string, t: string): number {
 
 	const lastRow = dp[m];
 	const result = lastRow?.[n];
-	return result ?? 0;
+	if (result === undefined) {
+		throw new Error("Levenshtein DP table error");
+	}
+	return result;
 }
 
 export function execute(input: Input): string {

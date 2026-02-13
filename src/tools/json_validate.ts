@@ -69,13 +69,9 @@ function validateCsv(input: string): string {
 
 	for (let i = 1; i < lines.length; i++) {
 		const line = lines[i];
-		if (line) {
-			const cols = parseCsvLine(line).length;
-			if (cols !== headerCols) {
-				errors.push(
-					`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`,
-				);
-			}
+		const cols = parseCsvLine(line).length;
+		if (cols !== headerCols) {
+			errors.push(`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`);
 		}
 	}
 

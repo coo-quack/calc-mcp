@@ -2,7 +2,7 @@
 
 All notable changes to Calc MCP are documented here.
 
-## v1.8.0 (2026-02-13)
+## Unreleased
 
 ### Features
 

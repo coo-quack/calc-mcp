@@ -32,11 +32,7 @@ function crc32(str: string): string {
 	}
 	const bytes = new TextEncoder().encode(str);
 	for (const byte of bytes) {
-		const tableValue = table[(crc ^ byte) & 0xff];
-		if (tableValue === undefined) {
-			throw new Error("CRC32 lookup table value is undefined");
-		}
-		crc = tableValue ^ (crc >>> 8);
+		crc = table[(crc ^ byte) & 0xff]! ^ (crc >>> 8);
 	}
 	return ((crc ^ 0xffffffff) >>> 0).toString(16).padStart(8, "0");
 }

@@ -7,7 +7,15 @@
 			}
 		}
 	},
-	"linter": { "enabled": true, "rules": { "recommended": true } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"noNonNullAssertion": "off"
+			}
+		}
+	},
 	"formatter": { "enabled": true, "indentStyle": "tab" },
 	"files": {
 		"includes": [
