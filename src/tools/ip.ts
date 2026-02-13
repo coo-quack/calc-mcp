@@ -23,8 +23,15 @@ function ipv4ToNum(ip: string): number {
 	) {
 		throw new Error(`Invalid IPv4 address: ${ip}`);
 	}
+	const p0 = parts[0];
+	const p1 = parts[1];
+	const p2 = parts[2];
+	const p3 = parts[3];
+	if (p0 === undefined || p1 === undefined || p2 === undefined || p3 === undefined) {
+		throw new Error(`Invalid IPv4 address: ${ip}`);
+	}
 	return (
-		((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0
+		((p0 << 24) | (p1 << 16) | (p2 << 8) | p3) >>> 0
 	);
 }
 
@@ -51,10 +58,13 @@ function getIpv4Class(firstOctet: number): string {
 
 function isPrivate(ip: string): boolean {
 	const parts = ip.split(".").map(Number);
-	if (parts[0] === 10) return true;
-	if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
-	if (parts[0] === 192 && parts[1] === 168) return true;
-	if (parts[0] === 127) return true;
+	const p0 = parts[0];
+	const p1 = parts[1];
+	if (p0 === undefined) return false;
+	if (p0 === 10) return true;
+	if (p0 === 172 && p1 !== undefined && p1 >= 16 && p1 <= 31) return true;
+	if (p0 === 192 && p1 === 168) return true;
+	if (p0 === 127) return true;
 	return false;
 }
 

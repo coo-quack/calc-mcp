@@ -52,14 +52,14 @@ function lcs(a: string[], b: string[]): boolean[][] {
 		} else {
 			const prevRow = dp[i - 1];
 			const currRow = dp[i];
-			if (prevRow && currRow && prevRow[j] !== undefined && currRow[j - 1] !== undefined) {
-				if (prevRow[j] >= currRow[j - 1]) {
-					i--;
-				} else {
-					j--;
-				}
+			if (!prevRow || !currRow) break;
+			const prevJ = prevRow[j];
+			const currJPrev = currRow[j - 1];
+			if (prevJ === undefined || currJPrev === undefined) break;
+			if (prevJ >= currJPrev) {
+				i--;
 			} else {
-				break;
+				j--;
 			}
 		}
 	}
@@ -111,21 +111,36 @@ function levenshteinDistance(s: string, t: string): number {
 		Array(n + 1).fill(0),
 	);
 
-	for (let i = 0; i <= m; i++) dp[i][0] = i;
-	for (let j = 0; j <= n; j++) dp[0][j] = j;
+	for (let i = 0; i <= m; i++) {
+		const row = dp[i];
+		if (row) row[0] = i;
+	}
+	for (let j = 0; j <= n; j++) {
+		const row = dp[0];
+		if (row) row[j] = j;
+	}
 
 	for (let i = 1; i <= m; i++) {
 		for (let j = 1; j <= n; j++) {
 			const cost = s[i - 1] === t[j - 1] ? 0 : 1;
-			dp[i][j] = Math.min(
-				dp[i - 1][j] + 1,
-				dp[i][j - 1] + 1,
-				dp[i - 1][j - 1] + cost,
+			const currRow = dp[i];
+			const prevRow = dp[i - 1];
+			if (!currRow || !prevRow) continue;
+			const currJPrev = currRow[j - 1];
+			const prevJ = prevRow[j];
+			const prevJPrev = prevRow[j - 1];
+			if (currJPrev === undefined || prevJ === undefined || prevJPrev === undefined) continue;
+			currRow[j] = Math.min(
+				prevJ + 1,
+				currJPrev + 1,
+				prevJPrev + cost,
 			);
 		}
 	}
 
-	return dp[m][n];
+	const lastRow = dp[m];
+	const result = lastRow?.[n];
+	return result ?? 0;
 }
 
 export function execute(input: Input): string {

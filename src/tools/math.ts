@@ -31,7 +31,7 @@ const safeFunctions = Object.fromEntries(
 	Object.entries(allFunctions).filter(([key]) => !excludeFunctions.includes(key)),
 );
 
-const math = create(safeFunctions, { number: "BigNumber", precision: 64 });
+const math = create(safeFunctions as any, { number: "BigNumber", precision: 64 });
 
 const schema = {
 	expression: z.string().optional().describe("Math expression to evaluate"),
@@ -53,23 +53,26 @@ function computeStatistics(values: number[]): string {
 
 	const bn = values.map((v) => math.bignumber(v));
 	const sorted = [...bn].sort((a, b) => a.comparedTo(b));
-	const sum = sorted.reduce((a, b) => math.add(a, b));
+	if (sorted.length === 0) throw new Error("Failed to process values");
+	const sum = sorted.reduce((a, b) => math.add(a, b) as any) as any;
 	const mean = math.divide(sum, values.length);
 	const variance = math.divide(
 		bn.reduce(
-			(acc, v) => math.add(acc, math.pow(math.subtract(v, mean), 2)),
+			(acc, v) => math.add(acc, math.pow(math.subtract(v, mean), 2)) as any,
 			math.bignumber(0),
-		),
+		) as any,
 		values.length,
 	);
 	const varianceResult = variance as any;
 	const stddev = math.sqrt(varianceResult);
 
 	const mid = Math.floor(sorted.length / 2);
+	const sortedMid = sorted[mid];
+	const sortedMidPrev = sorted[mid - 1];
 	const median =
-		sorted.length % 2 === 0
-			? math.divide(math.add(sorted[mid - 1], sorted[mid]), 2)
-			: sorted[mid];
+		sorted.length % 2 === 0 && sortedMidPrev && sortedMid
+			? math.divide(math.add(sortedMidPrev as any, sortedMid as any) as any, 2)
+			: sortedMid;
 
 	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
 

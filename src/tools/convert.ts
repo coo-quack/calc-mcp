@@ -306,7 +306,12 @@ export function execute(input: Input): string {
 			`Unknown unit '${to}' in ${category}. Supported: ${supported}`,
 		);
 
-	const result = (value * table[fromLower]) / table[toLower];
+	const fromValue = table[fromLower];
+	const toValue = table[toLower];
+	if (fromValue === undefined || toValue === undefined) {
+		throw new Error("Invalid unit conversion");
+	}
+	const result = (value * fromValue) / toValue;
 
 	return JSON.stringify({
 		value,
