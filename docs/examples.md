@@ -100,7 +100,7 @@ SHA-256 hash of "password123"
 HMAC-SHA256 of "message" with key "secret"
 → 8b5f48702995c159... (hash with action=hmac)
 
-MD5 of "hello world" (⚠️  warns about weakness)
+MD5 of "hello world" (⚠️ warning about MD5 weakness is logged on the server, not included in the tool result)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
 
 CRC32 checksum of "test"
@@ -341,7 +341,7 @@ Convert hsl(120, 100%, 50%) to HEX
 → #00FF00 (color)
 
 Convert #FF573380 to RGBA (8-digit HEX with 50% opacity)
-→ rgba(255, 87, 51, 0.50196078) (color)
+→ rgba(255, 87, 51, 0.5019607843137255) (color)
 
 Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
 → #ff000080 (color)

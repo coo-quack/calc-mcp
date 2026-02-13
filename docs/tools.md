@@ -193,7 +193,7 @@ When does "30 9 * * 1-5" run?
 Compute hashes, checksums, or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32 (non-cryptographic checksum).
 
 ::: warning Security Notice
-MD5 and SHA1 are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
+MD5 and SHA-1 (`sha1`) are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
 :::
 
 **Parameters:**
@@ -210,7 +210,7 @@ SHA-256 hash of "password123"
 HMAC-SHA256 of "message" with key "secret"
 → 8b5f48702995c159...
 
-MD5 of "hello world" (⚠️  warns about weakness)
+MD5 of "hello world" (MD5 is cryptographically weak; avoid for security-sensitive uses)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3
 ```
 
@@ -342,9 +342,9 @@ Generate check digit for 453957876362148
 
 ### semver
 
-Semantic versioning operations: compare, validate, or check range satisfaction.
+Semantic versioning operations: compare, validate, parse, or check range satisfaction.
 
-Supports npm-style complex ranges: OR (`||`), AND (space-separated), and hyphen ranges.
+Supports common npm-style range patterns: OR (`||`), AND (space-separated), and hyphen ranges. Other npm/semver range features may not be supported.
 
 **Parameters:**
 - `action` (enum) — `compare`, `valid`, `satisfies`, or `parse`
