@@ -144,7 +144,7 @@ describe("json_validate", () => {
 	test("validates empty YAML", () => {
 		const result = JSON.parse(execute({ input: "", format: "yaml" }));
 		expect(result.valid).toBe(false);
-		expect(result.error).toBe("Empty YAML");
+		expect(result.error).toBe("Empty input");
 	});
 
 	test("validates complex YAML", () => {

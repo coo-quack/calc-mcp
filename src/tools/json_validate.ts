@@ -42,7 +42,12 @@ function validateJson(input: string): string {
 function validateCsv(input: string): string {
 	const lines = input.trim().split("\n");
 	if (lines.length === 0) {
-		return JSON.stringify({ valid: false, error: "Empty input" });
+		const message = "Empty input";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
 	}
 
 	const headerCols = parseCsvLine(lines[0]).length;
@@ -104,7 +109,12 @@ function validateXml(input: string): string {
 	// Check basic well-formedness
 	const trimmed = input.trim();
 	if (!trimmed.startsWith("<")) {
-		return JSON.stringify({ valid: false, error: "Does not start with <" });
+		const message = "Does not start with <";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
 	}
 
 	match = tagRegex.exec(input);
@@ -134,6 +144,7 @@ function validateXml(input: string): string {
 
 	return JSON.stringify({
 		valid: errors.length === 0,
+		error: errors.length > 0 ? errors[0] : undefined,
 		errors: errors.length > 0 ? errors : undefined,
 	});
 }
@@ -141,7 +152,7 @@ function validateXml(input: string): string {
 function validateYaml(input: string): string {
 	// Reject empty input (consistent with CSV/XML validation)
 	if (input.trim().length === 0) {
-		const message = "Empty YAML";
+		const message = "Empty input";
 		return JSON.stringify({
 			valid: false,
 			error: message,
