@@ -22,21 +22,12 @@ function lcs(a: string[], b: string[]): boolean[][] {
 	);
 	for (let i = 1; i <= m; i++) {
 		for (let j = 1; j <= n; j++) {
-			const currRow = dp[i];
-			const prevRow = dp[i - 1];
-			if (!currRow || !prevRow) {
-				throw new Error("LCS dp table is not properly initialized");
-			}
-			const prevRowCurrCol = prevRow[j];
-			const currRowPrevCol = currRow[j - 1];
-			const prevRowPrevCol = prevRow[j - 1];
-			if (
-				prevRowCurrCol === undefined ||
-				currRowPrevCol === undefined ||
-				prevRowPrevCol === undefined
-			) {
-				throw new Error("LCS dp table is not properly initialized");
-			}
+			// dp table is guaranteed to be fully initialized (m+1 x n+1)
+			const currRow = dp[i]!;
+			const prevRow = dp[i - 1]!;
+			const prevRowCurrCol = prevRow[j]!;
+			const currRowPrevCol = currRow[j - 1]!;
+			const prevRowPrevCol = prevRow[j - 1]!;
 
 			if (a[i - 1] === b[j - 1]) {
 				currRow[j] = prevRowPrevCol + 1;
@@ -58,16 +49,11 @@ function lcs(a: string[], b: string[]): boolean[][] {
 			i--;
 			j--;
 		} else {
-			const prevRow = dp[i - 1];
-			const currRow = dp[i];
-			if (!prevRow || !currRow) {
-				throw new Error("LCS backtrack: dp table is corrupted");
-			}
-			const prevJ = prevRow[j];
-			const currJPrev = currRow[j - 1];
-			if (prevJ === undefined || currJPrev === undefined) {
-				throw new Error("LCS backtrack: dp table is corrupted");
-			}
+			// dp table is fully initialized, indices are within bounds
+			const prevRow = dp[i - 1]!;
+			const currRow = dp[i]!;
+			const prevJ = prevRow[j]!;
+			const currJPrev = currRow[j - 1]!;
 			if (prevJ >= currJPrev) {
 				i--;
 			} else {
@@ -127,43 +113,29 @@ function levenshteinDistance(s: string, t: string): number {
 		Array(n + 1).fill(0),
 	);
 
+	// dp table is guaranteed to be fully initialized
 	for (let i = 0; i <= m; i++) {
-		const row = dp[i];
-		if (row) row[0] = i;
+		dp[i]![0] = i;
 	}
 	for (let j = 0; j <= n; j++) {
-		const row = dp[0];
-		if (row) row[j] = j;
+		dp[0]![j] = j;
 	}
 
 	for (let i = 1; i <= m; i++) {
 		for (let j = 1; j <= n; j++) {
 			const cost = s[i - 1] === t[j - 1] ? 0 : 1;
-			const currRow = dp[i];
-			const prevRow = dp[i - 1];
-			if (!currRow || !prevRow) {
-				throw new Error("Levenshtein dp table is not properly initialized");
-			}
-			const currJPrev = currRow[j - 1];
-			const prevJ = prevRow[j];
-			const prevJPrev = prevRow[j - 1];
-			if (
-				currJPrev === undefined ||
-				prevJ === undefined ||
-				prevJPrev === undefined
-			) {
-				throw new Error("Levenshtein dp table is not properly initialized");
-			}
+			// dp table is fully initialized, indices are within bounds
+			const currRow = dp[i]!;
+			const prevRow = dp[i - 1]!;
+			const currJPrev = currRow[j - 1]!;
+			const prevJ = prevRow[j]!;
+			const prevJPrev = prevRow[j - 1]!;
 			currRow[j] = Math.min(prevJ + 1, currJPrev + 1, prevJPrev + cost);
 		}
 	}
 
-	const lastRow = dp[m];
-	const result = lastRow?.[n];
-	if (result === undefined) {
-		throw new Error("Levenshtein DP table error");
-	}
-	return result;
+	// dp[m][n] is guaranteed to exist after the loop
+	return dp[m]![n]!;
 }
 
 export function execute(input: Input): string {
