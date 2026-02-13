@@ -68,9 +68,12 @@ function validateCsv(input: string): string {
 	const errors: string[] = [];
 
 	for (let i = 1; i < lines.length; i++) {
-		const cols = parseCsvLine(lines[i]).length;
-		if (cols !== headerCols) {
-			errors.push(`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`);
+		const line = lines[i];
+		if (line) {
+			const cols = parseCsvLine(line).length;
+			if (cols !== headerCols) {
+				errors.push(`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`);
+			}
 		}
 	}
 
@@ -144,6 +147,10 @@ function validateXml(input: string): string {
 	while (match !== null) {
 		const full = match[0];
 		const name = match[1];
+		if (!name) {
+			match = tagRegex.exec(input);
+			continue;
+		}
 		if (full.startsWith("</")) {
 			// closing tag
 			if (stack.length === 0 || stack[stack.length - 1] !== name) {

@@ -3,19 +3,32 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
 // Create sandboxed math instance with dangerous functions disabled
-const mathConfig = all;
-
-// Remove dangerous functions that could be used for code injection
-const dangerousFunctions = [
+// Exclude heavy/unused features to reduce bundle size
+const excludeFunctions = [
+	// Dangerous functions (security)
 	"import", // Can load external modules
 	"createUnit", // Can modify global state
+
+	// Large unused features (bundle size optimization)
+	// Symbolic math (unused)
+	"derivative",
+	"rationalize",
+	"simplify",
+	"symbolicEqual",
+	"resolve",
+	"parser",
+
+	// Unit functions (unused - we don't use unit conversions in math tool)
+	"createCreateUnit",
+	"createSplitUnit",
+	"createUnitClass",
+	"createUnitFunction",
 ];
 
-// Filter out dangerous functions
+// Filter out excluded functions
+const allFunctions = all as Record<string, unknown>;
 const safeFunctions = Object.fromEntries(
-	Object.entries(mathConfig).filter(
-		([key]) => !dangerousFunctions.includes(key),
-	),
+	Object.entries(allFunctions).filter(([key]) => !excludeFunctions.includes(key)),
 );
 
 const math = create(safeFunctions, { number: "BigNumber", precision: 64 });
@@ -49,7 +62,8 @@ function computeStatistics(values: number[]): string {
 		),
 		values.length,
 	);
-	const stddev = math.sqrt(variance);
+	const varianceResult = variance as any;
+	const stddev = math.sqrt(varianceResult);
 
 	const mid = Math.floor(sorted.length / 2);
 	const median =
@@ -91,6 +105,7 @@ export function execute(input: Input): string {
 	// like bracket notation (['import']) or global objects (window).
 	// This simple string check is sufficient because mathjs will reject
 	// any JavaScript-style code injection attempts as syntax errors.
+	const dangerousFunctions = ["import", "createUnit"];
 	const runtimeDangerousPatterns = [...dangerousFunctions, "eval", "Function"];
 	for (const pattern of runtimeDangerousPatterns) {
 		if (input.expression.includes(pattern)) {

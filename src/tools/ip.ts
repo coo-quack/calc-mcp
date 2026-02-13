@@ -63,7 +63,12 @@ function parseCidr(cidr: string): {
 	prefix: number;
 	mask: number;
 } {
-	const [ip, prefixStr] = cidr.split("/");
+	const parts = cidr.split("/");
+	const ip = parts[0];
+	const prefixStr = parts[1];
+	if (!ip || !prefixStr) {
+		throw new Error(`Invalid CIDR notation: ${cidr}`);
+	}
 	const prefix = Number.parseInt(prefixStr, 10);
 	if (prefix < 0 || prefix > 32)
 		throw new Error(`Invalid prefix length: ${prefix}`);
@@ -88,11 +93,12 @@ function ipInfo(ip: string): string {
 
 	const parts = ip.split(".").map(Number);
 	const num = ipv4ToNum(ip);
+	const firstOctet = parts[0];
 
 	return JSON.stringify({
 		ip,
 		version: 4,
-		class: getIpv4Class(parts[0]),
+		class: firstOctet !== undefined ? getIpv4Class(firstOctet) : "unknown",
 		isPrivate: isPrivate(ip),
 		isLoopback: parts[0] === 127,
 		binary: num.toString(2).padStart(32, "0"),

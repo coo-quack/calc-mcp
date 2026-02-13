@@ -180,7 +180,9 @@ function parseColor(color: string): RGB {
 
 	// Named color
 	if (trimmed in namedColors) {
-		return namedColors[trimmed];
+		const color = namedColors[trimmed];
+		if (!color) throw new Error(`Color not found: ${trimmed}`);
+		return color;
 	}
 
 	// HEX (3, 4, 6, or 8 digits only)
@@ -189,16 +191,25 @@ function parseColor(color: string): RGB {
 	);
 	if (hexMatch) {
 		let hex = hexMatch[1];
+		if (!hex) throw new Error("Invalid hex color format");
 		let alpha: number | undefined;
 
 		// Expand 3-digit shorthand: #RGB -> #RRGGBB
 		if (hex.length === 3) {
-			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+			const h0 = hex[0];
+			const h1 = hex[1];
+			const h2 = hex[2];
+			if (!h0 || !h1 || !h2) throw new Error("Invalid hex color");
+			hex = h0 + h0 + h1 + h1 + h2 + h2;
 		}
 		// Expand 4-digit shorthand: #RGBA -> #RRGGBBAA
 		else if (hex.length === 4) {
-			hex =
-				hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+			const h0 = hex[0];
+			const h1 = hex[1];
+			const h2 = hex[2];
+			const h3 = hex[3];
+			if (!h0 || !h1 || !h2 || !h3) throw new Error("Invalid hex color");
+			hex = h0 + h0 + h1 + h1 + h2 + h2 + h3 + h3;
 		}
 
 		// Parse 8-digit HEX with alpha
@@ -224,10 +235,14 @@ function parseColor(color: string): RGB {
 		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (rgbMatch) {
+		const r = rgbMatch[1];
+		const g = rgbMatch[2];
+		const b = rgbMatch[3];
+		if (!r || !g || !b) throw new Error("Invalid RGB color format");
 		const rgb: RGB = {
-			r: Number.parseInt(rgbMatch[1], 10),
-			g: Number.parseInt(rgbMatch[2], 10),
-			b: Number.parseInt(rgbMatch[3], 10),
+			r: Number.parseInt(r, 10),
+			g: Number.parseInt(g, 10),
+			b: Number.parseInt(b, 10),
 		};
 		if (rgbMatch[4]) {
 			const alpha = Number.parseFloat(rgbMatch[4]);
@@ -244,10 +259,14 @@ function parseColor(color: string): RGB {
 		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (hslMatch) {
+		const h = hslMatch[1];
+		const s = hslMatch[2];
+		const l = hslMatch[3];
+		if (!h || !s || !l) throw new Error("Invalid HSL color format");
 		const hsl: HSL = {
-			h: Number.parseInt(hslMatch[1], 10),
-			s: Number.parseInt(hslMatch[2], 10),
-			l: Number.parseInt(hslMatch[3], 10),
+			h: Number.parseInt(h, 10),
+			s: Number.parseInt(s, 10),
+			l: Number.parseInt(l, 10),
 		};
 		if (hslMatch[4]) {
 			const alpha = Number.parseFloat(hslMatch[4]);

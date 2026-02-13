@@ -27,14 +27,20 @@ export function execute(input: Input): string {
 	let header: unknown;
 	let payload: unknown;
 
+	const headerPart = parts[0];
+	const payloadPart = parts[1];
+	if (!headerPart || !payloadPart) {
+		throw new Error("Invalid JWT structure");
+	}
+
 	try {
-		header = JSON.parse(base64UrlDecode(parts[0]));
+		header = JSON.parse(base64UrlDecode(headerPart));
 	} catch {
 		throw new Error("Failed to decode JWT header");
 	}
 
 	try {
-		payload = JSON.parse(base64UrlDecode(parts[1]));
+		payload = JSON.parse(base64UrlDecode(payloadPart));
 	} catch {
 		throw new Error("Failed to decode JWT payload");
 	}

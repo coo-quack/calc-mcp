@@ -22,10 +22,18 @@ function lcs(a: string[], b: string[]): boolean[][] {
 	);
 	for (let i = 1; i <= m; i++) {
 		for (let j = 1; j <= n; j++) {
+			const currRow = dp[i];
+			const prevRow = dp[i - 1];
+			if (!currRow || !prevRow) continue;
+			const prevRowCurrCol = prevRow[j];
+			const currRowPrevCol = currRow[j - 1];
+			const prevRowPrevCol = prevRow[j - 1];
+			if (prevRowCurrCol === undefined || currRowPrevCol === undefined || prevRowPrevCol === undefined) continue;
+
 			if (a[i - 1] === b[j - 1]) {
-				dp[i][j] = dp[i - 1][j - 1] + 1;
+				currRow[j] = prevRowPrevCol + 1;
 			} else {
-				dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+				currRow[j] = Math.max(prevRowCurrCol, currRowPrevCol);
 			}
 		}
 	}
@@ -41,10 +49,18 @@ function lcs(a: string[], b: string[]): boolean[][] {
 			inLcsB[j - 1] = true;
 			i--;
 			j--;
-		} else if (dp[i - 1][j] >= dp[i][j - 1]) {
-			i--;
 		} else {
-			j--;
+			const prevRow = dp[i - 1];
+			const currRow = dp[i];
+			if (prevRow && currRow && prevRow[j] !== undefined && currRow[j - 1] !== undefined) {
+				if (prevRow[j] >= currRow[j - 1]) {
+					i--;
+				} else {
+					j--;
+				}
+			} else {
+				break;
+			}
 		}
 	}
 	return [inLcsA, inLcsB] as unknown as boolean[][];
@@ -53,22 +69,32 @@ function lcs(a: string[], b: string[]): boolean[][] {
 function lineDiff(text1: string, text2: string): string {
 	const lines1 = text1.split("\n");
 	const lines2 = text2.split("\n");
-	const [inLcs1, inLcs2] = lcs(lines1, lines2);
+	const lcsResult = lcs(lines1, lines2);
+	const inLcs1 = lcsResult[0];
+	const inLcs2 = lcsResult[1];
+	if (!inLcs1 || !inLcs2) {
+		throw new Error("Failed to compute diff");
+	}
 
 	const output: string[] = [];
 	let i = 0;
 	let j = 0;
 
 	while (i < lines1.length || j < lines2.length) {
-		if (i < lines1.length && !inLcs1[i]) {
-			output.push(`- ${lines1[i]}`);
+		const line1 = lines1[i];
+		const line2 = lines2[j];
+		const inLcs1Val = inLcs1[i];
+		const inLcs2Val = inLcs2[j];
+
+		if (i < lines1.length && inLcs1Val === false && line1 !== undefined) {
+			output.push(`- ${line1}`);
 			i++;
-		} else if (j < lines2.length && !inLcs2[j]) {
-			output.push(`+ ${lines2[j]}`);
+		} else if (j < lines2.length && inLcs2Val === false && line2 !== undefined) {
+			output.push(`+ ${line2}`);
 			j++;
 		} else {
-			if (i < lines1.length) {
-				output.push(`  ${lines1[i]}`);
+			if (i < lines1.length && line1 !== undefined) {
+				output.push(`  ${line1}`);
 			}
 			i++;
 			j++;

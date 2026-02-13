@@ -123,7 +123,9 @@ function generateRandomNumber(min: number, max: number): number {
 	const range = max - min;
 	const array = new Uint32Array(1);
 	crypto.getRandomValues(array);
-	return min + (array[0] % (range + 1));
+	const randomValue = array[0];
+	if (randomValue === undefined) throw new Error("Failed to generate random value");
+	return min + (randomValue % (range + 1));
 }
 
 function generateUUIDv7(): string {
@@ -131,14 +133,17 @@ function generateUUIDv7(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
 	const ms = BigInt(now);
-	bytes[0] = Number((ms >> 40n) & 0xffn);
-	bytes[1] = Number((ms >> 32n) & 0xffn);
-	bytes[2] = Number((ms >> 24n) & 0xffn);
-	bytes[3] = Number((ms >> 16n) & 0xffn);
-	bytes[4] = Number((ms >> 8n) & 0xffn);
-	bytes[5] = Number(ms & 0xffn);
-	bytes[6] = (bytes[6] & 0x0f) | 0x70;
-	bytes[8] = (bytes[8] & 0x3f) | 0x80;
+	const b0 = bytes[0]; const b1 = bytes[1]; const b2 = bytes[2];
+	const b3 = bytes[3]; const b4 = bytes[4]; const b5 = bytes[5];
+	const b6 = bytes[6]; const b8 = bytes[8];
+	if (b0 !== undefined) bytes[0] = Number((ms >> 40n) & 0xffn);
+	if (b1 !== undefined) bytes[1] = Number((ms >> 32n) & 0xffn);
+	if (b2 !== undefined) bytes[2] = Number((ms >> 24n) & 0xffn);
+	if (b3 !== undefined) bytes[3] = Number((ms >> 16n) & 0xffn);
+	if (b4 !== undefined) bytes[4] = Number((ms >> 8n) & 0xffn);
+	if (b5 !== undefined) bytes[5] = Number(ms & 0xffn);
+	if (b6 !== undefined) bytes[6] = (b6 & 0x0f) | 0x70;
+	if (b8 !== undefined) bytes[8] = (b8 & 0x3f) | 0x80;
 	const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
 		"",
 	);
@@ -150,7 +155,8 @@ function generateULID(): string {
 	let timeStr = "";
 	let t = now;
 	for (let i = 0; i < 10; i++) {
-		timeStr = ULID_ENCODING[t % 32] + timeStr;
+		const encodedChar = ULID_ENCODING[t % 32];
+		timeStr = (encodedChar ?? "0") + timeStr;
 		t = Math.floor(t / 32);
 	}
 	const randomBytes = new Uint8Array(10);
@@ -160,15 +166,20 @@ function generateULID(): string {
 		const byteIndex = Math.floor((i * 5) / 8);
 		const bitOffset = (i * 5) % 8;
 		let value: number;
+		const byte1 = randomBytes[byteIndex];
+		const byte2 = randomBytes[byteIndex + 1];
+		if (byte1 === undefined) continue;
 		if (bitOffset <= 3) {
-			value = (randomBytes[byteIndex] >> (3 - bitOffset)) & 0x1f;
+			value = (byte1 >> (3 - bitOffset)) & 0x1f;
 		} else {
+			if (byte2 === undefined) continue;
 			value =
-				((randomBytes[byteIndex] << (bitOffset - 3)) |
-					(randomBytes[byteIndex + 1] >> (11 - bitOffset))) &
+				((byte1 << (bitOffset - 3)) |
+					(byte2 >> (11 - bitOffset))) &
 				0x1f;
 		}
-		randomStr += ULID_ENCODING[value];
+		const encodedChar = ULID_ENCODING[value];
+		randomStr += encodedChar ?? "0";
 	}
 	return timeStr + randomStr;
 }
@@ -180,8 +191,15 @@ function shuffle(items: string[]): string[] {
 	for (let i = result.length - 1; i > 0; i--) {
 		const array = new Uint32Array(1);
 		crypto.getRandomValues(array);
-		const j = array[0] % (i + 1);
-		[result[i], result[j]] = [result[j], result[i]];
+		const randomValue = array[0];
+		if (randomValue === undefined) continue;
+		const j = randomValue % (i + 1);
+		const temp = result[i];
+		const swapItem = result[j];
+		if (temp !== undefined && swapItem !== undefined) {
+			result[i] = swapItem;
+			result[j] = temp;
+		}
 	}
 	return result;
 }
