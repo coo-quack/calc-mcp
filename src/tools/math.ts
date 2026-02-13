@@ -13,7 +13,9 @@ const dangerousFunctions = [
 
 // Filter out dangerous functions
 const safeFunctions = Object.fromEntries(
-	Object.entries(mathConfig).filter(([key]) => !dangerousFunctions.includes(key))
+	Object.entries(mathConfig).filter(
+		([key]) => !dangerousFunctions.includes(key),
+	),
 );
 
 const math = create(safeFunctions, { number: "BigNumber", precision: 64 });
@@ -83,7 +85,7 @@ export function execute(input: Input): string {
 
 	// eval
 	if (!input.expression) throw new Error("expression is required for eval");
-	
+
 	// Check for dangerous patterns before evaluation
 	const dangerous = ["import", "createUnit", "eval", "Function"];
 	for (const pattern of dangerous) {
@@ -91,7 +93,7 @@ export function execute(input: Input): string {
 			throw new Error(`Unsafe function call detected: ${pattern}`);
 		}
 	}
-	
+
 	const result = math.evaluate(input.expression);
 	if (result?.isInteger?.()) {
 		return result.toFixed(0);
