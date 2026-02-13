@@ -190,7 +190,7 @@ When does "30 9 * * 1-5" run?
 
 ### hash
 
-Compute cryptographic hashes or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32.
+Compute hashes, checksums, or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32 (non-cryptographic checksum).
 
 ::: warning Security Notice
 MD5 and SHA1 are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
