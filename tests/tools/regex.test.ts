@@ -109,4 +109,65 @@ describe("regex", () => {
 		});
 		expect(result).toBe("hellO wOrld");
 	});
+
+	test("rejects pattern with nested quantifiers (x+)+", () => {
+		expect(() =>
+			execute({
+				pattern: "(a+)+",
+				text: "aaaaaaaaaaaaaaaaaaaaaa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("rejects pattern with nested quantifiers (x*)*", () => {
+		expect(() =>
+			execute({
+				pattern: "(a*)*",
+				text: "aaa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("rejects pattern with nested quantifiers (x+)*", () => {
+		expect(() =>
+			execute({
+				pattern: "(a+)*",
+				text: "aaa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("rejects pattern with nested quantifiers ({n,m}){...}", () => {
+		expect(() =>
+			execute({
+				pattern: "(a{1,3}){2}",
+				text: "aa",
+				action: "test",
+			}),
+		).toThrow(/nested quantifiers/);
+	});
+
+	test("allows pattern with single quantified group ({n,m})", () => {
+		expect(() =>
+			execute({
+				pattern: "(a{1,3})b",
+				text: "aaab",
+				action: "test",
+			}),
+		).not.toThrow();
+	});
+
+	test("rejects overly long pattern", () => {
+		const longPattern = "a".repeat(501);
+		expect(() =>
+			execute({
+				pattern: longPattern,
+				text: "test",
+				action: "test",
+			}),
+		).toThrow(/too long/);
+	});
 });

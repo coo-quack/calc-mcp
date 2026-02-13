@@ -15,17 +15,58 @@ const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
 const TIMEOUT_MS = 1000;
+const MAX_PATTERN_LENGTH = 500;
+
+// Detect common ReDoS patterns (nested quantifiers)
+// Note: These heuristics don't account for escapes (\( \)) or character classes ([...])
+// which can lead to false positives/negatives. A proper solution would use a single-pass
+// parser tracking escape state, character classes, and group depth.
+// However, these simple patterns catch the most common ReDoS cases with minimal overhead.
+const DANGEROUS_PATTERNS = [
+	/\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
+	/\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
+	/\([^)]*\+[^)]*\)\*/, // (x+)* style nesting
+	/\([^)]*\*[^)]*\)\+/, // (x*)+ style nesting
+	/\([^)]*\{[^}]+\}[^)]*\)\{/, // ({n,m}){...} style nesting
+];
+
+// Check for potentially dangerous ReDoS patterns
+function validatePattern(pattern: string): void {
+	if (pattern.length > MAX_PATTERN_LENGTH) {
+		throw new Error(
+			`Pattern too long (${pattern.length} chars, max: ${MAX_PATTERN_LENGTH})`,
+		);
+	}
+
+	for (const dangerousPattern of DANGEROUS_PATTERNS) {
+		if (dangerousPattern.test(pattern)) {
+			throw new Error(
+				"Pattern contains nested quantifiers (possible ReDoS risk)",
+			);
+		}
+	}
+}
 
 function withTimeout<T>(fn: () => T): T {
+	// Note: JavaScript regex operations are synchronous and cannot be truly interrupted.
+	// This timeout check happens *after* execution, so it won't prevent actual ReDoS attacks
+	// where the regex engine blocks for extended periods.
+	// The pattern validation above provides the main ReDoS protection.
 	const start = Date.now();
 	const result = fn();
-	if (Date.now() - start > TIMEOUT_MS) {
-		throw new Error("Regex execution timed out (possible ReDoS)");
+	const elapsed = Date.now() - start;
+	if (elapsed > TIMEOUT_MS) {
+		throw new Error(
+			`Regex execution took ${elapsed}ms (timeout: ${TIMEOUT_MS}ms, possible ReDoS)`,
+		);
 	}
 	return result;
 }
 
 export function execute(input: Input): string {
+	// Validate pattern for ReDoS risks
+	validatePattern(input.pattern);
+
 	let flags = input.flags ?? "";
 	if (input.action === "match" && !flags.includes("g")) {
 		flags = `g${flags}`;
