@@ -1,4 +1,4 @@
-import YAML from "yaml";
+import { parse } from "yaml";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -12,22 +12,35 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
+function getTypeOfParsed(parsed: unknown): string {
+	return Array.isArray(parsed)
+		? "array"
+		: parsed === null
+			? "null"
+			: typeof parsed;
+}
+
+function getStructureInfo(parsed: unknown): {
+	keys?: string[];
+	length?: number;
+} {
+	return {
+		keys:
+			typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+				? Object.keys(parsed)
+				: undefined,
+		length: Array.isArray(parsed) ? parsed.length : undefined,
+	};
+}
+
 function validateJson(input: string): string {
 	try {
 		const parsed = JSON.parse(input);
-		const type = Array.isArray(parsed)
-			? "array"
-			: parsed === null
-				? "null"
-				: typeof parsed;
+		const type = getTypeOfParsed(parsed);
 		return JSON.stringify({
 			valid: true,
 			type,
-			keys:
-				typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
-					? Object.keys(parsed)
-					: undefined,
-			length: Array.isArray(parsed) ? parsed.length : undefined,
+			...getStructureInfo(parsed),
 		});
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e);
@@ -65,6 +78,7 @@ function validateCsv(input: string): string {
 		rows: lines.length,
 		columns: headerCols,
 		headers: parseCsvLine(lines[0]),
+		error: errors.length > 0 ? errors[0] : undefined,
 		errors: errors.length > 0 ? errors : undefined,
 	});
 }
@@ -161,23 +175,13 @@ function validateYaml(input: string): string {
 	}
 
 	try {
-		const parsed = YAML.parse(input);
-
-		// Determine type of parsed result
-		const type = Array.isArray(parsed)
-			? "array"
-			: parsed === null
-				? "null"
-				: typeof parsed;
+		const parsed = parse(input);
+		const type = getTypeOfParsed(parsed);
 
 		return JSON.stringify({
 			valid: true,
 			type,
-			keys:
-				typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
-					? Object.keys(parsed)
-					: undefined,
-			length: Array.isArray(parsed) ? parsed.length : undefined,
+			...getStructureInfo(parsed),
 		});
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e);
