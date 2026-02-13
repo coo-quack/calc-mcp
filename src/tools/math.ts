@@ -87,8 +87,9 @@ export function execute(input: Input): string {
 	if (!input.expression) throw new Error("expression is required for eval");
 
 	// Check for dangerous patterns before evaluation
-	const dangerous = ["import", "createUnit", "eval", "Function"];
-	for (const pattern of dangerous) {
+	// (includes additional runtime checks beyond the filtered functions)
+	const runtimeDangerousPatterns = [...dangerousFunctions, "eval", "Function"];
+	for (const pattern of runtimeDangerousPatterns) {
 		if (input.expression.includes(pattern)) {
 			throw new Error(`Unsafe function call detected: ${pattern}`);
 		}
