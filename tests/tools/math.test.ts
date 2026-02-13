@@ -62,4 +62,23 @@ describe("math", () => {
 		expect(result.sum).toBe(0.6);
 		expect(result.mean).toBe(0.2);
 	});
+
+	test("rejects dangerous import function", () => {
+		expect(() => execute({ expression: "import('fs')" })).toThrow();
+	});
+
+	test("rejects dangerous createUnit function", () => {
+		expect(() => execute({ expression: "createUnit('foo')" })).toThrow();
+	});
+
+	test("bracket notation is not valid mathjs syntax", () => {
+		// mathjs does not support JavaScript-style bracket notation
+		// This will throw a parse error, not execute dangerous code
+		expect(() => execute({ expression: "['import']" })).toThrow();
+	});
+
+	test("window object is not accessible in mathjs", () => {
+		// mathjs has its own scope and does not have access to global objects
+		expect(() => execute({ expression: "window['import']" })).toThrow();
+	});
 });

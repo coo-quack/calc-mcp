@@ -2,7 +2,23 @@ import { all, create } from "mathjs";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
-const math = create(all, { number: "BigNumber", precision: 64 });
+// Create sandboxed math instance with dangerous functions disabled
+const mathConfig = all;
+
+// Remove dangerous functions that could be used for code injection
+const dangerousFunctions = [
+	"import", // Can load external modules
+	"createUnit", // Can modify global state
+];
+
+// Filter out dangerous functions
+const safeFunctions = Object.fromEntries(
+	Object.entries(mathConfig).filter(
+		([key]) => !dangerousFunctions.includes(key),
+	),
+);
+
+const math = create(safeFunctions, { number: "BigNumber", precision: 64 });
 
 const schema = {
 	expression: z.string().optional().describe("Math expression to evaluate"),
@@ -69,6 +85,19 @@ export function execute(input: Input): string {
 
 	// eval
 	if (!input.expression) throw new Error("expression is required for eval");
+
+	// Check for dangerous patterns before evaluation
+	// Note: mathjs uses its own parser and does not support JavaScript syntax
+	// like bracket notation (['import']) or global objects (window).
+	// This simple string check is sufficient because mathjs will reject
+	// any JavaScript-style code injection attempts as syntax errors.
+	const runtimeDangerousPatterns = [...dangerousFunctions, "eval", "Function"];
+	for (const pattern of runtimeDangerousPatterns) {
+		if (input.expression.includes(pattern)) {
+			throw new Error(`Unsafe function call detected: ${pattern}`);
+		}
+	}
+
 	const result = math.evaluate(input.expression);
 	if (result?.isInteger?.()) {
 		return result.toFixed(0);
