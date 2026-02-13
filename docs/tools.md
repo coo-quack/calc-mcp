@@ -190,18 +190,27 @@ When does "30 9 * * 1-5" run?
 
 ### hash
 
-Compute cryptographic hashes: MD5, SHA-1, SHA-256, SHA-512, CRC32.
+Compute hashes, checksums, or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32 (non-cryptographic checksum).
+
+::: warning Security Notice
+MD5 and SHA-1 (`sha1`) are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
+:::
 
 **Parameters:**
 - `input` (string) — String to hash
-- `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32`
+- `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32` (`crc32` is supported only with `action=hash`, not with `action=hmac`)
+- `action` (enum, optional) — `hash` (default) or `hmac`
+- `key` (string, optional) — Secret key for HMAC (required when action=hmac; HMAC is not available with `crc32`)
 
 **Examples:**
 ```
 SHA-256 hash of "password123"
 → ef92b778bafe771e89b862eebf...
 
-MD5 of "hello world"
+HMAC-SHA256 of "message" with key "secret"
+→ 8b5f48702995c159...
+
+MD5 of "hello world" (MD5 is cryptographically weak; avoid for security-sensitive uses)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3
 ```
 
@@ -333,17 +342,28 @@ Generate check digit for 453957876362148
 
 ### semver
 
-Semantic versioning operations: compare, validate, or check range satisfaction.
+Semantic versioning operations: compare, validate, parse, or check range satisfaction.
+
+Supports common npm-style range patterns: OR (`||`), AND (space-separated), and hyphen ranges. Other npm/semver range features may not be supported.
 
 **Parameters:**
-- `action` (enum) — `compare`, `valid`, or `satisfies`
+- `action` (enum) — `compare`, `valid`, `satisfies`, or `parse`
 - `version` (string) — Semver version string
 - `version2` (string, optional) — Second version for compare
-- `range` (string, optional) — Version range for satisfies (e.g., `^1.0.0`)
+- `range` (string, optional) — Version range for satisfies (e.g., `^1.0.0`, `>=1.0.0 <2.0.0`, `1.0.0 - 2.0.0`)
 
 **Examples:**
 ```
 Does 1.5.3 satisfy ^1.0.0?
+→ true
+
+Does 1.8.0 satisfy ">=1.5.0 <2.0.0"? (AND range)
+→ true
+
+Does 2.1.0 satisfy "^1.0.0 || ^2.0.0"? (OR range)
+→ true
+
+Does 1.5.0 satisfy "1.0.0 - 2.0.0"? (hyphen range)
 → true
 
 Compare 2.0.0 and 1.9.9
@@ -371,10 +391,10 @@ Is 192.168.1.50 in 192.168.1.0/24?
 
 ### color
 
-Convert between color formats: HEX ↔ RGB ↔ HSL.
+Convert between color formats: HEX ↔ RGB ↔ HSL. Supports alpha channel for transparency.
 
 **Parameters:**
-- `color` (string) — Color value: `#hex`, `rgb(r,g,b)`, or `hsl(h,s%,l%)`
+- `color` (string) — Color value: `#hex` (3/4/6/8 digits), `rgb(r,g,b)`, `rgba(r,g,b,a)`, `hsl(h,s%,l%)`, `hsla(h,s%,l%,a)`, or named color
 - `to` (enum, optional) — `hex`, `rgb`, or `hsl` (returns all if omitted)
 
 **Examples:**
@@ -384,6 +404,12 @@ Convert #FF5733 to RGB
 
 Convert rgb(100, 200, 50) to HSL
 → hsl(100, 60%, 49%)
+
+Convert #FF573380 to RGBA (8-digit HEX with alpha)
+→ rgba(255, 87, 51, 0.5019607843137255)
+
+Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
+→ #ff000080
 ```
 
 ### jwt_decode
