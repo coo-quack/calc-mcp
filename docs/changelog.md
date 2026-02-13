@@ -24,7 +24,7 @@ All notable changes to Calc MCP are documented here.
 ### Tests
 
 - Added 86 new tests covering HMAC, complex semver ranges, alpha channels, sandboxing, and ReDoS protection
-- All 386 tests passing
+- All 412 tests passing
 
 ## v1.7.2 (2026-02-13)
 

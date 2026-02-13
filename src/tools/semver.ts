@@ -52,7 +52,7 @@ function comparePre(a: string[], b: string[]): number {
 		if (i >= b.length) return 1;
 		const aPart = a[i];
 		const bPart = b[i];
-		if (!aPart || !bPart) continue;
+		if (aPart === undefined || bPart === undefined) continue;
 		const aNum = /^\d+$/.test(aPart);
 		const bNum = /^\d+$/.test(bPart);
 		if (aNum && bNum) {
