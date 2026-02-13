@@ -190,27 +190,27 @@ When does "30 9 * * 1-5" run?
 
 ### hash
 
-Compute cryptographic hashes or HMAC signatures (MD5, SHA-1, SHA-256, SHA-512) or a non-cryptographic checksum (CRC32).
+Compute hashes, checksums, or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32 (non-cryptographic checksum).
 
-:::warning Security Notice
-MD5 and SHA1 are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications. CRC32 is a checksum and is **not** cryptographically secure; use it only for non-security-sensitive integrity checks.
+::: warning Security Notice
+MD5 and SHA-1 (`sha1`) are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
 :::
 
 **Parameters:**
-- `input` (string) — String to hash or checksum
-- `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32`
-- `action` (enum, optional) — `hash` (default) or `hmac` (HMAC is only supported with `md5`, `sha1`, `sha256`, or `sha512`, not `crc32`)
-- `key` (string, optional) — Secret key for HMAC (required when `action=hmac` with a supported cryptographic hash; HMAC is not available with `crc32`)
+- `input` (string) — String to hash
+- `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32` (`crc32` is supported only with `action=hash`, not with `action=hmac`)
+- `action` (enum, optional) — `hash` (default) or `hmac`
+- `key` (string, optional) — Secret key for HMAC (required when action=hmac; HMAC is not available with `crc32`)
 
 **Examples:**
 ```
 SHA-256 hash of "password123"
 → ef92b778bafe771e89b862eebf...
 
-HMAC-SHA256 with key "secret"
-→ 8c4d2cdb5e7a9f3a...
+HMAC-SHA256 of "message" with key "secret"
+→ 8b5f48702995c159...
 
-MD5 of "hello world" (⚠️  warns about weakness)
+MD5 of "hello world" (MD5 is cryptographically weak; avoid for security-sensitive uses)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3
 ```
 
@@ -342,12 +342,12 @@ Generate check digit for 453957876362148
 
 ### semver
 
-Semantic versioning operations: compare, validate, or check range satisfaction.
+Semantic versioning operations: compare, validate, parse, or check range satisfaction.
 
-Supports a subset of npm-style range operators: OR (`||`), AND (space-separated), hyphen ranges, `^`, `~`, basic comparators, and limited wildcards.
+Supports common npm-style range patterns: OR (`||`), AND (space-separated), and hyphen ranges. Other npm/semver range features may not be supported.
 
 **Parameters:**
-- `action` (enum) — `compare`, `valid`, or `satisfies`
+- `action` (enum) — `compare`, `valid`, `satisfies`, or `parse`
 - `version` (string) — Semver version string
 - `version2` (string, optional) — Second version for compare
 - `range` (string, optional) — Version range for satisfies (e.g., `^1.0.0`, `>=1.0.0 <2.0.0`, `1.0.0 - 2.0.0`)

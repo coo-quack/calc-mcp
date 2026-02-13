@@ -98,9 +98,9 @@ SHA-256 hash of "password123"
 → ef92b778bafe771e89b862eebf... (hash)
 
 HMAC-SHA256 of "message" with key "secret"
-→ 8c4d2cdb5e7a9f3a... (hash with action=hmac)
+→ 8b5f48702995c159... (hash with action=hmac)
 
-MD5 of "hello world" (⚠️  warns about weakness)
+MD5 of "hello world" (⚠️ warning about MD5 weakness is logged on the server, not included in the tool result)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
 
 CRC32 checksum of "test"

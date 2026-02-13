@@ -56,7 +56,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | URL-decode "hello%20world" | `hello world` | encode |
 | HTML-decode `&lt;script&gt;` | `<script>` | encode |
 | SHA-256 hash of "password123" | `ef92b778bafe...` | hash |
-| HMAC-SHA256 of "message" with key "secret" | `8c4d2cdb5e7a...` | hash |
+| HMAC-SHA256 of "message" with key "secret" | `8b5f48702995...` | hash |
 
 ### Date & Time
 
