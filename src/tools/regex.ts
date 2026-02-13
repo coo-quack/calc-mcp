@@ -18,6 +18,10 @@ const TIMEOUT_MS = 1000;
 const MAX_PATTERN_LENGTH = 500;
 
 // Detect common ReDoS patterns (nested quantifiers)
+// Note: These heuristics don't account for escapes (\( \)) or character classes ([...])
+// which can lead to false positives/negatives. A proper solution would use a single-pass
+// parser tracking escape state, character classes, and group depth.
+// However, these simple patterns catch the most common ReDoS cases with minimal overhead.
 const DANGEROUS_PATTERNS = [
 	/\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
 	/\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
