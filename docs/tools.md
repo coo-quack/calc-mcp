@@ -192,23 +192,23 @@ When does "30 9 * * 1-5" run?
 
 Compute cryptographic hashes or HMAC signatures: MD5, SHA-1, SHA-256, SHA-512, CRC32.
 
-:::warning Security Notice
+::: warning Security Notice
 MD5 and SHA1 are cryptographically weak. Use SHA-256 or SHA-512 for security-sensitive applications.
 :::
 
 **Parameters:**
 - `input` (string) — String to hash
-- `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32`
+- `algorithm` (enum) — `md5`, `sha1`, `sha256`, `sha512`, or `crc32` (`crc32` is supported only with `action=hash`, not with `action=hmac`)
 - `action` (enum, optional) — `hash` (default) or `hmac`
-- `key` (string, optional) — Secret key for HMAC (required when action=hmac)
+- `key` (string, optional) — Secret key for HMAC (required when action=hmac; HMAC is not available with `crc32`)
 
 **Examples:**
 ```
 SHA-256 hash of "password123"
 → ef92b778bafe771e89b862eebf...
 
-HMAC-SHA256 with key "secret"
-→ 8c4d2cdb5e7a9f3a...
+HMAC-SHA256 of "message" with key "secret"
+→ 8b5f48702995c159...
 
 MD5 of "hello world" (⚠️  warns about weakness)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3
@@ -347,7 +347,7 @@ Semantic versioning operations: compare, validate, or check range satisfaction.
 Supports npm-style complex ranges: OR (`||`), AND (space-separated), and hyphen ranges.
 
 **Parameters:**
-- `action` (enum) — `compare`, `valid`, or `satisfies`
+- `action` (enum) — `compare`, `valid`, `satisfies`, or `parse`
 - `version` (string) — Semver version string
 - `version2` (string, optional) — Second version for compare
 - `range` (string, optional) — Version range for satisfies (e.g., `^1.0.0`, `>=1.0.0 <2.0.0`, `1.0.0 - 2.0.0`)
@@ -406,7 +406,7 @@ Convert rgb(100, 200, 50) to HSL
 → hsl(100, 60%, 49%)
 
 Convert #FF573380 to RGBA (8-digit HEX with alpha)
-→ rgba(255, 87, 51, 0.502)
+→ rgba(255, 87, 51, 0.5019607843137255)
 
 Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
 → #ff000080

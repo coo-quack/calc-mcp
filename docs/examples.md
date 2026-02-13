@@ -98,7 +98,7 @@ SHA-256 hash of "password123"
 → ef92b778bafe771e89b862eebf... (hash)
 
 HMAC-SHA256 of "message" with key "secret"
-→ 8c4d2cdb5e7a9f3a... (hash with action=hmac)
+→ 8b5f48702995c159... (hash with action=hmac)
 
 MD5 of "hello world" (⚠️  warns about weakness)
 → 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
@@ -341,7 +341,7 @@ Convert hsl(120, 100%, 50%) to HEX
 → #00FF00 (color)
 
 Convert #FF573380 to RGBA (8-digit HEX with 50% opacity)
-→ rgba(255, 87, 51, 0.502) (color)
+→ rgba(255, 87, 51, 0.50196078) (color)
 
 Convert rgba(255, 0, 0, 0.5) to 8-digit HEX
 → #ff000080 (color)
