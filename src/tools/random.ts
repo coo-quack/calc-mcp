@@ -139,17 +139,17 @@ function generateUUIDv7(): string {
 	const b2 = bytes[2];
 	const b3 = bytes[3];
 	const b4 = bytes[4];
-	const b5 = bytes[5];
-	const b6 = bytes[6];
-	const b8 = bytes[8];
-	if (b0 !== undefined) bytes[0] = Number((ms >> 40n) & 0xffn);
-	if (b1 !== undefined) bytes[1] = Number((ms >> 32n) & 0xffn);
-	if (b2 !== undefined) bytes[2] = Number((ms >> 24n) & 0xffn);
-	if (b3 !== undefined) bytes[3] = Number((ms >> 16n) & 0xffn);
-	if (b4 !== undefined) bytes[4] = Number((ms >> 8n) & 0xffn);
-	if (b5 !== undefined) bytes[5] = Number(ms & 0xffn);
-	if (b6 !== undefined) bytes[6] = (b6 & 0x0f) | 0x70;
-	if (b8 !== undefined) bytes[8] = (b8 & 0x3f) | 0x80;
+	// Uint8Array(16) is always fully initialized
+	const b6 = bytes[6]!;
+	const b8 = bytes[8]!;
+	bytes[0] = Number((ms >> 40n) & 0xffn);
+	bytes[1] = Number((ms >> 32n) & 0xffn);
+	bytes[2] = Number((ms >> 24n) & 0xffn);
+	bytes[3] = Number((ms >> 16n) & 0xffn);
+	bytes[4] = Number((ms >> 8n) & 0xffn);
+	bytes[5] = Number(ms & 0xffn);
+	bytes[6] = (b6 & 0x0f) | 0x70;
+	bytes[8] = (b8 & 0x3f) | 0x80;
 	const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
 		"",
 	);
@@ -194,8 +194,8 @@ function shuffle(items: string[]): string[] {
 	for (let i = result.length - 1; i > 0; i--) {
 		const array = new Uint32Array(1);
 		crypto.getRandomValues(array);
-		const randomValue = array[0];
-		if (randomValue === undefined) continue;
+		// Uint32Array[0] is always defined
+		const randomValue = array[0]!;
 		const j = randomValue % (i + 1);
 		const temp = result[i];
 		const swapItem = result[j];

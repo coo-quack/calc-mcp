@@ -58,7 +58,7 @@ function computeStatistics(values: number[]): string {
 
 	const bn = values.map((v) => math.bignumber(v));
 	const sorted = [...bn].sort((a, b) => a.comparedTo(b));
-	if (sorted.length === 0) throw new Error("Failed to process values");
+	// sorted is guaranteed to have at least one element (values.length > 0)
 	const sum = sorted.reduce((a, b) => math.add(a, b) as any) as any;
 	const mean = math.divide(sum, values.length);
 	const variance = math.divide(
@@ -81,11 +81,9 @@ function computeStatistics(values: number[]): string {
 
 	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
 
-	const firstValue = sorted[0];
-	const lastValue = sorted[sorted.length - 1];
-	if (firstValue === undefined || lastValue === undefined) {
-		throw new Error("Sorted array access failed");
-	}
+	// sorted is guaranteed non-empty, so first and last elements exist
+	const firstValue = sorted[0]!;
+	const lastValue = sorted[sorted.length - 1]!;
 
 	return JSON.stringify(
 		{
