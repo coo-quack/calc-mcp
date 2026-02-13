@@ -2,30 +2,6 @@
 
 All notable changes to Calc MCP are documented here.
 
-## v1.8.0 (2026-02-13)
-
-### Features
-
-- **hash** — HMAC support (SHA-256, SHA-512, SHA-1, MD5) with `action=hmac` and `key` parameter (#34)
-- **hash** — Security warnings for weak algorithms (MD5, SHA-1) logged to console (#34)
-- **semver** — npm-style complex range support: OR (`||`), AND (space-separated), hyphen ranges (`1.0.0 - 2.0.0`) (#35)
-- **color** — Alpha channel support: 8-digit HEX (`#RRGGBBAA`), 4-digit shorthand (`#RGBA`), `rgba()`, `hsla()` (#36)
-
-### Security
-
-- **math** — Sandbox dangerous functions (`import`, `createUnit`) to prevent code injection in MCP environments (#32)
-- **regex** — Strengthen ReDoS protection with pre-execution pattern validation (nested quantifiers, max length) (#33)
-
-### Improvements
-
-- **regex** — Enhanced timeout error messages with elapsed time and threshold (#33)
-- **hash** — Tool description now indicates MD5/SHA1 weaknesses (#34)
-
-### Tests
-
-- Added 86 new tests covering HMAC, complex semver ranges, alpha channels, sandboxing, and ReDoS protection
-- All 386 tests passing
-
 ## v1.7.2 (2026-02-13)
 
 ### Bug Fixes
