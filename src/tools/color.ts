@@ -183,8 +183,8 @@ function parseColor(color: string): RGB {
 		return namedColors[trimmed];
 	}
 
-	// HEX (3, 4, 6, or 8 digits)
-	const hexMatch = trimmed.match(/^#?([0-9a-fA-F]{3,8})$/);
+	// HEX (3, 4, 6, or 8 digits only)
+	const hexMatch = trimmed.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/);
 	if (hexMatch) {
 		let hex = hexMatch[1];
 		let alpha: number | undefined;
@@ -219,7 +219,7 @@ function parseColor(color: string): RGB {
 
 	// RGB / RGBA
 	const rgbMatch = trimmed.match(
-		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([0-9.]+)\s*)?\)/,
+		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (rgbMatch) {
 		const rgb: RGB = {
@@ -228,14 +228,18 @@ function parseColor(color: string): RGB {
 			b: Number.parseInt(rgbMatch[3], 10),
 		};
 		if (rgbMatch[4]) {
-			rgb.a = Number.parseFloat(rgbMatch[4]);
+			const alpha = Number.parseFloat(rgbMatch[4]);
+			if (alpha < 0 || alpha > 1) {
+				throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+			}
+			rgb.a = alpha;
 		}
 		return rgb;
 	}
 
 	// HSL / HSLA
 	const hslMatch = trimmed.match(
-		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([0-9.]+)\s*)?\)/,
+		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (hslMatch) {
 		const hsl: HSL = {
@@ -244,7 +248,11 @@ function parseColor(color: string): RGB {
 			l: Number.parseInt(hslMatch[3], 10),
 		};
 		if (hslMatch[4]) {
-			hsl.a = Number.parseFloat(hslMatch[4]);
+			const alpha = Number.parseFloat(hslMatch[4]);
+			if (alpha < 0 || alpha > 1) {
+				throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+			}
+			hsl.a = alpha;
 		}
 		return hslToRgb(hsl);
 	}
