@@ -84,4 +84,39 @@ describe("hash", () => {
 			}),
 		).toThrow(/CRC32 does not support HMAC/);
 	});
+
+	test("warns when using MD5", () => {
+		const originalWarn = console.warn;
+		const warnings: string[] = [];
+		console.warn = (msg: string) => warnings.push(msg);
+
+		execute({ input: "test", algorithm: "md5" });
+		expect(warnings.length).toBeGreaterThan(0);
+		expect(warnings[0]).toContain("MD5 is cryptographically weak");
+
+		console.warn = originalWarn;
+	});
+
+	test("warns when using SHA1", () => {
+		const originalWarn = console.warn;
+		const warnings: string[] = [];
+		console.warn = (msg: string) => warnings.push(msg);
+
+		execute({ input: "test", algorithm: "sha1" });
+		expect(warnings.length).toBeGreaterThan(0);
+		expect(warnings[0]).toContain("SHA1 is cryptographically weak");
+
+		console.warn = originalWarn;
+	});
+
+	test("does not warn when using SHA256", () => {
+		const originalWarn = console.warn;
+		const warnings: string[] = [];
+		console.warn = (msg: string) => warnings.push(msg);
+
+		execute({ input: "test", algorithm: "sha256" });
+		expect(warnings.length).toBe(0);
+
+		console.warn = originalWarn;
+	});
 });
