@@ -290,4 +290,26 @@ describe("semver", () => {
 		);
 		expect(result.satisfies).toBe(false);
 	});
+
+	test("does not treat prerelease hyphen as range delimiter", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "1.0.0-alpha",
+				range: "1.0.0-alpha",
+			}),
+		);
+		expect(result.satisfies).toBe(true);
+	});
+
+	test("handles prerelease versions in hyphen range", () => {
+		const result = JSON.parse(
+			execute({
+				action: "satisfies",
+				version: "1.5.0-beta",
+				range: "1.0.0-alpha - 2.0.0-rc",
+			}),
+		);
+		expect(result.satisfies).toBe(true);
+	});
 });

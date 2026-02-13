@@ -89,7 +89,8 @@ function satisfies(version: SemVer, range: string): boolean {
 	}
 
 	// Handle hyphen range (1.0.0 - 2.0.0)
-	const hyphenMatch = trimmed.match(/^(.+?)\s*-\s*(.+)$/);
+	// Require whitespace around hyphen to avoid matching prerelease hyphens
+	const hyphenMatch = trimmed.match(/^(.+)\s+-\s+(.+)$/);
 	if (hyphenMatch) {
 		const [, start, end] = hyphenMatch;
 		const startVer = parse(start);
