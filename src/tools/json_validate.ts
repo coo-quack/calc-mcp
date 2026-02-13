@@ -15,9 +15,14 @@ type Input = z.infer<typeof inputSchema>;
 function validateJson(input: string): string {
 	try {
 		const parsed = JSON.parse(input);
+		const type = Array.isArray(parsed)
+			? "array"
+			: parsed === null
+				? "null"
+				: typeof parsed;
 		return JSON.stringify({
 			valid: true,
-			type: Array.isArray(parsed) ? "array" : typeof parsed,
+			type,
 			keys:
 				typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
 					? Object.keys(parsed)
@@ -25,9 +30,11 @@ function validateJson(input: string): string {
 			length: Array.isArray(parsed) ? parsed.length : undefined,
 		});
 	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
 		return JSON.stringify({
 			valid: false,
-			error: e instanceof Error ? e.message : String(e),
+			error: message,
+			errors: [message],
 		});
 	}
 }
@@ -132,6 +139,16 @@ function validateXml(input: string): string {
 }
 
 function validateYaml(input: string): string {
+	// Reject empty input (consistent with CSV/XML validation)
+	if (input.trim().length === 0) {
+		const message = "Empty YAML";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
+	}
+
 	try {
 		const parsed = YAML.parse(input);
 
@@ -152,9 +169,11 @@ function validateYaml(input: string): string {
 			length: Array.isArray(parsed) ? parsed.length : undefined,
 		});
 	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
 		return JSON.stringify({
 			valid: false,
-			error: e instanceof Error ? e.message : String(e),
+			error: message,
+			errors: [message],
 		});
 	}
 }

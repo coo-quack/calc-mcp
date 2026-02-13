@@ -117,6 +117,36 @@ describe("json_validate", () => {
 		expect(result.type).toBe("null");
 	});
 
+	test("validates YAML boolean document", () => {
+		const result = JSON.parse(execute({ input: "true", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("boolean");
+	});
+
+	test("validates YAML number document", () => {
+		const result = JSON.parse(execute({ input: "42", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("number");
+	});
+
+	test("validates YAML string document", () => {
+		const result = JSON.parse(execute({ input: "hello", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("string");
+	});
+
+	test("validates YAML tilde null document", () => {
+		const result = JSON.parse(execute({ input: "~", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("null");
+	});
+
+	test("validates empty YAML", () => {
+		const result = JSON.parse(execute({ input: "", format: "yaml" }));
+		expect(result.valid).toBe(false);
+		expect(result.error).toBe("Empty YAML");
+	});
+
 	test("validates complex YAML", () => {
 		const yaml = `
 name: Product
