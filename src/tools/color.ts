@@ -166,11 +166,13 @@ interface RGB {
 	r: number;
 	g: number;
 	b: number;
+	a?: number; // 0-1 range for alpha
 }
 interface HSL {
 	h: number;
 	s: number;
 	l: number;
+	a?: number; // 0-1 range for alpha
 }
 
 function parseColor(color: string): RGB {
@@ -181,33 +183,65 @@ function parseColor(color: string): RGB {
 		return namedColors[trimmed];
 	}
 
-	// HEX
-	const hexMatch = trimmed.match(/^#?([0-9a-fA-F]{3,8})$/);
+	// HEX (3, 4, 6, or 8 digits only)
+	const hexMatch = trimmed.match(
+		/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
+	);
 	if (hexMatch) {
 		let hex = hexMatch[1];
+		let alpha: number | undefined;
+
+		// Expand 3-digit shorthand: #RGB -> #RRGGBB
 		if (hex.length === 3) {
 			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
 		}
-		return {
+		// Expand 4-digit shorthand: #RGBA -> #RRGGBBAA
+		else if (hex.length === 4) {
+			hex =
+				hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+		}
+
+		// Parse 8-digit HEX with alpha
+		if (hex.length === 8) {
+			alpha = Number.parseInt(hex.slice(6, 8), 16) / 255;
+		}
+
+		const rgb: RGB = {
 			r: Number.parseInt(hex.slice(0, 2), 16),
 			g: Number.parseInt(hex.slice(2, 4), 16),
 			b: Number.parseInt(hex.slice(4, 6), 16),
 		};
+
+		if (alpha !== undefined) {
+			rgb.a = alpha;
+		}
+
+		return rgb;
 	}
 
-	// RGB
-	const rgbMatch = trimmed.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+	// RGB / RGBA
+	const rgbMatch = trimmed.match(
+		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
+	);
 	if (rgbMatch) {
-		return {
+		const rgb: RGB = {
 			r: Number.parseInt(rgbMatch[1], 10),
 			g: Number.parseInt(rgbMatch[2], 10),
 			b: Number.parseInt(rgbMatch[3], 10),
 		};
+		if (rgbMatch[4]) {
+			const alpha = Number.parseFloat(rgbMatch[4]);
+			if (alpha < 0 || alpha > 1) {
+				throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+			}
+			rgb.a = alpha;
+		}
+		return rgb;
 	}
 
-	// HSL
+	// HSL / HSLA
 	const hslMatch = trimmed.match(
-		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?/,
+		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (hslMatch) {
 		const hsl: HSL = {
@@ -215,6 +249,13 @@ function parseColor(color: string): RGB {
 			s: Number.parseInt(hslMatch[2], 10),
 			l: Number.parseInt(hslMatch[3], 10),
 		};
+		if (hslMatch[4]) {
+			const alpha = Number.parseFloat(hslMatch[4]);
+			if (alpha < 0 || alpha > 1) {
+				throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+			}
+			hsl.a = alpha;
+		}
 		return hslToRgb(hsl);
 	}
 
@@ -226,7 +267,11 @@ function rgbToHex(rgb: RGB): string {
 		Math.max(0, Math.min(255, Math.round(n)))
 			.toString(16)
 			.padStart(2, "0");
-	return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+	let hex = `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+	if (rgb.a !== undefined) {
+		hex += toHex(Math.round(rgb.a * 255));
+	}
+	return hex;
 }
 
 function rgbToHsl(rgb: RGB): HSL {
@@ -237,27 +282,30 @@ function rgbToHsl(rgb: RGB): HSL {
 	const min = Math.min(r, g, b);
 	const l = (max + min) / 2;
 
-	if (max === min) {
-		return { h: 0, s: 0, l: Math.round(l * 100) };
+	const hsl: HSL = { h: 0, s: 0, l: Math.round(l * 100) };
+
+	if (max !== min) {
+		const d = max - min;
+		const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		let h: number;
+
+		if (max === r) {
+			h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+		} else if (max === g) {
+			h = ((b - r) / d + 2) / 6;
+		} else {
+			h = ((r - g) / d + 4) / 6;
+		}
+
+		hsl.h = Math.round(h * 360);
+		hsl.s = Math.round(s * 100);
 	}
 
-	const d = max - min;
-	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-	let h: number;
-
-	if (max === r) {
-		h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-	} else if (max === g) {
-		h = ((b - r) / d + 2) / 6;
-	} else {
-		h = ((r - g) / d + 4) / 6;
+	if (rgb.a !== undefined) {
+		hsl.a = rgb.a;
 	}
 
-	return {
-		h: Math.round(h * 360),
-		s: Math.round(s * 100),
-		l: Math.round(l * 100),
-	};
+	return hsl;
 }
 
 function hslToRgb(hsl: HSL): RGB {
@@ -265,29 +313,35 @@ function hslToRgb(hsl: HSL): RGB {
 	const s = hsl.s / 100;
 	const l = hsl.l / 100;
 
+	const rgb: RGB = { r: 0, g: 0, b: 0 };
+
 	if (s === 0) {
 		const v = Math.round(l * 255);
-		return { r: v, g: v, b: v };
+		rgb.r = rgb.g = rgb.b = v;
+	} else {
+		const hue2rgb = (p: number, q: number, t: number) => {
+			let tt = t;
+			if (tt < 0) tt += 1;
+			if (tt > 1) tt -= 1;
+			if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+			if (tt < 1 / 2) return q;
+			if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+			return p;
+		};
+
+		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		const p = 2 * l - q;
+
+		rgb.r = Math.round(hue2rgb(p, q, h + 1 / 3) * 255);
+		rgb.g = Math.round(hue2rgb(p, q, h) * 255);
+		rgb.b = Math.round(hue2rgb(p, q, h - 1 / 3) * 255);
 	}
 
-	const hue2rgb = (p: number, q: number, t: number) => {
-		let tt = t;
-		if (tt < 0) tt += 1;
-		if (tt > 1) tt -= 1;
-		if (tt < 1 / 6) return p + (q - p) * 6 * tt;
-		if (tt < 1 / 2) return q;
-		if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
-		return p;
-	};
+	if (hsl.a !== undefined) {
+		rgb.a = hsl.a;
+	}
 
-	const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-	const p = 2 * l - q;
-
-	return {
-		r: Math.round(hue2rgb(p, q, h + 1 / 3) * 255),
-		g: Math.round(hue2rgb(p, q, h) * 255),
-		b: Math.round(hue2rgb(p, q, h - 1 / 3) * 255),
-	};
+	return rgb;
 }
 
 export function execute(input: Input): string {
@@ -295,15 +349,35 @@ export function execute(input: Input): string {
 	const hex = rgbToHex(rgb);
 	const hsl = rgbToHsl(rgb);
 
+	const hasAlpha = rgb.a !== undefined;
+	const rgbStr = hasAlpha
+		? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`
+		: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+	const hslStr = hasAlpha
+		? `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${hsl.a})`
+		: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+
 	if (input.to === "hex") return hex;
-	if (input.to === "rgb") return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-	if (input.to === "hsl") return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+	if (input.to === "rgb") return rgbStr;
+	if (input.to === "hsl") return hslStr;
+
+	const values: Record<string, number> = {
+		r: rgb.r,
+		g: rgb.g,
+		b: rgb.b,
+		h: hsl.h,
+		s: hsl.s,
+		l: hsl.l,
+	};
+	if (hasAlpha && rgb.a !== undefined) {
+		values.a = rgb.a;
+	}
 
 	return JSON.stringify({
 		hex,
-		rgb: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`,
-		hsl: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`,
-		values: { r: rgb.r, g: rgb.g, b: rgb.b, h: hsl.h, s: hsl.s, l: hsl.l },
+		rgb: rgbStr,
+		hsl: hslStr,
+		values,
 	});
 }
 

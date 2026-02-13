@@ -53,4 +53,91 @@ describe("color", () => {
 		expect(execute({ color: "RED", to: "hex" })).toBe("#ff0000");
 		expect(execute({ color: "Blue", to: "hex" })).toBe("#0000ff");
 	});
+
+	test("parses 8-digit hex with alpha", () => {
+		const result = execute({ color: "#ff000080", to: "rgb" });
+		expect(result).toBe("rgba(255, 0, 0, 0.5019607843137255)");
+	});
+
+	test("converts 8-digit hex to hex (preserves alpha)", () => {
+		const result = execute({ color: "#ff000080", to: "hex" });
+		expect(result).toBe("#ff000080");
+	});
+
+	test("parses 4-digit hex shorthand with alpha", () => {
+		const result = execute({ color: "#f008", to: "hex" });
+		expect(result).toBe("#ff000088");
+	});
+
+	test("parses rgba", () => {
+		const result = execute({ color: "rgba(255, 0, 0, 0.5)", to: "rgb" });
+		expect(result).toBe("rgba(255, 0, 0, 0.5)");
+	});
+
+	test("parses hsla", () => {
+		const result = execute({ color: "hsla(0, 100%, 50%, 0.8)", to: "hsl" });
+		expect(result).toBe("hsla(0, 100%, 50%, 0.8)");
+	});
+
+	test("converts rgba to hex with alpha", () => {
+		const result = execute({ color: "rgba(255, 0, 0, 0.5)", to: "hex" });
+		expect(result).toBe("#ff000080");
+	});
+
+	test("converts hsla to hex with alpha", () => {
+		const result = execute({ color: "hsla(120, 100%, 50%, 0.25)", to: "hex" });
+		expect(result).toBe("#00ff0040");
+	});
+
+	test("returns all formats with alpha", () => {
+		const result = JSON.parse(execute({ color: "#ff000080" }));
+		expect(result.hex).toBe("#ff000080");
+		expect(result.rgb).toContain("rgba");
+		expect(result.hsl).toContain("hsla");
+		expect(result.values.a).toBeCloseTo(0.5, 1);
+	});
+
+	test("rejects invalid hex length (5 digits)", () => {
+		expect(() => execute({ color: "#12345" })).toThrow();
+	});
+
+	test("rejects invalid hex length (7 digits)", () => {
+		expect(() => execute({ color: "#1234567" })).toThrow();
+	});
+
+	test("rejects rgba with alpha > 1", () => {
+		expect(() => execute({ color: "rgba(255, 0, 0, 999)" })).toThrow(/Alpha value must be between 0 and 1/);
+	});
+
+	test("rejects rgba with negative alpha", () => {
+		expect(() => execute({ color: "rgba(255, 0, 0, -0.5)" })).toThrow(/Alpha value must be between 0 and 1/);
+	});
+
+	test("rejects hsla with alpha > 1", () => {
+		expect(() => execute({ color: "hsla(0, 100%, 50%, 999)" })).toThrow(/Alpha value must be between 0 and 1/);
+	});
+
+	test("rejects hsla with negative alpha", () => {
+		expect(() => execute({ color: "hsla(0, 100%, 50%, -0.5)" })).toThrow(/Alpha value must be between 0 and 1/);
+	});
+
+	test("handles fully transparent alpha", () => {
+		const hex = execute({ color: "rgba(255, 0, 0, 0)", to: "hex" });
+		expect(hex).toBe("#ff000000");
+
+		const result = JSON.parse(execute({ color: "#ff000000" }));
+		expect(result.hex).toBe("#ff000000");
+		expect(result.rgb).toContain("rgba");
+		expect(result.values.a).toBeCloseTo(0, 3);
+	});
+
+	test("handles fully opaque alpha", () => {
+		const hex = execute({ color: "rgba(255, 0, 0, 1)", to: "hex" });
+		expect(hex).toBe("#ff0000ff");
+
+		const result = JSON.parse(execute({ color: "#ff0000ff" }));
+		expect(result.hex).toBe("#ff0000ff");
+		expect(result.rgb).toContain("rgba");
+		expect(result.values.a).toBeCloseTo(1, 3);
+	});
 });
