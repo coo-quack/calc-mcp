@@ -81,14 +81,20 @@ function computeStatistics(values: number[]): string {
 
 	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
 
+	const firstValue = sorted[0];
+	const lastValue = sorted[sorted.length - 1];
+	if (firstValue === undefined || lastValue === undefined) {
+		throw new Error("Sorted array access failed");
+	}
+
 	return JSON.stringify(
 		{
 			count: values.length,
 			sum: fmt(sum),
 			mean: fmt(mean),
 			median: fmt(median),
-			min: fmt(sorted[0]),
-			max: fmt(sorted[sorted.length - 1]),
+			min: fmt(firstValue),
+			max: fmt(lastValue),
 			variance: fmt(variance),
 			stddev: fmt(stddev),
 		},

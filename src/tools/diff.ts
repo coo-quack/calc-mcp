@@ -24,7 +24,9 @@ function lcs(a: string[], b: string[]): boolean[][] {
 		for (let j = 1; j <= n; j++) {
 			const currRow = dp[i];
 			const prevRow = dp[i - 1];
-			if (!currRow || !prevRow) continue;
+			if (!currRow || !prevRow) {
+				throw new Error("LCS dp table is not properly initialized");
+			}
 			const prevRowCurrCol = prevRow[j];
 			const currRowPrevCol = currRow[j - 1];
 			const prevRowPrevCol = prevRow[j - 1];
@@ -32,8 +34,9 @@ function lcs(a: string[], b: string[]): boolean[][] {
 				prevRowCurrCol === undefined ||
 				currRowPrevCol === undefined ||
 				prevRowPrevCol === undefined
-			)
-				continue;
+			) {
+				throw new Error("LCS dp table is not properly initialized");
+			}
 
 			if (a[i - 1] === b[j - 1]) {
 				currRow[j] = prevRowPrevCol + 1;
@@ -57,10 +60,14 @@ function lcs(a: string[], b: string[]): boolean[][] {
 		} else {
 			const prevRow = dp[i - 1];
 			const currRow = dp[i];
-			if (!prevRow || !currRow) break;
+			if (!prevRow || !currRow) {
+				throw new Error("LCS backtrack: dp table is corrupted");
+			}
 			const prevJ = prevRow[j];
 			const currJPrev = currRow[j - 1];
-			if (prevJ === undefined || currJPrev === undefined) break;
+			if (prevJ === undefined || currJPrev === undefined) {
+				throw new Error("LCS backtrack: dp table is corrupted");
+			}
 			if (prevJ >= currJPrev) {
 				i--;
 			} else {
@@ -134,7 +141,9 @@ function levenshteinDistance(s: string, t: string): number {
 			const cost = s[i - 1] === t[j - 1] ? 0 : 1;
 			const currRow = dp[i];
 			const prevRow = dp[i - 1];
-			if (!currRow || !prevRow) continue;
+			if (!currRow || !prevRow) {
+				throw new Error("Levenshtein dp table is not properly initialized");
+			}
 			const currJPrev = currRow[j - 1];
 			const prevJ = prevRow[j];
 			const prevJPrev = prevRow[j - 1];
@@ -142,8 +151,9 @@ function levenshteinDistance(s: string, t: string): number {
 				currJPrev === undefined ||
 				prevJ === undefined ||
 				prevJPrev === undefined
-			)
-				continue;
+			) {
+				throw new Error("Levenshtein dp table is not properly initialized");
+			}
 			currRow[j] = Math.min(prevJ + 1, currJPrev + 1, prevJPrev + cost);
 		}
 	}

@@ -113,7 +113,7 @@ function ipInfo(ip: string): string {
 		version: 4,
 		class: firstOctet !== undefined ? getIpv4Class(firstOctet) : "unknown",
 		isPrivate: isPrivate(ip),
-		isLoopback: parts[0] === 127,
+		isLoopback: firstOctet === 127,
 		binary: num.toString(2).padStart(32, "0"),
 		decimal: num,
 	});

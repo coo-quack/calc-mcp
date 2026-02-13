@@ -20,7 +20,9 @@ function luhnChecksum(digits: number[]): number {
 
 	for (let i = digits.length - 1; i >= 0; i--) {
 		const digit = digits[i];
-		if (digit === undefined) continue;
+		if (digit === undefined) {
+			throw new Error(`Invalid digit at index ${i}: undefined`);
+		}
 		let d = digit;
 		if (isDouble) {
 			d *= 2;
