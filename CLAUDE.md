@@ -94,8 +94,6 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 - Commit style: [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:`, `test:`
 - Scoped commits: `feat(tool-name): description`
-- Do NOT add `Co-Authored-By` or any co-author trailer to commit messages
-- Do NOT add AI attribution (e.g. "Generated with Claude Code") in PRs, commits, or files
 
 ## CI/CD Workflows
 
