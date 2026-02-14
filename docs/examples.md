@@ -63,6 +63,9 @@ Count words in "The quick brown fox jumps"
 
 How many lines in this text? (multiline input)
 → 10 lines (count)
+
+Shift_JIS byte count of "東京タワー"
+→ 5 chars, 10 bytes (Shift_JIS) (count)
 ```
 
 ### Base64
@@ -75,7 +78,7 @@ Base64 decode "eyJhbGciOiJIUzI1NiJ9"
 → {"alg":"HS256"} (base64)
 ```
 
-### URL Encoding
+### Encoding & Decoding
 
 ```
 URL-encode "hello world"
@@ -89,6 +92,12 @@ HTML-encode "<script>alert('XSS')</script>"
 
 HTML-decode "&lt;script&gt;"
 → <script> (encode)
+
+Unicode-encode "こんにちは"
+→ \u3053\u3093\u306b\u3061\u306f (encode)
+
+Unicode-decode "\u3053\u3093\u306b\u3061\u306f"
+→ こんにちは (encode)
 ```
 
 ### Hashing
@@ -98,9 +107,9 @@ SHA-256 hash of "password123"
 → ef92b778bafe771e89245b89ec... (hash)
 
 HMAC-SHA256 of "message" with key "secret"
-→ 8b5f48702995c159... (hash with action=hmac)
+→ 8b5f48702995c159... (hash)
 
-MD5 of "hello world" (⚠️ warning about MD5 weakness is logged on the server, not included in the tool result)
+MD5 of "hello world"
 → 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
 
 CRC32 checksum of "test"
@@ -120,6 +129,16 @@ What time is it in Tokyo?
 
 What's the current UNIX timestamp?
 → 1707638400 (datetime)
+```
+
+### Timezone Conversion
+
+```
+Convert 2026-02-14 12:00 from New York time to Tokyo time
+→ 2026-02-15T02:00:00+09:00 (datetime)
+
+Format 2026-02-14 in Tokyo timezone as "yyyy/MM/dd HH:mm"
+→ 2026/02/14 12:00 (datetime)
 ```
 
 ### Date Arithmetic
@@ -145,11 +164,14 @@ Difference in months between 2025-01-01 and 2026-01-01
 → 12 months (date)
 ```
 
-### Weekdays
+### Weekdays & Wareki
 
 ```
 What day of the week is 2026-02-11?
 → Wednesday (水曜日) (date)
+
+Convert 2026-02-14 to Japanese era (wareki)
+→ 令和8年2月14日 (date)
 ```
 
 ### Cron Expressions
@@ -166,6 +188,9 @@ When does "0 0 1 JAN-MAR *" run? (month names)
 
 Parse "0 0 1 * *"
 → Monthly on the 1st at midnight (cron_parse)
+
+When does "@daily" run?
+→ Every day at midnight (cron_parse)
 
 Next 5 runs of "*/15 * * * *"
 → Every 15 minutes: 10:00, 10:15, 10:30... (cron_parse)
@@ -270,6 +295,26 @@ Randomize order: ["A", "B", "C", "D", "E"]
 → 4046.86 m² (convert)
 ```
 
+### Volume
+
+```
+2 liters in cups?
+→ 8.454 cups (convert)
+
+1 gallon in liters?
+→ 3.785 liters (convert)
+```
+
+### Speed
+
+```
+100 km/h in mph?
+→ 62.14 mph (convert)
+
+60 mph in km/h?
+→ 96.56 km/h (convert)
+```
+
 ### Data
 
 ```
@@ -306,6 +351,9 @@ Does "hello@example.com" match an email pattern?
 
 Replace all spaces with dashes in "hello world"
 → "hello-world" (regex)
+
+Find all capitalized words in "Hello World Foo bar Baz"
+→ ["Hello", "World", "Foo", "Baz"] (regex)
 ```
 
 ### Text Diff
@@ -373,6 +421,9 @@ Compare 2.0.0 and 1.9.9
 
 Is "1.2.3-beta.1" a valid semver?
 → true (semver)
+
+Parse version "2.1.3-beta.1+build.456"
+→ { major: 2, minor: 1, patch: 3, prerelease: "beta.1", build: "build.456" } (semver)
 ```
 
 ## Decode & Parse
@@ -383,7 +434,7 @@ Is "1.2.3-beta.1" a valid semver?
 Is '{"name":"test"}' valid JSON?
 → valid, object, keys: ["name"] (json_validate)
 
-Validate this YAML: "name: test\nversion: 1.0"
+Validate this YAML: "name: test / version: 1.0"
 → valid, object, keys: ["name", "version"] (json_validate)
 
 Validate CSV with 3 columns
