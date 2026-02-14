@@ -117,6 +117,11 @@ function buildCharset(input: Input): string {
  */
 function uniformRandomInt(range: number): number {
 	if (range <= 1) return 0;
+	if (range > 0xffffffff) {
+		throw new Error(
+			`Range too large for 32-bit random generation: ${range} (max: ${0xffffffff})`,
+		);
+	}
 	const limit = 0x100000000 - (0x100000000 % range);
 	const array = new Uint32Array(1);
 	let value: number;
@@ -130,7 +135,7 @@ function uniformRandomInt(range: number): number {
 function generatePassword(length: number, charset: string): string {
 	return Array.from(
 		{ length },
-		() => charset[uniformRandomInt(charset.length)],
+		() => charset[uniformRandomInt(charset.length)]!,
 	).join("");
 }
 
@@ -168,7 +173,7 @@ function generateULID(): string {
 	let timeStr = "";
 	let t = now;
 	for (let i = 0; i < 10; i++) {
-		timeStr = ULID_ENCODING[t % 32] + timeStr;
+		timeStr = ULID_ENCODING[t % 32]! + timeStr;
 		t = Math.floor(t / 32);
 	}
 	const randomBytes = new Uint8Array(10);
@@ -186,7 +191,7 @@ function generateULID(): string {
 					(randomBytes[byteIndex + 1]! >> (11 - bitOffset))) &
 				0x1f;
 		}
-		randomStr += ULID_ENCODING[value];
+		randomStr += ULID_ENCODING[value]!;
 	}
 	return timeStr + randomStr;
 }
