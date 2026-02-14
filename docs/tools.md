@@ -346,8 +346,6 @@ Semantic versioning operations: compare, validate, parse, or check range satisfa
 
 Supports common npm-style range patterns: OR (`||`), AND (space-separated), and hyphen ranges. Other npm/semver range features may not be supported.
 
-Supports npm-style complex ranges: OR (`||`), AND (space-separated), and hyphen ranges.
-
 **Parameters:**
 - `action` (enum) — `compare`, `valid`, `satisfies`, or `parse`
 - `version` (string) — Semver version string
