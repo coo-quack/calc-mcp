@@ -144,11 +144,7 @@ function validateXml(input: string): string {
 	match = tagRegex.exec(input);
 	while (match !== null) {
 		const full = match[0];
-		const name = match[1];
-		if (!name) {
-			match = tagRegex.exec(input);
-			continue;
-		}
+		const name = match[1]!;
 		if (full.startsWith("</")) {
 			// closing tag
 			if (stack.length === 0 || stack[stack.length - 1] !== name) {

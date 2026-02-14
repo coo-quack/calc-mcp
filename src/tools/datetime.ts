@@ -103,14 +103,10 @@ function formatOutput(date: Date, timezone: string, format?: string): string {
 	const isoLocal = toISOInTimezone(date, timezone);
 
 	switch (format) {
-		case "date": {
-			const datePart = isoLocal.split("T")[0];
-			return datePart ?? "";
-		}
-		case "time": {
-			const timePart = isoLocal.split("T")[1];
-			return `${timePart ?? ""}${offset}`;
-		}
+		case "date":
+			return isoLocal.split("T")[0]!;
+		case "time":
+			return `${isoLocal.split("T")[1]!}${offset}`;
 		case "short":
 			return date.toLocaleString("en-US", {
 				timeZone: timezone,

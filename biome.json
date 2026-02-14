@@ -12,7 +12,7 @@
 		"rules": {
 			"recommended": true,
 			"style": {
-				"noNonNullAssertion": "off"
+				"noNonNullAssertion": "warn"
 			},
 			"suspicious": {
 				"noExplicitAny": "error"

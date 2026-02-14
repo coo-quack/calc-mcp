@@ -50,9 +50,8 @@ function comparePre(a: string[], b: string[]): number {
 	for (let i = 0; i < len; i++) {
 		if (i >= a.length) return -1;
 		if (i >= b.length) return 1;
-		const aPart = a[i];
-		const bPart = b[i];
-		if (aPart === undefined || bPart === undefined) continue;
+		const aPart = a[i]!;
+		const bPart = b[i]!;
 		const aNum = /^\d+$/.test(aPart);
 		const bNum = /^\d+$/.test(bPart);
 		if (aNum && bNum) {
