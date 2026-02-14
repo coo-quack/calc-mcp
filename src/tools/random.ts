@@ -155,8 +155,7 @@ function generateULID(): string {
 	let timeStr = "";
 	let t = now;
 	for (let i = 0; i < 10; i++) {
-		const encodedChar = ULID_ENCODING[t % 32];
-		timeStr = (encodedChar ?? "0") + timeStr;
+		timeStr = ULID_ENCODING[t % 32] + timeStr;
 		t = Math.floor(t / 32);
 	}
 	const randomBytes = new Uint8Array(10);
@@ -166,17 +165,15 @@ function generateULID(): string {
 		const byteIndex = Math.floor((i * 5) / 8);
 		const bitOffset = (i * 5) % 8;
 		let value: number;
-		const byte1 = randomBytes[byteIndex];
-		const byte2 = randomBytes[byteIndex + 1];
-		if (byte1 === undefined) continue;
 		if (bitOffset <= 3) {
-			value = (byte1 >> (3 - bitOffset)) & 0x1f;
+			value = (randomBytes[byteIndex]! >> (3 - bitOffset)) & 0x1f;
 		} else {
-			if (byte2 === undefined) continue;
-			value = ((byte1 << (bitOffset - 3)) | (byte2 >> (11 - bitOffset))) & 0x1f;
+			value =
+				((randomBytes[byteIndex]! << (bitOffset - 3)) |
+					(randomBytes[byteIndex + 1]! >> (11 - bitOffset))) &
+				0x1f;
 		}
-		const encodedChar = ULID_ENCODING[value];
-		randomStr += encodedChar ?? "0";
+		randomStr += ULID_ENCODING[value];
 	}
 	return timeStr + randomStr;
 }
@@ -188,15 +185,8 @@ function shuffle(items: string[]): string[] {
 	for (let i = result.length - 1; i > 0; i--) {
 		const array = new Uint32Array(1);
 		crypto.getRandomValues(array);
-		// Uint32Array[0] is always defined
-		const randomValue = array[0]!;
-		const j = randomValue % (i + 1);
-		const temp = result[i];
-		const swapItem = result[j];
-		if (temp !== undefined && swapItem !== undefined) {
-			result[i] = swapItem;
-			result[j] = temp;
-		}
+		const j = array[0]! % (i + 1);
+		[result[i], result[j]] = [result[j], result[i]];
 	}
 	return result;
 }

@@ -74,24 +74,15 @@ function lineDiff(text1: string, text2: string): string {
 	let j = 0;
 
 	while (i < lines1.length || j < lines2.length) {
-		const line1 = lines1[i];
-		const line2 = lines2[j];
-		const inLcs1Val = inLcs1[i];
-		const inLcs2Val = inLcs2[j];
-
-		if (i < lines1.length && inLcs1Val === false && line1 !== undefined) {
-			output.push(`- ${line1}`);
+		if (i < lines1.length && !inLcs1[i]) {
+			output.push(`- ${lines1[i]}`);
 			i++;
-		} else if (
-			j < lines2.length &&
-			inLcs2Val === false &&
-			line2 !== undefined
-		) {
-			output.push(`+ ${line2}`);
+		} else if (j < lines2.length && !inLcs2[j]) {
+			output.push(`+ ${lines2[j]}`);
 			j++;
 		} else {
-			if (i < lines1.length && line1 !== undefined) {
-				output.push(`  ${line1}`);
+			if (i < lines1.length) {
+				output.push(`  ${lines1[i]}`);
 			}
 			i++;
 			j++;
