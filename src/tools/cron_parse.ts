@@ -328,15 +328,18 @@ function resolveToken(
 	token: string,
 	nameMap: Record<string, number>,
 	labels: string[],
+	isWeekday = false,
 ): string {
 	const trimmed = token.trim();
 	const key = trimmed.toLowerCase();
 	if (Object.hasOwn(nameMap, key)) {
 		return labels[nameMap[key]] ?? trimmed;
 	}
-	const num = Number.parseInt(trimmed, 10);
-	if (!Number.isNaN(num) && labels[num] !== undefined) {
-		return labels[num];
+	let num = Number.parseInt(trimmed, 10);
+	if (!Number.isNaN(num)) {
+		// Normalize weekday 7 → 0 (Sunday) for description consistency
+		if (isWeekday && num === 7) num = 0;
+		if (labels[num] !== undefined) return labels[num];
 	}
 	return trimmed;
 }
@@ -345,6 +348,7 @@ function describeField(
 	field: string,
 	nameMap: Record<string, number>,
 	labels: string[],
+	isWeekday = false,
 ): string {
 	return field
 		.split(",")
@@ -357,11 +361,11 @@ function describeField(
 			let desc: string;
 			if (range.includes("-") && /^\S+-\S+$/.test(range)) {
 				const [start, end] = range.split("-", 2);
-				desc = `${resolveToken(start, nameMap, labels)}-${resolveToken(end, nameMap, labels)}`;
+				desc = `${resolveToken(start, nameMap, labels, isWeekday)}-${resolveToken(end, nameMap, labels, isWeekday)}`;
 			} else if (range === "*") {
 				desc = "*";
 			} else {
-				desc = resolveToken(range, nameMap, labels);
+				desc = resolveToken(range, nameMap, labels, isWeekday);
 			}
 
 			return step ? `${desc}/${step}` : desc;
@@ -380,7 +384,9 @@ function describeCron(fields: string[]): string {
 			`in month ${describeField(fields[3], MONTH_NAMES, MONTH_LABELS)}`,
 		);
 	if (fields[4] !== "*")
-		parts.push(`on ${describeField(fields[4], WEEKDAY_NAMES, DAY_LABELS)}`);
+		parts.push(
+			`on ${describeField(fields[4], WEEKDAY_NAMES, DAY_LABELS, true)}`,
+		);
 
 	return parts.length > 0 ? parts.join(", ") : "every minute";
 }

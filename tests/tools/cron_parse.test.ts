@@ -279,6 +279,7 @@ describe("cron_parse", () => {
 		const withSeven = JSON.parse(execute({ expression: "0 0 * * 7", count: 3 }));
 		const withZero = JSON.parse(execute({ expression: "0 0 * * 0", count: 3 }));
 		expect(withSeven.nextOccurrences).toEqual(withZero.nextOccurrences);
+		expect(withSeven.description).toBe(withZero.description);
 
 		for (const occurrence of withSeven.nextOccurrences) {
 			const date = new Date(occurrence);
