@@ -172,17 +172,19 @@ function validateXml(input: string): string {
 	});
 }
 
-function validateYaml(input: string): string {
-	// Reject empty input (consistent with CSV/XML validation)
-	if (input.trim().length === 0) {
-		const message = "Empty input";
-		return JSON.stringify({
-			valid: false,
-			error: message,
-			errors: [message],
-		});
-	}
+const MULTI_DOC_INDICATORS = [
+	"parseAllDocuments",
+	"multiple documents",
+	"multi-document",
+];
 
+function isMultiDocumentError(message: string): boolean {
+	const lower = message.toLowerCase();
+	return MULTI_DOC_INDICATORS.some((ind) => lower.includes(ind));
+}
+
+function validateYaml(input: string): string {
+	// YAML spec: empty/whitespace-only documents parse to null — let parse() handle them
 	try {
 		const parsed = parse(input, { logLevel: "error" });
 		const type = getTypeOfParsed(parsed);
@@ -194,7 +196,7 @@ function validateYaml(input: string): string {
 		});
 	} catch (e) {
 		let message = e instanceof Error ? e.message : String(e);
-		if (message.includes("parseAllDocuments")) {
+		if (isMultiDocumentError(message)) {
 			message =
 				"Source contains multiple YAML documents; only single-document input is supported";
 		}

@@ -100,13 +100,16 @@ describe("json_validate", () => {
 	});
 
 	test("validates multi-document YAML", () => {
+		const expectedMessage =
+			"Source contains multiple YAML documents; only single-document input is supported";
 		const result = JSON.parse(
 			execute({ input: "---\nfoo: bar\n---\nbaz: qux", format: "yaml" }),
 		);
 		expect(result.valid).toBe(false);
-		expect(result.error).toBe(
-			"Source contains multiple YAML documents; only single-document input is supported",
-		);
+		expect(result.error).toBe(expectedMessage);
+		expect(result.errors).toBeDefined();
+		expect(Array.isArray(result.errors)).toBe(true);
+		expect(result.errors).toEqual([expectedMessage]);
 	});
 
 	test("validates invalid YAML syntax", () => {
@@ -120,11 +123,16 @@ describe("json_validate", () => {
 		expect(result.errors.length).toBeGreaterThan(0);
 	});
 
-	test("validates empty YAML", () => {
+	test("validates empty YAML (parses to null per YAML spec)", () => {
 		const result = JSON.parse(execute({ input: "", format: "yaml" }));
-		expect(result.valid).toBe(false);
-		expect(result.error).toBe("Empty input");
-		expect(result.errors).toEqual(["Empty input"]);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("null");
+	});
+
+	test("validates whitespace-only YAML (parses to null per YAML spec)", () => {
+		const result = JSON.parse(execute({ input: "   \n\t  ", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("null");
 	});
 
 	test("validates YAML null value", () => {
@@ -132,6 +140,34 @@ describe("json_validate", () => {
 		expect(result.valid).toBe(true);
 		expect(result.type).toBe("object");
 		expect(result.keys).toEqual(["key"]);
+	});
+
+	test("validates YAML standalone null", () => {
+		const result = JSON.parse(execute({ input: "null", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("null");
+	});
+
+	test("validates YAML standalone boolean", () => {
+		const resultTrue = JSON.parse(execute({ input: "true", format: "yaml" }));
+		expect(resultTrue.valid).toBe(true);
+		expect(resultTrue.type).toBe("boolean");
+
+		const resultFalse = JSON.parse(execute({ input: "false", format: "yaml" }));
+		expect(resultFalse.valid).toBe(true);
+		expect(resultFalse.type).toBe("boolean");
+	});
+
+	test("validates YAML standalone number", () => {
+		const result = JSON.parse(execute({ input: "42", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("number");
+	});
+
+	test("validates YAML standalone string", () => {
+		const result = JSON.parse(execute({ input: "hello", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("string");
 	});
 
 	test("validates XML with single child element", () => {
@@ -166,7 +202,11 @@ describe("json_validate", () => {
 	});
 
 	test("validates large JSON array", () => {
-		const largeArray = JSON.stringify(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: `item-${i}` })));
+		const largeArrayItems = Array.from(
+			{ length: 1000 },
+			(_, i) => ({ id: i, value: `item-${i}` }),
+		);
+		const largeArray = JSON.stringify(largeArrayItems);
 		const result = JSON.parse(execute({ input: largeArray, format: "json" }));
 		expect(result.valid).toBe(true);
 		expect(result.type).toBe("array");
