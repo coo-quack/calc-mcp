@@ -275,6 +275,12 @@ describe("cron_parse", () => {
 		);
 	});
 
+	test("rejects multiple hyphens in range (MON-FRI-SAT)", () => {
+		expect(() => execute({ expression: "0 0 * * MON-FRI-SAT", count: 1 })).toThrow(
+			"Invalid range",
+		);
+	});
+
 	test("treats weekday 7 as Sunday", () => {
 		const withSeven = JSON.parse(execute({ expression: "0 0 * * 7", count: 3 }));
 		const withZero = JSON.parse(execute({ expression: "0 0 * * 0", count: 3 }));

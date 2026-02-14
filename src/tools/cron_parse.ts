@@ -109,7 +109,13 @@ function parseCronFieldTokens(field: string): CronToken[] {
 		let rangeStart: string | null = null;
 		let rangeEnd: string | null = null;
 		if (range.includes("-") && /^\S+-\S+$/.test(range)) {
-			[rangeStart, rangeEnd] = range.split("-", 2);
+			const rangeParts = range.split("-");
+			if (rangeParts.length !== 2) {
+				throw new Error(
+					`Invalid range "${range}": ranges must contain exactly one "-"`,
+				);
+			}
+			[rangeStart, rangeEnd] = rangeParts;
 		}
 
 		return { range, step, rangeStart, rangeEnd, isWildcard: range === "*" };
@@ -121,6 +127,7 @@ function parseField(
 	min: number,
 	max: number,
 	fieldType: FieldType = "numeric",
+	fieldLabel = "value",
 ): CronField {
 	const values = new Set<number>();
 	const nameMap =
@@ -129,13 +136,6 @@ function parseField(
 			: fieldType === "month"
 				? MONTH_NAMES
 				: null;
-
-	const fieldLabel =
-		fieldType === "weekday"
-			? "weekday"
-			: fieldType === "month"
-				? "month"
-				: "value";
 
 	const toNumber = (str: string): number => {
 		const trimmed = str.trim();
@@ -184,11 +184,11 @@ function getNextOccurrences(
 	count: number,
 	timezone = "UTC",
 ): Date[] {
-	const minute = parseField(fields[0], 0, 59);
-	const hour = parseField(fields[1], 0, 23);
-	const dom = parseField(fields[2], 1, 31);
-	const month = parseField(fields[3], 1, 12, "month");
-	const dow = parseField(fields[4], 0, 7, "weekday");
+	const minute = parseField(fields[0], 0, 59, "numeric", "minute");
+	const hour = parseField(fields[1], 0, 23, "numeric", "hour");
+	const dom = parseField(fields[2], 1, 31, "numeric", "day-of-month");
+	const month = parseField(fields[3], 1, 12, "month", "month");
+	const dow = parseField(fields[4], 0, 7, "weekday", "weekday");
 
 	const results: Date[] = [];
 	const now = new Date();
