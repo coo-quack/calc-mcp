@@ -2,7 +2,7 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
 	title: "Calc MCP",
-	description: "21 tools for things AI is bad at",
+	description: "21 tools for things AI is not good at",
 	base: "/calc-mcp/",
 
 	themeConfig: {

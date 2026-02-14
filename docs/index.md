@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: Calc MCP
-  text: 21 tools for things AI is bad at
+  text: 21 tools for things AI is not good at
   tagline: Deterministic math, cryptographic randomness, accurate date arithmetic, encoding, hashing, and more
   actions:
     - theme: brand
