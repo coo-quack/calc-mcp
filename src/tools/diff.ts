@@ -13,19 +13,22 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
-function lcs(a: string[], b: string[]): boolean[][] {
+function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 	const m = a.length;
 	const n = b.length;
 	// dp[i][j] = length of LCS of a[0..i-1] and b[0..j-1]
 	const dp: number[][] = Array.from({ length: m + 1 }, () =>
 		Array(n + 1).fill(0),
 	);
+	// dp table is guaranteed to be fully initialized (m+1 x n+1)
 	for (let i = 1; i <= m; i++) {
+		const currRow = dp[i]!;
+		const prevRow = dp[i - 1]!;
 		for (let j = 1; j <= n; j++) {
 			if (a[i - 1] === b[j - 1]) {
-				dp[i][j] = dp[i - 1][j - 1] + 1;
+				currRow[j] = prevRow[j - 1]! + 1;
 			} else {
-				dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+				currRow[j] = Math.max(prevRow[j]!, currRow[j - 1]!);
 			}
 		}
 	}
@@ -41,13 +44,13 @@ function lcs(a: string[], b: string[]): boolean[][] {
 			inLcsB[j - 1] = true;
 			i--;
 			j--;
-		} else if (dp[i - 1][j] >= dp[i][j - 1]) {
+		} else if (dp[i - 1]![j]! >= dp[i]![j - 1]!) {
 			i--;
 		} else {
 			j--;
 		}
 	}
-	return [inLcsA, inLcsB] as unknown as boolean[][];
+	return [inLcsA, inLcsB];
 }
 
 function lineDiff(text1: string, text2: string): string {
@@ -85,21 +88,30 @@ function levenshteinDistance(s: string, t: string): number {
 		Array(n + 1).fill(0),
 	);
 
-	for (let i = 0; i <= m; i++) dp[i][0] = i;
-	for (let j = 0; j <= n; j++) dp[0][j] = j;
+	// dp table is guaranteed to be fully initialized
+	for (let i = 0; i <= m; i++) {
+		dp[i]![0] = i;
+	}
+	for (let j = 0; j <= n; j++) {
+		dp[0]![j] = j;
+	}
 
+	// dp table is fully initialized, indices are within bounds
 	for (let i = 1; i <= m; i++) {
+		const currRow = dp[i]!;
+		const prevRow = dp[i - 1]!;
 		for (let j = 1; j <= n; j++) {
 			const cost = s[i - 1] === t[j - 1] ? 0 : 1;
-			dp[i][j] = Math.min(
-				dp[i - 1][j] + 1,
-				dp[i][j - 1] + 1,
-				dp[i - 1][j - 1] + cost,
+			currRow[j] = Math.min(
+				prevRow[j]! + 1,
+				currRow[j - 1]! + 1,
+				prevRow[j - 1]! + cost,
 			);
 		}
 	}
 
-	return dp[m][n];
+	// dp[m][n] is guaranteed to exist after the loop
+	return dp[m]![n]!;
 }
 
 export function execute(input: Input): string {

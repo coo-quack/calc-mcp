@@ -7,16 +7,28 @@
 			}
 		}
 	},
-	"linter": { "enabled": true, "rules": { "recommended": true } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"noNonNullAssertion": "warn"
+			},
+			"suspicious": {
+				"noExplicitAny": "error"
+			}
+		}
+	},
 	"formatter": { "enabled": true, "indentStyle": "tab" },
 	"files": {
 		"includes": [
 			"src/**",
-			"test/**",
+			"tests/**",
 			"docs/.vitepress/config.ts",
 			"docs/.vitepress/theme/**",
 			"*.json",
-			"*.ts"
+			"*.ts",
+			"!!.worktrees"
 		]
 	}
 }

@@ -28,13 +28,13 @@ export function execute(input: Input): string {
 	let payload: unknown;
 
 	try {
-		header = JSON.parse(base64UrlDecode(parts[0]));
+		header = JSON.parse(base64UrlDecode(parts[0]!));
 	} catch {
 		throw new Error("Failed to decode JWT header");
 	}
 
 	try {
-		payload = JSON.parse(base64UrlDecode(parts[1]));
+		payload = JSON.parse(base64UrlDecode(parts[1]!));
 	} catch {
 		throw new Error("Failed to decode JWT payload");
 	}

@@ -64,7 +64,7 @@ function getOffsetString(date: Date, timezone: string): string {
 	const tzPart = parts.find((p) => p.type === "timeZoneName")?.value ?? "UTC";
 	if (tzPart === "GMT") return "+00:00";
 	const match = tzPart.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/);
-	if (!match) return "+00:00";
+	if (!match || !match[1] || !match[2]) return "+00:00";
 	const sign = match[1];
 	const hours = match[2].padStart(2, "0");
 	const minutes = (match[3] ?? "00").padStart(2, "0");
@@ -104,9 +104,9 @@ function formatOutput(date: Date, timezone: string, format?: string): string {
 
 	switch (format) {
 		case "date":
-			return isoLocal.split("T")[0];
+			return isoLocal.split("T")[0]!;
 		case "time":
-			return `${isoLocal.split("T")[1]}${offset}`;
+			return `${isoLocal.split("T")[1]!}${offset}`;
 		case "short":
 			return date.toLocaleString("en-US", {
 				timeZone: timezone,

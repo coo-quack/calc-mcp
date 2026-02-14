@@ -111,19 +111,39 @@ function buildCharset(input: Input): string {
 	return cs;
 }
 
+/**
+ * Generate an unbiased random integer in [0, range) using rejection sampling.
+ * Eliminates modulo bias by discarding values >= floor(2^32 / range) * range.
+ */
+function uniformRandomInt(range: number): number {
+	if (range <= 1) return 0;
+	if (range > 0xffffffff) {
+		throw new Error(
+			`Range too large for 32-bit random generation: ${range} (max: ${0xffffffff})`,
+		);
+	}
+	const limit = 0x100000000 - (0x100000000 % range);
+	const array = new Uint32Array(1);
+	let value: number;
+	do {
+		crypto.getRandomValues(array);
+		value = array[0]!;
+	} while (value >= limit);
+	return value % range;
+}
+
 function generatePassword(length: number, charset: string): string {
-	const array = new Uint32Array(length);
-	crypto.getRandomValues(array);
-	return Array.from(array, (v) => charset[v % charset.length]).join("");
+	return Array.from(
+		{ length },
+		() => charset[uniformRandomInt(charset.length)]!,
+	).join("");
 }
 
 function generateRandomNumber(min: number, max: number): number {
 	if (min > max) throw new Error("min must be less than or equal to max");
 	if (min === max) return min;
 	const range = max - min;
-	const array = new Uint32Array(1);
-	crypto.getRandomValues(array);
-	return min + (array[0] % (range + 1));
+	return min + uniformRandomInt(range + 1);
 }
 
 function generateUUIDv7(): string {
@@ -131,14 +151,17 @@ function generateUUIDv7(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
 	const ms = BigInt(now);
+	// Uint8Array(16) is always fully initialized
+	const b6 = bytes[6]!;
+	const b8 = bytes[8]!;
 	bytes[0] = Number((ms >> 40n) & 0xffn);
 	bytes[1] = Number((ms >> 32n) & 0xffn);
 	bytes[2] = Number((ms >> 24n) & 0xffn);
 	bytes[3] = Number((ms >> 16n) & 0xffn);
 	bytes[4] = Number((ms >> 8n) & 0xffn);
 	bytes[5] = Number(ms & 0xffn);
-	bytes[6] = (bytes[6] & 0x0f) | 0x70;
-	bytes[8] = (bytes[8] & 0x3f) | 0x80;
+	bytes[6] = (b6 & 0x0f) | 0x70;
+	bytes[8] = (b8 & 0x3f) | 0x80;
 	const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
 		"",
 	);
@@ -150,7 +173,7 @@ function generateULID(): string {
 	let timeStr = "";
 	let t = now;
 	for (let i = 0; i < 10; i++) {
-		timeStr = ULID_ENCODING[t % 32] + timeStr;
+		timeStr = ULID_ENCODING[t % 32]! + timeStr;
 		t = Math.floor(t / 32);
 	}
 	const randomBytes = new Uint8Array(10);
@@ -161,14 +184,14 @@ function generateULID(): string {
 		const bitOffset = (i * 5) % 8;
 		let value: number;
 		if (bitOffset <= 3) {
-			value = (randomBytes[byteIndex] >> (3 - bitOffset)) & 0x1f;
+			value = (randomBytes[byteIndex]! >> (3 - bitOffset)) & 0x1f;
 		} else {
 			value =
-				((randomBytes[byteIndex] << (bitOffset - 3)) |
-					(randomBytes[byteIndex + 1] >> (11 - bitOffset))) &
+				((randomBytes[byteIndex]! << (bitOffset - 3)) |
+					(randomBytes[byteIndex + 1]! >> (11 - bitOffset))) &
 				0x1f;
 		}
-		randomStr += ULID_ENCODING[value];
+		randomStr += ULID_ENCODING[value]!;
 	}
 	return timeStr + randomStr;
 }
@@ -176,11 +199,9 @@ function generateULID(): string {
 function shuffle(items: string[]): string[] {
 	if (items.length === 0) throw new Error("Items array must not be empty");
 	const result = [...items];
-	// Fisher-Yates shuffle with crypto random
+	// Fisher-Yates shuffle with crypto random (unbiased)
 	for (let i = result.length - 1; i > 0; i--) {
-		const array = new Uint32Array(1);
-		crypto.getRandomValues(array);
-		const j = array[0] % (i + 1);
+		const j = uniformRandomInt(i + 1);
 		[result[i], result[j]] = [result[j], result[i]];
 	}
 	return result;

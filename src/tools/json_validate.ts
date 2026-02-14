@@ -64,11 +64,12 @@ function validateCsv(input: string): string {
 	}
 
 	const lines = trimmed.split("\n");
-	const headerCols = parseCsvLine(lines[0]).length;
+	// lines is guaranteed non-empty since trimmed is non-empty
+	const headerCols = parseCsvLine(lines[0]!).length;
 	const errors: string[] = [];
 
 	for (let i = 1; i < lines.length; i++) {
-		const cols = parseCsvLine(lines[i]).length;
+		const cols = parseCsvLine(lines[i]!).length;
 		if (cols !== headerCols) {
 			errors.push(`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`);
 		}
@@ -78,7 +79,7 @@ function validateCsv(input: string): string {
 		valid: errors.length === 0,
 		rows: lines.length,
 		columns: headerCols,
-		headers: parseCsvLine(lines[0]),
+		headers: parseCsvLine(lines[0]!),
 		error: errors.length > 0 ? errors[0] : undefined,
 		errors: errors.length > 0 ? errors : undefined,
 	});
@@ -143,7 +144,7 @@ function validateXml(input: string): string {
 	match = tagRegex.exec(input);
 	while (match !== null) {
 		const full = match[0];
-		const name = match[1];
+		const name = match[1]!;
 		if (full.startsWith("</")) {
 			// closing tag
 			if (stack.length === 0 || stack[stack.length - 1] !== name) {

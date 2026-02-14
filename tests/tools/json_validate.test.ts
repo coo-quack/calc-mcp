@@ -180,7 +180,8 @@ describe("json_validate", () => {
 	test("validates CSV with quoted commas", () => {
 		const result = JSON.parse(
 			execute({
-				input: 'name,description\nAlice,"hello, world"\nBob,"test, with, commas"',
+				input:
+					'name,description\nAlice,"hello, world"\nBob,"test, with, commas"',
 				format: "csv",
 			}),
 		);
@@ -202,10 +203,10 @@ describe("json_validate", () => {
 	});
 
 	test("validates large JSON array", () => {
-		const largeArrayItems = Array.from(
-			{ length: 1000 },
-			(_, i) => ({ id: i, value: `item-${i}` }),
-		);
+		const largeArrayItems = Array.from({ length: 1000 }, (_, i) => ({
+			id: i,
+			value: `item-${i}`,
+		}));
 		const largeArray = JSON.stringify(largeArrayItems);
 		const result = JSON.parse(execute({ input: largeArray, format: "json" }));
 		expect(result.valid).toBe(true);
@@ -216,7 +217,8 @@ describe("json_validate", () => {
 	test("validates JSON with nested objects", () => {
 		const result = JSON.parse(
 			execute({
-				input: '{"user": {"name": "Alice", "address": {"city": "Tokyo", "country": "Japan"}}}',
+				input:
+					'{"user": {"name": "Alice", "address": {"city": "Tokyo", "country": "Japan"}}}',
 				format: "json",
 			}),
 		);

@@ -306,7 +306,7 @@ export function execute(input: Input): string {
 			`Unknown unit '${to}' in ${category}. Supported: ${supported}`,
 		);
 
-	const result = (value * table[fromLower]) / table[toLower];
+	const result = (value * table[fromLower]!) / table[toLower]!;
 
 	return JSON.stringify({
 		value,
@@ -320,7 +320,7 @@ export function execute(input: Input): string {
 export const tool: ToolDefinition = {
 	name: "convert",
 	description:
-		"Convert between units: length, weight, temperature, area, volume, speed, data",
+		"Convert between units: length, weight, temperature, area, volume, speed, data, time",
 	schema,
 	handler: async (args: Record<string, unknown>) => {
 		const input = inputSchema.parse(args);

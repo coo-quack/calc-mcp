@@ -24,7 +24,7 @@ function ipv4ToNum(ip: string): number {
 		throw new Error(`Invalid IPv4 address: ${ip}`);
 	}
 	return (
-		((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0
+		((parts[0]! << 24) | (parts[1]! << 16) | (parts[2]! << 8) | parts[3]!) >>> 0
 	);
 }
 
@@ -52,7 +52,7 @@ function getIpv4Class(firstOctet: number): string {
 function isPrivate(ip: string): boolean {
 	const parts = ip.split(".").map(Number);
 	if (parts[0] === 10) return true;
-	if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+	if (parts[0] === 172 && parts[1]! >= 16 && parts[1]! <= 31) return true;
 	if (parts[0] === 192 && parts[1] === 168) return true;
 	if (parts[0] === 127) return true;
 	return false;
@@ -63,7 +63,12 @@ function parseCidr(cidr: string): {
 	prefix: number;
 	mask: number;
 } {
-	const [ip, prefixStr] = cidr.split("/");
+	const parts = cidr.split("/");
+	const ip = parts[0];
+	const prefixStr = parts[1];
+	if (!ip || !prefixStr) {
+		throw new Error(`Invalid CIDR notation: ${cidr}`);
+	}
 	const prefix = Number.parseInt(prefixStr, 10);
 	if (prefix < 0 || prefix > 32)
 		throw new Error(`Invalid prefix length: ${prefix}`);
@@ -92,7 +97,7 @@ function ipInfo(ip: string): string {
 	return JSON.stringify({
 		ip,
 		version: 4,
-		class: getIpv4Class(parts[0]),
+		class: getIpv4Class(parts[0]!),
 		isPrivate: isPrivate(ip),
 		isLoopback: parts[0] === 127,
 		binary: num.toString(2).padStart(32, "0"),
