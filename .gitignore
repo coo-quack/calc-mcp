@@ -21,6 +21,9 @@ docs/.vitepress/dist/
 .idea/
 .vscode/
 
+# worktrees
+.worktrees/
+
 # env
 *.local
 .env
