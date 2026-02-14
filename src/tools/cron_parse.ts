@@ -76,6 +76,7 @@ const MONTH_NAMES: Record<string, number> = {
 	february: 2,
 	march: 3,
 	april: 4,
+	// "may" already defined as abbreviation (identical to full form)
 	june: 6,
 	july: 7,
 	august: 8,
@@ -102,7 +103,7 @@ function parseCronFieldTokens(field: string): CronToken[] {
 		const range = (stepMatch ? stepMatch[1] : trimmed).trim();
 		const step = stepMatch ? Number.parseInt(stepMatch[2], 10) : 1;
 
-		if (step <= 0) {
+		if (!Number.isFinite(step) || !Number.isInteger(step) || step <= 0) {
 			throw new Error("Step value must be a positive integer");
 		}
 
