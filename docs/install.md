@@ -10,7 +10,7 @@ The fastest way to add Calc MCP to Claude Code:
 claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
-This adds the server to your user config (`~/.config/openclaw/config.yml`).
+This adds the server to your user-level MCP configuration.
 
 To verify it's working:
 

@@ -8,6 +8,10 @@ Calc MCP provides 21 tools for operations that AI models struggle with. Each too
 
 Evaluate mathematical expressions or compute statistics on numbers.
 
+::: tip Security
+Expressions are evaluated in a sandboxed environment. Dangerous functions like `import`, `eval`, `require`, `process`, and `child_process` are blocked.
+:::
+
 **Parameters:**
 - `expression` (string, optional) — Math expression to evaluate
 - `action` (enum, optional) — `eval` (default) or `statistics`
@@ -258,6 +262,10 @@ HTML-decode "&lt;script&gt;"
 ### regex
 
 Test, match, or replace with regular expressions.
+
+::: tip Security
+Patterns are analyzed for potential ReDoS (Regular Expression Denial of Service) vulnerabilities. Catastrophic backtracking patterns are detected and rejected.
+:::
 
 **Parameters:**
 - `pattern` (string) — Regular expression pattern

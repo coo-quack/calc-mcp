@@ -52,5 +52,5 @@ export default defineConfig({
 		},
 	},
 
-	head: [["link", { rel: "icon", href: "/calc-mcp/favicon.ico" }]],
+	head: [["link", { rel: "icon", type: "image/svg+xml", href: "/calc-mcp/logo.svg" }]],
 });

@@ -383,6 +383,9 @@ Is "1.2.3-beta.1" a valid semver?
 Is '{"name":"test"}' valid JSON?
 → valid, object, keys: ["name"] (json_validate)
 
+Validate this YAML: "name: test\nversion: 1.0"
+→ valid, object, keys: ["name", "version"] (json_validate)
+
 Validate CSV with 3 columns
 → valid, 10 rows, 3 columns (json_validate)
 
