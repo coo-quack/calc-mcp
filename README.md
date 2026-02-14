@@ -37,6 +37,12 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 | "100 days from now is..." 🤔 guess             | `2026-05-22` ✅ (date)                          |
 | "SHA-256 of password123 is..." 💀 hallucinated | `ef92b778bafe...` ✅ (hash)                     |
 
+- **Deterministic** — Same input, same correct output, every time
+- **Secure** — Sandboxed math, ReDoS protection, weak hash warnings
+- **Private** — All computation runs locally, no data sent to external services
+- **Zero config** — Install once, just ask in natural language
+- **No API key** — Works offline, no external dependencies
+
 ## Examples
 
 Ask in natural language — the AI picks the right tool automatically.

@@ -50,6 +50,12 @@ LLMs are incredible at natural language understanding, but terrible at things th
 
 Calc MCP gives your AI assistant the tools to **delegate** these tasks to deterministic, tested code.
 
+- **Deterministic** — Same input, same correct output, every time. No more "it depends on the run."
+- **Secure** — Sandboxed math evaluation, ReDoS protection, weak hash warnings built in.
+- **Private** — All computation runs locally. No data sent to external services.
+- **Zero config** — Install once, just ask in natural language. The AI picks the right tool.
+- **No API key** — Works offline, no external dependencies. Just Node.js.
+
 ## Quick Start
 
 ```bash
