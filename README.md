@@ -24,7 +24,7 @@ claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@late
 npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
-> Works with Claude Desktop, VS Code Copilot, Cursor, Windsurf — [setup guides below](#install).
+> Works with Claude Desktop, VS Code Copilot, Cursor, Windsurf, and any MCP client — [setup guides below](#install).
 
 ---
 
@@ -176,6 +176,16 @@ Add to `.vscode/mcp.json` in your workspace:
   }
 }
 ```
+
+### Other MCP Clients
+
+Calc MCP works with any MCP-compatible client. Run the server via stdio:
+
+```bash
+npx --prefix /tmp -y @coo-quack/calc-mcp@latest
+```
+
+Point your client's MCP config to the command above. The server communicates over **stdio** using the standard [Model Context Protocol](https://modelcontextprotocol.io/).
 
 ## Development
 

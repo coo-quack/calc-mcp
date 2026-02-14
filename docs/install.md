@@ -99,6 +99,16 @@ For workspace-specific setup, add `.vscode/mcp.json` in your project:
 
 Reload VS Code after creating the file.
 
+## Other MCP Clients
+
+Calc MCP works with any MCP-compatible client that supports stdio transport. To integrate with a client not listed above, configure it to run:
+
+```bash
+npx --prefix /tmp -y @coo-quack/calc-mcp@latest
+```
+
+The server communicates over **stdio** using the standard [Model Context Protocol](https://modelcontextprotocol.io/). Most clients accept a `command` + `args` configuration similar to the examples above.
+
 ## Direct Usage
 
 You can also run the server directly for testing:
