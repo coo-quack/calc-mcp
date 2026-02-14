@@ -53,8 +53,8 @@ function validateJson(input: string): string {
 }
 
 function validateCsv(input: string): string {
-	const lines = input.trim().split("\n");
-	if (lines.length === 0) {
+	const trimmed = input.trim();
+	if (trimmed.length === 0) {
 		const message = "Empty input";
 		return JSON.stringify({
 			valid: false,
@@ -63,6 +63,7 @@ function validateCsv(input: string): string {
 		});
 	}
 
+	const lines = trimmed.split("\n");
 	const headerCols = parseCsvLine(lines[0]).length;
 	const errors: string[] = [];
 
@@ -175,7 +176,7 @@ function validateYaml(input: string): string {
 	}
 
 	try {
-		const parsed = parse(input);
+		const parsed = parse(input, { logLevel: "error" });
 		const type = getTypeOfParsed(parsed);
 
 		return JSON.stringify({
@@ -184,7 +185,11 @@ function validateYaml(input: string): string {
 			...getStructureInfo(parsed),
 		});
 	} catch (e) {
-		const message = e instanceof Error ? e.message : String(e);
+		let message = e instanceof Error ? e.message : String(e);
+		if (message.includes("parseAllDocuments")) {
+			message =
+				"Source contains multiple YAML documents; only single-document input is supported";
+		}
 		return JSON.stringify({
 			valid: false,
 			error: message,

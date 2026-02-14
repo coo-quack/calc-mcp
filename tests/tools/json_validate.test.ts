@@ -60,11 +60,46 @@ describe("json_validate", () => {
 		expect(Array.isArray(result.errors)).toBe(true);
 	});
 
+	test("validates empty CSV", () => {
+		const result = JSON.parse(execute({ input: "", format: "csv" }));
+		expect(result.valid).toBe(false);
+		expect(result.error).toBe("Empty input");
+		expect(result.errors).toEqual(["Empty input"]);
+	});
+
 	test("validates basic YAML", () => {
 		const result = JSON.parse(
 			execute({ input: "key: value\nlist:\n  - item1", format: "yaml" }),
 		);
 		expect(result.valid).toBe(true);
+	});
+
+	test("validates YAML object with keys", () => {
+		const result = JSON.parse(
+			execute({ input: "foo: 1\nbar: 2", format: "yaml" }),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+		expect(result.keys).toEqual(["foo", "bar"]);
+	});
+
+	test("validates YAML array with length", () => {
+		const result = JSON.parse(
+			execute({ input: "- a\n- b\n- c", format: "yaml" }),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("array");
+		expect(result.length).toBe(3);
+	});
+
+	test("validates multi-document YAML", () => {
+		const result = JSON.parse(
+			execute({ input: "---\nfoo: bar\n---\nbaz: qux", format: "yaml" }),
+		);
+		expect(result.valid).toBe(false);
+		expect(result.error).toBe(
+			"Source contains multiple YAML documents; only single-document input is supported",
+		);
 	});
 
 	test("validates invalid YAML syntax", () => {
