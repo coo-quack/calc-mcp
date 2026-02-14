@@ -123,6 +123,14 @@ function validateXml(input: string): string {
 
 	// Check basic well-formedness
 	const trimmed = input.trim();
+	if (trimmed.length === 0) {
+		const message = "Empty input";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
+	}
 	if (!trimmed.startsWith("<")) {
 		const message = "Does not start with <";
 		return JSON.stringify({

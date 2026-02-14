@@ -43,6 +43,13 @@ describe("json_validate", () => {
 		expect(Array.isArray(result.errors)).toBe(true);
 	});
 
+	test("validates empty XML", () => {
+		const result = JSON.parse(execute({ input: "", format: "xml" }));
+		expect(result.valid).toBe(false);
+		expect(result.error).toBe("Empty input");
+		expect(result.errors).toEqual(["Empty input"]);
+	});
+
 	test("validates well-formed XML", () => {
 		const result = JSON.parse(
 			execute({ input: "<root><child>text</child></root>", format: "xml" }),
@@ -116,8 +123,7 @@ describe("json_validate", () => {
 	test("validates empty YAML", () => {
 		const result = JSON.parse(execute({ input: "", format: "yaml" }));
 		expect(result.valid).toBe(false);
-		expect(result.error).toBeDefined();
-		expect(result.errors).toBeDefined();
-		expect(Array.isArray(result.errors)).toBe(true);
+		expect(result.error).toBe("Empty input");
+		expect(result.errors).toEqual(["Empty input"]);
 	});
 });
