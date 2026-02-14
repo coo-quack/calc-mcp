@@ -113,7 +113,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | `math`          | Evaluate expressions, statistics                                                                     |
 | `count`         | Characters (grapheme-aware), words, lines, bytes                                                     |
 | `datetime`      | Current time, timezone conversion, UNIX timestamps                                                   |
-| `random`        | UUID v4/v7, ULID, passwords (readable, custom charset), shuffle                                      |
+| `random`        | UUID v4/v7, ULID, passwords (readable, custom charset), random number, shuffle                       |
 | `hash`          | MD5, SHA-1, SHA-256, SHA-512, CRC32, HMAC                                                            |
 | `base64`        | Encode / decode                                                                                      |
 | `encode`        | URL, HTML entity, Unicode escape                                                                     |
@@ -124,13 +124,13 @@ Ask in natural language — the AI picks the right tool automatically.
 | `json_validate` | Validate JSON, CSV, XML, YAML                                                                        |
 | `cron_parse`    | Human-readable cron + next runs (weekday/month names supported)                                      |
 | `luhn`          | Validate / generate check digits                                                                     |
-| `ip`            | IPv4/IPv6 info, CIDR range                                                                           |
+| `ip`            | IPv4/IPv6 info, CIDR contains check, range calculation                                               |
 | `color`         | HEX ↔ RGB ↔ HSL (alpha channel supported)                                                            |
 | `convert`       | 8 categories, 72 units: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
 | `char_info`     | Unicode code point, block, category                                                                  |
 | `jwt_decode`    | Decode header + payload (no verification)                                                            |
 | `url_parse`     | Protocol, host, path, params, hash                                                                   |
-| `semver`        | Compare, validate, range satisfaction                                                                |
+| `semver`        | Compare, validate, parse, range satisfaction                                                         |
 
 ## Install
 

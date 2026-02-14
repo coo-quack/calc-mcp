@@ -136,7 +136,7 @@ Get current time, convert timezones, format datetime, or work with UNIX timestam
 - `datetime` (string, optional) — ISO8601 datetime string for convert/format
 - `fromTimezone` (string, optional) — Source timezone for conversion
 - `toTimezone` (string, optional) — Target timezone for conversion
-- `format` (string, optional) — Output format: `iso`, `date`, `time`, `full`, or Intl options
+- `format` (string, optional) — Output format: `iso`, `date`, `time`, `full`, `short`, date-fns pattern (e.g. `yyyy/MM/dd HH:mm`), or Intl JSON options
 - `timestamp` (number, optional) — UNIX timestamp in seconds for timestamp action
 
 **Examples:**

@@ -95,7 +95,7 @@ HTML-decode "&lt;script&gt;"
 
 ```
 SHA-256 hash of "password123"
-→ ef92b778bafe771e89b862eebf... (hash)
+→ ef92b778bafe771e89245b89ec... (hash)
 
 HMAC-SHA256 of "message" with key "secret"
 → 8b5f48702995c159... (hash with action=hmac)
@@ -331,7 +331,7 @@ Is 192.168.1.50 in 192.168.1.0/24?
 → true (ip)
 
 Parse IPv6 address 2001:db8::1
-→ { version: 6, address: "2001:0db8:0000:..." } (ip)
+→ { ip: "2001:db8::1", version: 6, type: "global" } (ip)
 ```
 
 ### Colors
@@ -344,7 +344,7 @@ Convert rgb(100, 200, 50) to HSL
 → hsl(100, 60%, 49%) (color)
 
 Convert hsl(120, 100%, 50%) to HEX
-→ #00FF00 (color)
+→ #00ff00 (color)
 
 Convert #FF573380 to RGBA (8-digit HEX with 50% opacity)
 → rgba(255, 87, 51, 0.5019607843137255) (color)
