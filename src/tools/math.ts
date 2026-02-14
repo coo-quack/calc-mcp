@@ -33,6 +33,7 @@ const safeFunctions = Object.fromEntries(
 	),
 );
 
+// biome-ignore lint/suspicious/noExplicitAny: mathjs create() requires complex generic typing
 const math = create(safeFunctions as any, {
 	number: "BigNumber",
 	precision: 64,
@@ -59,15 +60,19 @@ function computeStatistics(values: number[]): string {
 	const bn = values.map((v) => math.bignumber(v));
 	const sorted = [...bn].sort((a, b) => a.comparedTo(b));
 	// sorted is guaranteed to have at least one element (values.length > 0)
+	// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
 	const sum = sorted.reduce((a, b) => math.add(a, b) as any) as any;
 	const mean = math.divide(sum, values.length);
 	const variance = math.divide(
 		bn.reduce(
+			// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
 			(acc, v) => math.add(acc, math.pow(math.subtract(v, mean), 2)) as any,
 			math.bignumber(0),
+			// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
 		) as any,
 		values.length,
 	);
+	// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
 	const varianceResult = variance as any;
 	const stddev = math.sqrt(varianceResult);
 
