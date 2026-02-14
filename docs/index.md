@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: Calc MCP
-  text: 21 tools for things AI is bad at
+  text: 21 tools for things AI is not good at
   tagline: Deterministic math, cryptographic randomness, accurate date arithmetic, encoding, hashing, and more
   actions:
     - theme: brand
@@ -50,11 +50,17 @@ LLMs are incredible at natural language understanding, but terrible at things th
 
 Calc MCP gives your AI assistant the tools to **delegate** these tasks to deterministic, tested code.
 
+- **Deterministic** — Same input, same correct output, every time. No more "it depends on the run."
+- **Secure** — Sandboxed math evaluation, ReDoS protection, weak hash warnings built in.
+- **Private** — All computation runs locally. No data sent to external services.
+- **Zero config** — Install once, just ask in natural language. The AI picks the right tool.
+- **No API key** — Works offline, no external dependencies. Just Node.js.
+
 ## Quick Start
 
 ```bash
 # Claude Code
-claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
 Works with **Claude Desktop**, **VS Code Copilot**, **Cursor**, **Windsurf** — see [installation guides](/install).
@@ -74,7 +80,7 @@ You: What's 100 days after 2026-02-11?
 AI: [uses date tool] → 2026-05-22
 
 You: SHA-256 hash of "password123"
-AI: [uses hash tool] → ef92b778bafe771e89b862eebf...
+AI: [uses hash tool] → ef92b778bafe771e89245b89ec...
 ```
 
 See more [examples →](/examples)
@@ -95,7 +101,7 @@ See more [examples →](/examples)
 ## Features
 
 - ✅ **21 MCP tools** covering calculations, randomness, dates, encoding, parsing
-- ✅ **Tested** — 194 tests, 280 assertions, 92%+ coverage
+- ✅ **Tested** — 453 tests, 512 assertions across unit and E2E
 - ✅ **Fast** — Pure JavaScript/TypeScript, no heavy dependencies
 - ✅ **Cross-platform** — Works with Claude Desktop, VS Code, Cursor, Windsurf
 - ✅ **MIT Licensed** — Free to use, modify, distribute

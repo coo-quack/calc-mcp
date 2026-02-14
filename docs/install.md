@@ -10,7 +10,7 @@ The fastest way to add Calc MCP to Claude Code:
 claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 ```
 
-This adds the server to your user config (`~/.config/openclaw/config.yml`).
+This adds the server to your user-level MCP configuration.
 
 To verify it's working:
 
@@ -98,6 +98,16 @@ For workspace-specific setup, add `.vscode/mcp.json` in your project:
 ```
 
 Reload VS Code after creating the file.
+
+## Other MCP Clients
+
+Calc MCP works with any MCP-compatible client that supports stdio transport. To integrate with a client not listed above, configure it to run:
+
+```bash
+npx --prefix /tmp -y @coo-quack/calc-mcp@latest
+```
+
+The server communicates over **stdio** using the standard [Model Context Protocol](https://modelcontextprotocol.io/). Most clients accept a `command` + `args` configuration similar to the examples above.
 
 ## Direct Usage
 

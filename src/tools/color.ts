@@ -152,7 +152,11 @@ const namedColors: Record<string, RGB> = {
 };
 
 const schema = {
-	color: z.string().describe("Color value: #hex, rgb(r,g,b), or hsl(h,s%,l%)"),
+	color: z
+		.string()
+		.describe(
+			"Color value: #hex (3/4/6/8 digits), rgb(r,g,b), rgba(r,g,b,a), hsl(h,s%,l%), hsla(h,s%,l%,a), or named color",
+		),
 	to: z
 		.enum(["hex", "rgb", "hsl"])
 		.optional()

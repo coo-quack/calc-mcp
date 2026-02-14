@@ -8,6 +8,10 @@ Calc MCP provides 21 tools for operations that AI models struggle with. Each too
 
 Evaluate mathematical expressions or compute statistics on numbers.
 
+::: tip Security
+Expressions are evaluated in a sandboxed environment. Dangerous functions like `import`, `eval`, `require`, `process`, and `child_process` are blocked.
+:::
+
 **Parameters:**
 - `expression` (string, optional) — Math expression to evaluate
 - `action` (enum, optional) — `eval` (default) or `statistics`
@@ -136,7 +140,7 @@ Get current time, convert timezones, format datetime, or work with UNIX timestam
 - `datetime` (string, optional) — ISO8601 datetime string for convert/format
 - `fromTimezone` (string, optional) — Source timezone for conversion
 - `toTimezone` (string, optional) — Target timezone for conversion
-- `format` (string, optional) — Output format: `iso`, `date`, `time`, `full`, or Intl options
+- `format` (string, optional) — Output format: `iso`, `date`, `time`, `full`, `short`, date-fns pattern (e.g. `yyyy/MM/dd HH:mm`), or Intl JSON options
 - `timestamp` (number, optional) — UNIX timestamp in seconds for timestamp action
 
 **Examples:**
@@ -176,7 +180,7 @@ What day of the week is 2026-02-11?
 Parse cron expressions into human-readable descriptions and get next occurrences.
 
 **Parameters:**
-- `expression` (string) — Cron expression (5 fields: min hour dom mon dow)
+- `expression` (string) — Cron expression (5 fields: min hour dom mon dow). Supports weekday names (`MON`–`SUN`), month names (`JAN`–`DEC`), ranges (`MON-FRI`, `JAN-MAR`), and aliases (`@daily`, `@hourly`, `@weekly`, `@monthly`, `@yearly`)
 - `count` (number, optional) — Number of next occurrences to return (default: 5)
 - `timezone` (string, optional) — IANA timezone (default: UTC)
 
@@ -184,6 +188,12 @@ Parse cron expressions into human-readable descriptions and get next occurrences
 ```
 When does "30 9 * * 1-5" run?
 → Mon–Fri at 9:30, next runs: ...
+
+When does "0 9 * * MON-FRI" run?
+→ Mon–Fri at 9:00
+
+When does "0 0 1 JAN-MAR *" run?
+→ 1st of Jan, Feb, Mar at midnight
 ```
 
 ## Text Processing
@@ -205,7 +215,7 @@ MD5 and SHA-1 (`sha1`) are cryptographically weak. Use SHA-256 or SHA-512 for se
 **Examples:**
 ```
 SHA-256 hash of "password123"
-→ ef92b778bafe771e89b862eebf...
+→ ef92b778bafe771e89245b89ec...
 
 HMAC-SHA256 of "message" with key "secret"
 → 8b5f48702995c159...
@@ -252,6 +262,10 @@ HTML-decode "&lt;script&gt;"
 ### regex
 
 Test, match, or replace with regular expressions.
+
+::: tip Security
+Patterns are analyzed for potential ReDoS (Regular Expression Denial of Service) vulnerabilities. Catastrophic backtracking patterns are detected and rejected.
+:::
 
 **Parameters:**
 - `pattern` (string) — Regular expression pattern
