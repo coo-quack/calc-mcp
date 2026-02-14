@@ -1,3 +1,4 @@
+import { parse } from "yaml";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -11,32 +12,58 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
+function getTypeOfParsed(parsed: unknown): string {
+	return Array.isArray(parsed)
+		? "array"
+		: parsed === null
+			? "null"
+			: typeof parsed;
+}
+
+function getStructureInfo(parsed: unknown): {
+	keys?: string[];
+	length?: number;
+} {
+	return {
+		keys:
+			typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+				? Object.keys(parsed)
+				: undefined,
+		length: Array.isArray(parsed) ? parsed.length : undefined,
+	};
+}
+
 function validateJson(input: string): string {
 	try {
 		const parsed = JSON.parse(input);
+		const type = getTypeOfParsed(parsed);
 		return JSON.stringify({
 			valid: true,
-			type: Array.isArray(parsed) ? "array" : typeof parsed,
-			keys:
-				typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
-					? Object.keys(parsed)
-					: undefined,
-			length: Array.isArray(parsed) ? parsed.length : undefined,
+			type,
+			...getStructureInfo(parsed),
 		});
 	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
 		return JSON.stringify({
 			valid: false,
-			error: e instanceof Error ? e.message : String(e),
+			error: message,
+			errors: [message],
 		});
 	}
 }
 
 function validateCsv(input: string): string {
-	const lines = input.trim().split("\n");
-	if (lines.length === 0) {
-		return JSON.stringify({ valid: false, error: "Empty input" });
+	const trimmed = input.trim();
+	if (trimmed.length === 0) {
+		const message = "Empty input";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
 	}
 
+	const lines = trimmed.split("\n");
 	const headerCols = parseCsvLine(lines[0]).length;
 	const errors: string[] = [];
 
@@ -52,6 +79,7 @@ function validateCsv(input: string): string {
 		rows: lines.length,
 		columns: headerCols,
 		headers: parseCsvLine(lines[0]),
+		error: errors.length > 0 ? errors[0] : undefined,
 		errors: errors.length > 0 ? errors : undefined,
 	});
 }
@@ -95,8 +123,21 @@ function validateXml(input: string): string {
 
 	// Check basic well-formedness
 	const trimmed = input.trim();
+	if (trimmed.length === 0) {
+		const message = "Empty input";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
+	}
 	if (!trimmed.startsWith("<")) {
-		return JSON.stringify({ valid: false, error: "Does not start with <" });
+		const message = "Does not start with <";
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
 	}
 
 	match = tagRegex.exec(input);
@@ -126,47 +167,45 @@ function validateXml(input: string): string {
 
 	return JSON.stringify({
 		valid: errors.length === 0,
+		error: errors.length > 0 ? errors[0] : undefined,
 		errors: errors.length > 0 ? errors : undefined,
 	});
 }
 
+const MULTI_DOC_INDICATORS = [
+	"parseAllDocuments",
+	"multiple documents",
+	"multi-document",
+];
+
+function isMultiDocumentError(message: string): boolean {
+	const lower = message.toLowerCase();
+	return MULTI_DOC_INDICATORS.some((ind) => lower.includes(ind));
+}
+
 function validateYaml(input: string): string {
-	const errors: string[] = [];
-	const lines = input.split("\n");
+	// YAML spec: empty/whitespace-only documents parse to null — let parse() handle them
+	try {
+		const parsed = parse(input, { logLevel: "error" });
+		const type = getTypeOfParsed(parsed);
 
-	let hasContent = false;
-	for (const line of lines) {
-		const trimmed = line.trim();
-		if (trimmed === "" || trimmed.startsWith("#")) continue;
-		hasContent = true;
-
-		// Check for tabs (YAML doesn't allow tabs for indentation)
-		if (line.match(/^\t/)) {
-			errors.push("Tab indentation detected (YAML requires spaces)");
-			break;
+		return JSON.stringify({
+			valid: true,
+			type,
+			...getStructureInfo(parsed),
+		});
+	} catch (e) {
+		let message = e instanceof Error ? e.message : String(e);
+		if (isMultiDocumentError(message)) {
+			message =
+				"Source contains multiple YAML documents; only single-document input is supported";
 		}
-
-		// Basic key: value structure check or list item
-		if (
-			!trimmed.startsWith("- ") &&
-			!trimmed.startsWith("---") &&
-			!trimmed.startsWith("...") &&
-			!trimmed.includes(": ") &&
-			!trimmed.endsWith(":") &&
-			!trimmed.startsWith("- ")
-		) {
-			// Could be a continuation or scalar value, skip strict checking
-		}
+		return JSON.stringify({
+			valid: false,
+			error: message,
+			errors: [message],
+		});
 	}
-
-	if (!hasContent) {
-		return JSON.stringify({ valid: false, error: "Empty YAML" });
-	}
-
-	return JSON.stringify({
-		valid: errors.length === 0,
-		errors: errors.length > 0 ? errors : undefined,
-	});
 }
 
 export function execute(input: Input): string {
