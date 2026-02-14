@@ -87,6 +87,35 @@ const MONTH_NAMES: Record<string, number> = {
 
 type FieldType = "weekday" | "month" | "numeric";
 
+interface CronToken {
+	range: string;
+	step: number;
+	rangeStart: string | null;
+	rangeEnd: string | null;
+	isWildcard: boolean;
+}
+
+function parseCronFieldTokens(field: string): CronToken[] {
+	return field.split(",").map((part) => {
+		const trimmed = part.trim();
+		const stepMatch = trimmed.match(/^(.+)\/(\d+)$/);
+		const range = (stepMatch ? stepMatch[1] : trimmed).trim();
+		const step = stepMatch ? Number.parseInt(stepMatch[2], 10) : 1;
+
+		if (step <= 0) {
+			throw new Error("Step value must be a positive integer");
+		}
+
+		let rangeStart: string | null = null;
+		let rangeEnd: string | null = null;
+		if (range.includes("-") && /^\S+-\S+$/.test(range)) {
+			[rangeStart, rangeEnd] = range.split("-", 2);
+		}
+
+		return { range, step, rangeStart, rangeEnd, isWildcard: range === "*" };
+	});
+}
+
 function parseField(
 	field: string,
 	min: number,
@@ -108,7 +137,6 @@ function parseField(
 				? "month"
 				: "value";
 
-	// Helper to convert name to number
 	const toNumber = (str: string): number => {
 		const trimmed = str.trim();
 		if (nameMap) {
@@ -117,7 +145,6 @@ function parseField(
 				return nameMap[key];
 			}
 		}
-		// Ensure the entire token is a valid integer (reject partial matches like "5abc")
 		if (!/^-?\d+$/.test(trimmed)) {
 			throw new Error(`Invalid ${fieldLabel}: "${str}"`);
 		}
@@ -132,36 +159,20 @@ function parseField(
 	const normalize = (v: number): number =>
 		fieldType === "weekday" && v === 7 ? 0 : v;
 
-	for (const part of field.split(",")) {
-		const trimmedPart = part.trim();
-		const stepMatch = trimmedPart.match(/^(.+)\/(\d+)$/);
-		let range: string;
-		let step = 1;
-
-		if (stepMatch) {
-			range = stepMatch[1].trim();
-			step = Number.parseInt(stepMatch[2], 10);
-			if (step <= 0) {
-				throw new Error("Step value must be a positive integer");
-			}
-		} else {
-			range = trimmedPart;
-		}
-
-		if (range === "*") {
-			for (let i = min; i <= max; i += step) values.add(normalize(i));
-		} else if (range.includes("-") && /^\S+-\S+$/.test(range)) {
-			const [startStr, endStr] = range.split("-", 2);
-			const start = toNumber(startStr);
-			const end = toNumber(endStr);
+	for (const token of parseCronFieldTokens(field)) {
+		if (token.isWildcard) {
+			for (let i = min; i <= max; i += token.step) values.add(normalize(i));
+		} else if (token.rangeStart !== null && token.rangeEnd !== null) {
+			const start = toNumber(token.rangeStart);
+			const end = toNumber(token.rangeEnd);
 			if (start > end) {
 				throw new Error(
-					`Invalid range "${range}": start value must be less than or equal to end value`,
+					`Invalid range "${token.range}": start value must be less than or equal to end value`,
 				);
 			}
-			for (let i = start; i <= end; i += step) values.add(normalize(i));
+			for (let i = start; i <= end; i += token.step) values.add(normalize(i));
 		} else {
-			values.add(normalize(toNumber(range)));
+			values.add(normalize(toNumber(token.range)));
 		}
 	}
 
@@ -350,25 +361,18 @@ function describeField(
 	labels: string[],
 	isWeekday = false,
 ): string {
-	return field
-		.split(",")
-		.map((part) => {
-			const trimmed = part.trim();
-			const stepMatch = trimmed.match(/^(.+)\/(\d+)$/);
-			const range = stepMatch ? stepMatch[1].trim() : trimmed;
-			const step = stepMatch ? stepMatch[2] : null;
-
+	return parseCronFieldTokens(field)
+		.map((token) => {
 			let desc: string;
-			if (range.includes("-") && /^\S+-\S+$/.test(range)) {
-				const [start, end] = range.split("-", 2);
-				desc = `${resolveToken(start, nameMap, labels, isWeekday)}-${resolveToken(end, nameMap, labels, isWeekday)}`;
-			} else if (range === "*") {
+			if (token.rangeStart !== null && token.rangeEnd !== null) {
+				desc = `${resolveToken(token.rangeStart, nameMap, labels, isWeekday)}-${resolveToken(token.rangeEnd, nameMap, labels, isWeekday)}`;
+			} else if (token.isWildcard) {
 				desc = "*";
 			} else {
-				desc = resolveToken(range, nameMap, labels, isWeekday);
+				desc = resolveToken(token.range, nameMap, labels, isWeekday);
 			}
 
-			return step ? `${desc}/${step}` : desc;
+			return token.step > 1 ? `${desc}/${token.step}` : desc;
 		})
 		.join(", ");
 }
