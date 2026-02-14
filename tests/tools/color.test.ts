@@ -106,19 +106,27 @@ describe("color", () => {
 	});
 
 	test("rejects rgba with alpha > 1", () => {
-		expect(() => execute({ color: "rgba(255, 0, 0, 999)" })).toThrow(/Alpha value must be between 0 and 1/);
+		expect(() => execute({ color: "rgba(255, 0, 0, 999)" })).toThrow(
+			/Alpha value must be between 0 and 1/,
+		);
 	});
 
 	test("rejects rgba with negative alpha", () => {
-		expect(() => execute({ color: "rgba(255, 0, 0, -0.5)" })).toThrow(/Alpha value must be between 0 and 1/);
+		expect(() => execute({ color: "rgba(255, 0, 0, -0.5)" })).toThrow(
+			/Alpha value must be between 0 and 1/,
+		);
 	});
 
 	test("rejects hsla with alpha > 1", () => {
-		expect(() => execute({ color: "hsla(0, 100%, 50%, 999)" })).toThrow(/Alpha value must be between 0 and 1/);
+		expect(() => execute({ color: "hsla(0, 100%, 50%, 999)" })).toThrow(
+			/Alpha value must be between 0 and 1/,
+		);
 	});
 
 	test("rejects hsla with negative alpha", () => {
-		expect(() => execute({ color: "hsla(0, 100%, 50%, -0.5)" })).toThrow(/Alpha value must be between 0 and 1/);
+		expect(() => execute({ color: "hsla(0, 100%, 50%, -0.5)" })).toThrow(
+			/Alpha value must be between 0 and 1/,
+		);
 	});
 
 	test("handles fully transparent alpha", () => {

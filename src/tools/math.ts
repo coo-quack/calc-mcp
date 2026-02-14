@@ -4,25 +4,33 @@ import type { ToolDefinition } from "../index.js";
 
 // Create sandboxed math instance with dangerous functions disabled
 // Exclude heavy/unused features to reduce bundle size
+// Note: mathjs `all` export uses factory function names (createXxx pattern)
 const excludeFunctions = [
-	// Dangerous functions (security)
-	"import", // Can load external modules
-	"createUnit", // Can modify global state
+	// Dangerous functions (security) - createUnit can modify global state
+	"createCreateUnit",
 
 	// Large unused features (bundle size optimization)
 	// Symbolic math (unused)
-	"derivative",
-	"rationalize",
-	"simplify",
-	"symbolicEqual",
-	"resolve",
-	"parser",
+	"createDerivative",
+	"createRationalize",
+	"createSimplify",
+	"createSymbolicEqual",
+	"createResolve",
+	"createParser",
 
 	// Unit functions (unused - we don't use unit conversions in math tool)
-	"createCreateUnit",
 	"createSplitUnit",
 	"createUnitClass",
 	"createUnitFunction",
+];
+
+// Runtime safety check patterns using word boundaries to avoid false positives
+// (e.g., "important" should not be blocked by matching "import")
+const DANGEROUS_PATTERNS = [
+	/\bimport\b/,
+	/\bcreateUnit\b/,
+	/\beval\b/,
+	/\bFunction\b/,
 ];
 
 // Filter out excluded functions
@@ -119,13 +127,11 @@ export function execute(input: Input): string {
 	// Check for dangerous patterns before evaluation
 	// Note: mathjs uses its own parser and does not support JavaScript syntax
 	// like bracket notation (['import']) or global objects (window).
-	// This simple string check is sufficient because mathjs will reject
-	// any JavaScript-style code injection attempts as syntax errors.
-	const dangerousFunctions = ["import", "createUnit"];
-	const runtimeDangerousPatterns = [...dangerousFunctions, "eval", "Function"];
-	for (const pattern of runtimeDangerousPatterns) {
-		if (input.expression.includes(pattern)) {
-			throw new Error(`Unsafe function call detected: ${pattern}`);
+	// Word boundary matching avoids false positives (e.g., "important" won't
+	// be blocked by the "import" pattern).
+	for (const pattern of DANGEROUS_PATTERNS) {
+		if (pattern.test(input.expression)) {
+			throw new Error(`Unsafe expression detected: ${pattern.source}`);
 		}
 	}
 

@@ -351,7 +351,7 @@ function resolveToken(
 	if (!Number.isNaN(num)) {
 		// Normalize weekday 7 → 0 (Sunday) for description consistency
 		if (isWeekday && num === 7) num = 0;
-		if (labels[num] !== undefined) return labels[num];
+		if (labels[num] !== undefined) return labels[num]!;
 	}
 	return trimmed;
 }

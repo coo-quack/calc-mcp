@@ -111,21 +111,34 @@ function buildCharset(input: Input): string {
 	return cs;
 }
 
+/**
+ * Generate an unbiased random integer in [0, range) using rejection sampling.
+ * Eliminates modulo bias by discarding values >= floor(2^32 / range) * range.
+ */
+function uniformRandomInt(range: number): number {
+	if (range <= 1) return 0;
+	const limit = 0x100000000 - (0x100000000 % range);
+	const array = new Uint32Array(1);
+	let value: number;
+	do {
+		crypto.getRandomValues(array);
+		value = array[0]!;
+	} while (value >= limit);
+	return value % range;
+}
+
 function generatePassword(length: number, charset: string): string {
-	const array = new Uint32Array(length);
-	crypto.getRandomValues(array);
-	return Array.from(array, (v) => charset[v % charset.length]).join("");
+	return Array.from(
+		{ length },
+		() => charset[uniformRandomInt(charset.length)],
+	).join("");
 }
 
 function generateRandomNumber(min: number, max: number): number {
 	if (min > max) throw new Error("min must be less than or equal to max");
 	if (min === max) return min;
 	const range = max - min;
-	const array = new Uint32Array(1);
-	crypto.getRandomValues(array);
-	// Uint32Array[0] is always present
-	const randomValue = array[0]!;
-	return min + (randomValue % (range + 1));
+	return min + uniformRandomInt(range + 1);
 }
 
 function generateUUIDv7(): string {
@@ -181,11 +194,9 @@ function generateULID(): string {
 function shuffle(items: string[]): string[] {
 	if (items.length === 0) throw new Error("Items array must not be empty");
 	const result = [...items];
-	// Fisher-Yates shuffle with crypto random
+	// Fisher-Yates shuffle with crypto random (unbiased)
 	for (let i = result.length - 1; i > 0; i--) {
-		const array = new Uint32Array(1);
-		crypto.getRandomValues(array);
-		const j = array[0]! % (i + 1);
+		const j = uniformRandomInt(i + 1);
 		[result[i], result[j]] = [result[j], result[i]];
 	}
 	return result;

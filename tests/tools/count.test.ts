@@ -88,9 +88,7 @@ describe("count", () => {
 	});
 
 	test("shift_jis: supplementary plane character", () => {
-		const result = JSON.parse(
-			execute({ text: "𠮷", encoding: "shift_jis" }),
-		);
+		const result = JSON.parse(execute({ text: "𠮷", encoding: "shift_jis" }));
 		// Supplementary plane character → 1 byte replacement
 		expect(result.bytesShiftJis).toBe(1);
 	});

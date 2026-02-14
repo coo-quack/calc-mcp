@@ -89,10 +89,7 @@ export function execute(input: Input): string {
 			if (matches.length === 0) {
 				return JSON.stringify({ matches: null, index: null, groups: null });
 			}
-			const firstMatch = matches[0];
-			if (!firstMatch) {
-				return JSON.stringify({ matches: null, index: null, groups: null });
-			}
+			const firstMatch = matches[0]!;
 			return JSON.stringify({
 				matches: matches.map((m) => m[0]),
 				index: firstMatch.index,

@@ -194,7 +194,9 @@ describe("semver", () => {
 	});
 
 	test("parse extracts build", () => {
-		const result = JSON.parse(execute({ action: "parse", version: "1.0.0+build.123" }));
+		const result = JSON.parse(
+			execute({ action: "parse", version: "1.0.0+build.123" }),
+		);
 		expect(result.build).toBe("build.123");
 	});
 

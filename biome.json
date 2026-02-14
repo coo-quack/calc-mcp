@@ -23,11 +23,12 @@
 	"files": {
 		"includes": [
 			"src/**",
-			"test/**",
+			"tests/**",
 			"docs/.vitepress/config.ts",
 			"docs/.vitepress/theme/**",
 			"*.json",
-			"*.ts"
+			"*.ts",
+			"!!.worktrees"
 		]
 	}
 }
