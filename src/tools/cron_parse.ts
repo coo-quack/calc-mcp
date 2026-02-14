@@ -30,30 +30,150 @@ interface CronField {
 	values: Set<number>;
 }
 
-function parseField(field: string, min: number, max: number): CronField {
-	const values = new Set<number>();
+// Weekday name mapping (case-insensitive, English and Japanese)
+const WEEKDAY_NAMES: Record<string, number> = {
+	// English (3-letter abbreviations)
+	sun: 0,
+	mon: 1,
+	tue: 2,
+	wed: 3,
+	thu: 4,
+	fri: 5,
+	sat: 6,
+	// English (full names)
+	sunday: 0,
+	monday: 1,
+	tuesday: 2,
+	wednesday: 3,
+	thursday: 4,
+	friday: 5,
+	saturday: 6,
+	// Japanese (Kanji)
+	日: 0,
+	月: 1,
+	火: 2,
+	水: 3,
+	木: 4,
+	金: 5,
+	土: 6,
+};
 
-	for (const part of field.split(",")) {
-		const stepMatch = part.match(/^(.+)\/(\d+)$/);
-		let range: string;
-		let step = 1;
+// Month name mapping (case-insensitive)
+const MONTH_NAMES: Record<string, number> = {
+	jan: 1,
+	feb: 2,
+	mar: 3,
+	apr: 4,
+	may: 5,
+	jun: 6,
+	jul: 7,
+	aug: 8,
+	sep: 9,
+	oct: 10,
+	nov: 11,
+	dec: 12,
+	january: 1,
+	february: 2,
+	march: 3,
+	april: 4,
+	// "may" already defined as abbreviation (identical to full form)
+	june: 6,
+	july: 7,
+	august: 8,
+	september: 9,
+	october: 10,
+	november: 11,
+	december: 12,
+};
 
-		if (stepMatch) {
-			range = stepMatch[1];
-			step = Number.parseInt(stepMatch[2], 10);
-		} else {
-			range = part;
+type FieldType = "weekday" | "month" | "numeric";
+
+interface CronToken {
+	range: string;
+	step: number;
+	rangeStart: string | null;
+	rangeEnd: string | null;
+	isWildcard: boolean;
+}
+
+function parseCronFieldTokens(field: string): CronToken[] {
+	return field.split(",").map((part) => {
+		const trimmed = part.trim();
+		const stepMatch = trimmed.match(/^(.+)\/(\d+)$/);
+		const range = (stepMatch ? stepMatch[1] : trimmed).trim();
+		const step = stepMatch ? Number.parseInt(stepMatch[2], 10) : 1;
+
+		if (!Number.isFinite(step) || !Number.isInteger(step) || step <= 0) {
+			throw new Error("Step value must be a positive integer");
 		}
 
-		if (range === "*") {
-			for (let i = min; i <= max; i += step) values.add(i);
-		} else if (range.includes("-")) {
-			const [startStr, endStr] = range.split("-");
-			const start = Number.parseInt(startStr, 10);
-			const end = Number.parseInt(endStr, 10);
-			for (let i = start; i <= end; i += step) values.add(i);
+		let rangeStart: string | null = null;
+		let rangeEnd: string | null = null;
+		if (range.includes("-") && /^\S+-\S+$/.test(range)) {
+			const rangeParts = range.split("-");
+			if (rangeParts.length !== 2) {
+				throw new Error(
+					`Invalid range "${range}": ranges must contain exactly one "-"`,
+				);
+			}
+			[rangeStart, rangeEnd] = rangeParts;
+		}
+
+		return { range, step, rangeStart, rangeEnd, isWildcard: range === "*" };
+	});
+}
+
+function parseField(
+	field: string,
+	min: number,
+	max: number,
+	fieldType: FieldType = "numeric",
+	fieldLabel = "value",
+): CronField {
+	const values = new Set<number>();
+	const nameMap =
+		fieldType === "weekday"
+			? WEEKDAY_NAMES
+			: fieldType === "month"
+				? MONTH_NAMES
+				: null;
+
+	const toNumber = (str: string): number => {
+		const trimmed = str.trim();
+		if (nameMap) {
+			const key = trimmed.toLowerCase();
+			if (Object.hasOwn(nameMap, key)) {
+				return nameMap[key];
+			}
+		}
+		if (!/^-?\d+$/.test(trimmed)) {
+			throw new Error(`Invalid ${fieldLabel}: "${str}"`);
+		}
+		const parsed = Number.parseInt(trimmed, 10);
+		if (parsed < min || parsed > max) {
+			throw new Error(`Invalid ${fieldLabel}: "${str}"`);
+		}
+		return parsed;
+	};
+
+	// In standard cron, weekday 7 is equivalent to 0 (Sunday)
+	const normalize = (v: number): number =>
+		fieldType === "weekday" && v === 7 ? 0 : v;
+
+	for (const token of parseCronFieldTokens(field)) {
+		if (token.isWildcard) {
+			for (let i = min; i <= max; i += token.step) values.add(normalize(i));
+		} else if (token.rangeStart !== null && token.rangeEnd !== null) {
+			const start = toNumber(token.rangeStart);
+			const end = toNumber(token.rangeEnd);
+			if (start > end) {
+				throw new Error(
+					`Invalid range "${token.range}": start value must be less than or equal to end value`,
+				);
+			}
+			for (let i = start; i <= end; i += token.step) values.add(normalize(i));
 		} else {
-			values.add(Number.parseInt(range, 10));
+			values.add(normalize(toNumber(token.range)));
 		}
 	}
 
@@ -65,11 +185,11 @@ function getNextOccurrences(
 	count: number,
 	timezone = "UTC",
 ): Date[] {
-	const minute = parseField(fields[0], 0, 59);
-	const hour = parseField(fields[1], 0, 23);
-	const dom = parseField(fields[2], 1, 31);
-	const month = parseField(fields[3], 1, 12);
-	const dow = parseField(fields[4], 0, 6); // 0=Sunday
+	const minute = parseField(fields[0], 0, 59, "numeric", "minute");
+	const hour = parseField(fields[1], 0, 23, "numeric", "hour");
+	const dom = parseField(fields[2], 1, 31, "numeric", "day-of-month");
+	const month = parseField(fields[3], 1, 12, "month", "month");
+	const dow = parseField(fields[4], 0, 7, "weekday", "weekday");
 
 	const results: Date[] = [];
 	const now = new Date();
@@ -170,7 +290,7 @@ function getNextOccurrences(
 export function execute(input: Input): string {
 	let expression = input.expression.trim();
 
-	if (expression in cronAliases) {
+	if (Object.hasOwn(cronAliases, expression)) {
 		expression = cronAliases[expression];
 		if (expression === "") {
 			throw new Error("@reboot is not supported (systemd-only)");
@@ -199,21 +319,79 @@ export function execute(input: Input): string {
 	);
 }
 
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTH_LABELS = [
+	"",
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+];
+
+function resolveToken(
+	token: string,
+	nameMap: Record<string, number>,
+	labels: string[],
+	isWeekday = false,
+): string {
+	const trimmed = token.trim();
+	const key = trimmed.toLowerCase();
+	if (Object.hasOwn(nameMap, key)) {
+		return labels[nameMap[key]] ?? trimmed;
+	}
+	let num = Number.parseInt(trimmed, 10);
+	if (!Number.isNaN(num)) {
+		// Normalize weekday 7 → 0 (Sunday) for description consistency
+		if (isWeekday && num === 7) num = 0;
+		if (labels[num] !== undefined) return labels[num];
+	}
+	return trimmed;
+}
+
+function describeField(
+	field: string,
+	nameMap: Record<string, number>,
+	labels: string[],
+	isWeekday = false,
+): string {
+	return parseCronFieldTokens(field)
+		.map((token) => {
+			let desc: string;
+			if (token.rangeStart !== null && token.rangeEnd !== null) {
+				desc = `${resolveToken(token.rangeStart, nameMap, labels, isWeekday)}-${resolveToken(token.rangeEnd, nameMap, labels, isWeekday)}`;
+			} else if (token.isWildcard) {
+				desc = "*";
+			} else {
+				desc = resolveToken(token.range, nameMap, labels, isWeekday);
+			}
+
+			return token.step > 1 ? `${desc}/${token.step}` : desc;
+		})
+		.join(", ");
+}
+
 function describeCron(fields: string[]): string {
 	const parts: string[] = [];
 
 	if (fields[0] !== "*") parts.push(`at minute ${fields[0]}`);
 	if (fields[1] !== "*") parts.push(`at hour ${fields[1]}`);
 	if (fields[2] !== "*") parts.push(`on day ${fields[2]}`);
-	if (fields[3] !== "*") parts.push(`in month ${fields[3]}`);
-	if (fields[4] !== "*") {
-		const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-		const days = fields[4]
-			.split(",")
-			.map((d) => dayNames[Number.parseInt(d, 10)] ?? d)
-			.join(", ");
-		parts.push(`on ${days}`);
-	}
+	if (fields[3] !== "*")
+		parts.push(
+			`in month ${describeField(fields[3], MONTH_NAMES, MONTH_LABELS)}`,
+		);
+	if (fields[4] !== "*")
+		parts.push(
+			`on ${describeField(fields[4], WEEKDAY_NAMES, DAY_LABELS, true)}`,
+		);
 
 	return parts.length > 0 ? parts.join(", ") : "every minute";
 }
