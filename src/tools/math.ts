@@ -1,4 +1,4 @@
-import { all, create } from "mathjs";
+import { all, type BigNumber, create } from "mathjs";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
@@ -60,28 +60,27 @@ function computeStatistics(values: number[]): string {
 	const bn = values.map((v) => math.bignumber(v));
 	const sorted = [...bn].sort((a, b) => a.comparedTo(b));
 	// sorted is guaranteed to have at least one element (values.length > 0)
-	// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
-	const sum = sorted.reduce((a, b) => math.add(a, b) as any) as any;
-	const mean = math.divide(sum, values.length);
-	const variance = math.divide(
-		bn.reduce(
-			// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
-			(acc, v) => math.add(acc, math.pow(math.subtract(v, mean), 2)) as any,
-			math.bignumber(0),
-			// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
-		) as any,
-		values.length,
+	const sum = sorted.reduce<BigNumber>(
+		(a, b) => math.add(a, b) as BigNumber,
+		math.bignumber(0),
 	);
-	// biome-ignore lint/suspicious/noExplicitAny: mathjs chain types are complex
-	const varianceResult = variance as any;
-	const stddev = math.sqrt(varianceResult);
+	const mean = math.divide(sum, values.length) as BigNumber;
+	const variance = math.divide(
+		bn.reduce<BigNumber>(
+			(acc, v) =>
+				math.add(acc, math.pow(math.subtract(v, mean), 2)) as BigNumber,
+			math.bignumber(0),
+		),
+		values.length,
+	) as BigNumber;
+	const stddev = math.sqrt(variance);
 
 	const mid = Math.floor(sorted.length / 2);
 	const sortedMid = sorted[mid];
 	const sortedMidPrev = sorted[mid - 1];
 	const median =
 		sorted.length % 2 === 0 && sortedMidPrev && sortedMid
-			? (math.divide(math.add(sortedMidPrev, sortedMid), 2) as number)
+			? (math.divide(math.add(sortedMidPrev, sortedMid), 2) as BigNumber)
 			: sortedMid;
 
 	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
