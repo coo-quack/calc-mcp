@@ -114,8 +114,6 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 ### Release PR Process
 
-Reference: v1.7.2 / PR #31
-
 1. **Branch**: Create `release/vX.Y.Z` from `main`
 2. **Version bump**: Update `version` in `package.json`
 3. **Changelog**: Update `docs/changelog.md`
