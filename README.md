@@ -110,7 +110,7 @@ Ask in natural language — the AI picks the right tool automatically.
 | `count` | Characters (grapheme-aware), words, lines, bytes |
 | `datetime` | Current time, timezone conversion, UNIX timestamps |
 | `random` | UUID v4/v7, ULID, passwords (readable, custom charset), shuffle |
-| `hash` | MD5, SHA-1, SHA-256, SHA-512, CRC32 |
+| `hash` | MD5, SHA-1, SHA-256, SHA-512, CRC32, HMAC |
 | `base64` | Encode / decode |
 | `encode` | URL, HTML entity, Unicode escape |
 | `date` | Diff, add/subtract, weekday, wareki |
@@ -118,10 +118,10 @@ Ask in natural language — the AI picks the right tool automatically.
 | `base` | Number base conversion (2–36) |
 | `diff` | Line diff, Levenshtein distance |
 | `json_validate` | Validate JSON, CSV, XML, YAML |
-| `cron_parse` | Human-readable cron + next runs |
+| `cron_parse` | Human-readable cron + next runs (weekday/month names supported) |
 | `luhn` | Validate / generate check digits |
 | `ip` | IPv4/IPv6 info, CIDR range |
-| `color` | HEX ↔ RGB ↔ HSL |
+| `color` | HEX ↔ RGB ↔ HSL (alpha channel supported) |
 | `convert` | 8 categories, 72 units: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
 | `char_info` | Unicode code point, block, category |
 | `jwt_decode` | Decode header + payload (no verification) |

@@ -176,7 +176,7 @@ What day of the week is 2026-02-11?
 Parse cron expressions into human-readable descriptions and get next occurrences.
 
 **Parameters:**
-- `expression` (string) — Cron expression (5 fields: min hour dom mon dow)
+- `expression` (string) — Cron expression (5 fields: min hour dom mon dow). Supports weekday names (`MON`–`SUN`), month names (`JAN`–`DEC`), ranges (`MON-FRI`, `JAN-MAR`), and aliases (`@daily`, `@hourly`, `@weekly`, `@monthly`, `@yearly`)
 - `count` (number, optional) — Number of next occurrences to return (default: 5)
 - `timezone` (string, optional) — IANA timezone (default: UTC)
 
@@ -184,6 +184,12 @@ Parse cron expressions into human-readable descriptions and get next occurrences
 ```
 When does "30 9 * * 1-5" run?
 → Mon–Fri at 9:30, next runs: ...
+
+When does "0 9 * * MON-FRI" run?
+→ Mon–Fri at 9:00
+
+When does "0 0 1 JAN-MAR *" run?
+→ 1st of Jan, Feb, Mar at midnight
 ```
 
 ## Text Processing

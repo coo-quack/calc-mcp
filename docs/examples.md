@@ -158,6 +158,12 @@ What day of the week is 2026-02-11?
 When does "30 9 * * 1-5" run?
 → Mon–Fri at 9:30 (cron_parse)
 
+When does "0 9 * * MON-FRI" run? (weekday names)
+→ Mon–Fri at 9:00 (cron_parse)
+
+When does "0 0 1 JAN-MAR *" run? (month names)
+→ 1st of Jan, Feb, Mar at midnight (cron_parse)
+
 Parse "0 0 1 * *"
 → Monthly on the 1st at midnight (cron_parse)
 
