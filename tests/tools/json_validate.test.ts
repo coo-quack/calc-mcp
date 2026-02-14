@@ -126,4 +126,62 @@ describe("json_validate", () => {
 		expect(result.error).toBe("Empty input");
 		expect(result.errors).toEqual(["Empty input"]);
 	});
+
+	test("validates YAML null value", () => {
+		const result = JSON.parse(execute({ input: "key: null", format: "yaml" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+		expect(result.keys).toEqual(["key"]);
+	});
+
+	test("validates XML with single child element", () => {
+		const result = JSON.parse(
+			execute({ input: "<root><child>value</child></root>", format: "xml" }),
+		);
+		expect(result.valid).toBe(true);
+	});
+
+	test("validates CSV with quoted commas", () => {
+		const result = JSON.parse(
+			execute({
+				input: 'name,description\nAlice,"hello, world"\nBob,"test, with, commas"',
+				format: "csv",
+			}),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.rows).toBe(3);
+		expect(result.columns).toBe(2);
+		expect(result.headers).toEqual(["name", "description"]);
+	});
+
+	test("validates CSV with escaped quotes", () => {
+		const result = JSON.parse(
+			execute({
+				input: 'name,value\nAlice,"say ""hello"""\nBob,"test""value"',
+				format: "csv",
+			}),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.rows).toBe(3);
+	});
+
+	test("validates large JSON array", () => {
+		const largeArray = JSON.stringify(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: `item-${i}` })));
+		const result = JSON.parse(execute({ input: largeArray, format: "json" }));
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("array");
+		expect(result.length).toBe(1000);
+	});
+
+	test("validates JSON with nested objects", () => {
+		const result = JSON.parse(
+			execute({
+				input: '{"user": {"name": "Alice", "address": {"city": "Tokyo", "country": "Japan"}}}',
+				format: "json",
+			}),
+		);
+		expect(result.valid).toBe(true);
+		expect(result.type).toBe("object");
+		expect(result.keys).toEqual(["user"]);
+	});
 });
