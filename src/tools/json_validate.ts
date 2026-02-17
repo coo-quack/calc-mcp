@@ -2,6 +2,26 @@ import { parse } from "yaml";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+/**
+ * Safely access array element, throwing on undefined.
+ */
+function arrayGet<T>(arr: T[] | undefined, index: number): T {
+	if (!arr) throw new Error("Array not initialized");
+	const val = arr[index];
+	if (val === undefined) throw new Error(`Index ${index} out of bounds`);
+	return val;
+}
+
+/**
+ * Safely access regex match group, throwing if undefined.
+ */
+function matchGet(match: RegExpMatchArray | null, index: number): string {
+	if (!match) throw new Error("Regex match is null");
+	const val = match[index];
+	if (val === undefined) throw new Error(`Match group ${index} not found`);
+	return val;
+}
+
 const schema = {
 	input: z.string().describe("String to validate/parse"),
 	format: z
@@ -65,11 +85,11 @@ function validateCsv(input: string): string {
 
 	const lines = trimmed.split("\n");
 	// lines is guaranteed non-empty since trimmed is non-empty
-	const headerCols = parseCsvLine(lines[0]!).length;
+	const headerCols = parseCsvLine(arrayGet(lines, 0)).length;
 	const errors: string[] = [];
 
 	for (let i = 1; i < lines.length; i++) {
-		const cols = parseCsvLine(lines[i]!).length;
+		const cols = parseCsvLine(arrayGet(lines, i)).length;
 		if (cols !== headerCols) {
 			errors.push(`Row ${i + 1}: expected ${headerCols} columns, got ${cols}`);
 		}
@@ -79,8 +99,8 @@ function validateCsv(input: string): string {
 		valid: errors.length === 0,
 		rows: lines.length,
 		columns: headerCols,
-		headers: parseCsvLine(lines[0]!),
-		error: errors.length > 0 ? errors[0] : undefined,
+		headers: parseCsvLine(arrayGet(lines, 0)),
+		error: errors.length > 0 ? arrayGet(errors, 0) : undefined,
 		errors: errors.length > 0 ? errors : undefined,
 	});
 }
@@ -144,7 +164,7 @@ function validateXml(input: string): string {
 	match = tagRegex.exec(input);
 	while (match !== null) {
 		const full = match[0];
-		const name = match[1]!;
+		const name = matchGet(match, 1);
 		if (full.startsWith("</")) {
 			// closing tag
 			if (stack.length === 0 || stack[stack.length - 1] !== name) {

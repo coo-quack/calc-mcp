@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const schema = {
 	action: z
@@ -50,8 +51,8 @@ function comparePre(a: string[], b: string[]): number {
 	for (let i = 0; i < len; i++) {
 		if (i >= a.length) return -1;
 		if (i >= b.length) return 1;
-		const aPart = a[i]!;
-		const bPart = b[i]!;
+		const aPart = assertExists(a[i], "version comparison");
+		const bPart = assertExists(b[i], "version comparison");
 		const aNum = /^\d+$/.test(aPart);
 		const bNum = /^\d+$/.test(bPart);
 		if (aNum && bNum) {

@@ -15,16 +15,19 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
+// IPv4 octet tuple schema (4 numbers, 0-255 each)
+const ipv4Tuple = z.tuple([
+	z.number().int().min(0).max(255),
+	z.number().int().min(0).max(255),
+	z.number().int().min(0).max(255),
+	z.number().int().min(0).max(255),
+]);
+
 function ipv4ToNum(ip: string): number {
-	const parts = ip.split(".").map(Number);
-	if (
-		parts.length !== 4 ||
-		parts.some((p) => Number.isNaN(p) || p < 0 || p > 255)
-	) {
-		throw new Error(`Invalid IPv4 address: ${ip}`);
-	}
+	const parts = ipv4Tuple.parse(ip.split(".").map(Number));
+	// Type is now [number, number, number, number], no assertion needed
 	return (
-		((parts[0]! << 24) | (parts[1]! << 16) | (parts[2]! << 8) | parts[3]!) >>> 0
+		((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0
 	);
 }
 
@@ -50,25 +53,24 @@ function getIpv4Class(firstOctet: number): string {
 }
 
 function isPrivate(ip: string): boolean {
-	const parts = ip.split(".").map(Number);
+	const parts = ipv4Tuple.parse(ip.split(".").map(Number));
 	if (parts[0] === 10) return true;
-	if (parts[0] === 172 && parts[1]! >= 16 && parts[1]! <= 31) return true;
+	if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
 	if (parts[0] === 192 && parts[1] === 168) return true;
 	if (parts[0] === 127) return true;
 	return false;
 }
+
+// CIDR notation tuple schema (IP/prefix)
+const cidrTuple = z.tuple([z.string(), z.string()]);
 
 function parseCidr(cidr: string): {
 	network: number;
 	prefix: number;
 	mask: number;
 } {
-	const parts = cidr.split("/");
-	const ip = parts[0];
-	const prefixStr = parts[1];
-	if (!ip || !prefixStr) {
-		throw new Error(`Invalid CIDR notation: ${cidr}`);
-	}
+	const parts = cidrTuple.parse(cidr.split("/"));
+	const [ip, prefixStr] = parts;
 	const prefix = Number.parseInt(prefixStr, 10);
 	if (prefix < 0 || prefix > 32)
 		throw new Error(`Invalid prefix length: ${prefix}`);
@@ -91,13 +93,13 @@ function ipInfo(ip: string): string {
 		});
 	}
 
-	const parts = ip.split(".").map(Number);
+	const parts = ipv4Tuple.parse(ip.split(".").map(Number));
 	const num = ipv4ToNum(ip);
 
 	return JSON.stringify({
 		ip,
 		version: 4,
-		class: getIpv4Class(parts[0]!),
+		class: getIpv4Class(parts[0]),
 		isPrivate: isPrivate(ip),
 		isLoopback: parts[0] === 127,
 		binary: num.toString(2).padStart(32, "0"),

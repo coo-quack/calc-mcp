@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const namedColors: Record<string, RGB> = {
 	aliceblue: { r: 240, g: 248, b: 255 },
@@ -184,7 +185,7 @@ function parseColor(color: string): RGB {
 
 	// Named color
 	if (trimmed in namedColors) {
-		return namedColors[trimmed]!;
+		return assertExists(namedColors[trimmed], "named color lookup");
 	}
 
 	// HEX (3, 4, 6, or 8 digits only)
@@ -192,7 +193,7 @@ function parseColor(color: string): RGB {
 		/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
 	);
 	if (hexMatch) {
-		let hex = hexMatch[1]!;
+		let hex = assertExists(hexMatch[1], "hex color parsing");
 		let alpha: number | undefined;
 
 		// Expand 3-digit shorthand: #RGB -> #RRGGBB
@@ -229,9 +230,9 @@ function parseColor(color: string): RGB {
 	);
 	if (rgbMatch) {
 		const rgb: RGB = {
-			r: Number.parseInt(rgbMatch[1]!, 10),
-			g: Number.parseInt(rgbMatch[2]!, 10),
-			b: Number.parseInt(rgbMatch[3]!, 10),
+			r: Number.parseInt(assertExists(rgbMatch[1], "RGB color parsing"), 10),
+			g: Number.parseInt(assertExists(rgbMatch[2], "RGB color parsing"), 10),
+			b: Number.parseInt(assertExists(rgbMatch[3], "RGB color parsing"), 10),
 		};
 		if (rgbMatch[4]) {
 			const alpha = Number.parseFloat(rgbMatch[4]);
@@ -249,9 +250,9 @@ function parseColor(color: string): RGB {
 	);
 	if (hslMatch) {
 		const hsl: HSL = {
-			h: Number.parseInt(hslMatch[1]!, 10),
-			s: Number.parseInt(hslMatch[2]!, 10),
-			l: Number.parseInt(hslMatch[3]!, 10),
+			h: Number.parseInt(assertExists(hslMatch[1], "HSL color parsing"), 10),
+			s: Number.parseInt(assertExists(hslMatch[2], "HSL color parsing"), 10),
+			l: Number.parseInt(assertExists(hslMatch[3], "HSL color parsing"), 10),
 		};
 		if (hslMatch[4]) {
 			const alpha = Number.parseFloat(hslMatch[4]);

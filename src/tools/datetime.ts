@@ -1,6 +1,7 @@
 import { format as dateFnsFormat } from "date-fns";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const schema = {
 	action: z
@@ -104,9 +105,9 @@ function formatOutput(date: Date, timezone: string, format?: string): string {
 
 	switch (format) {
 		case "date":
-			return isoLocal.split("T")[0]!;
+			return assertExists(isoLocal.split("T")[0], "date formatting");
 		case "time":
-			return `${isoLocal.split("T")[1]!}${offset}`;
+			return `${assertExists(isoLocal.split("T")[1], "time formatting")}${offset}`;
 		case "short":
 			return date.toLocaleString("en-US", {
 				timeZone: timezone,

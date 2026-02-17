@@ -8,6 +8,9 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
+// JWT tuple schema (header.payload.signature - all strings)
+const jwtTuple = z.tuple([z.string(), z.string(), z.string()]);
+
 function base64UrlDecode(str: string): string {
 	// Replace URL-safe chars
 	let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -19,22 +22,19 @@ function base64UrlDecode(str: string): string {
 }
 
 export function execute(input: Input): string {
-	const parts = input.token.split(".");
-	if (parts.length !== 3) {
-		throw new Error(`Invalid JWT: expected 3 parts, got ${parts.length}`);
-	}
+	const parts = jwtTuple.parse(input.token.split("."));
 
 	let header: unknown;
 	let payload: unknown;
 
 	try {
-		header = JSON.parse(base64UrlDecode(parts[0]!));
+		header = JSON.parse(base64UrlDecode(parts[0]));
 	} catch {
 		throw new Error("Failed to decode JWT header");
 	}
 
 	try {
-		payload = JSON.parse(base64UrlDecode(parts[1]!));
+		payload = JSON.parse(base64UrlDecode(parts[1]));
 	} catch {
 		throw new Error("Failed to decode JWT payload");
 	}

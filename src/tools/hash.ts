@@ -1,6 +1,7 @@
 import { createHash, createHmac } from "node:crypto";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const schema = {
 	input: z.string().describe("String to hash"),
@@ -34,7 +35,9 @@ function crc32(str: string): string {
 	let crc = 0xffffffff;
 	const bytes = new TextEncoder().encode(str);
 	for (const byte of bytes) {
-		crc = CRC32_TABLE[(crc ^ byte) & 0xff]! ^ (crc >>> 8);
+		crc =
+			assertExists(CRC32_TABLE[(crc ^ byte) & 0xff], "CRC32 computation") ^
+			(crc >>> 8);
 	}
 	return ((crc ^ 0xffffffff) >>> 0).toString(16).padStart(8, "0");
 }

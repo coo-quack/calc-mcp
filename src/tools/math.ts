@@ -53,6 +53,7 @@ import {
 } from "mathjs";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 // Create mathjs instance with only the functions we need.
 // Selective imports enable tree-shaking at build time, significantly reducing
@@ -174,9 +175,11 @@ function computeStatistics(values: number[]): string {
 
 	const fmt = (v: unknown) => Number(math.format(v, { precision: 14 }));
 
-	// sorted is guaranteed non-empty, so first and last elements exist
-	const firstValue = sorted[0]!;
-	const lastValue = sorted[sorted.length - 1]!;
+	const firstValue = assertExists(sorted[0], "statistics calculation");
+	const lastValue = assertExists(
+		sorted[sorted.length - 1],
+		"statistics calculation",
+	);
 
 	return JSON.stringify(
 		{

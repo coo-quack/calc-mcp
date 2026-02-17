@@ -1,6 +1,17 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+/**
+ * Safely access array element, throwing on undefined.
+ * Used for initialized arrays where TypeScript can't infer non-null.
+ */
+function arrayGet<T>(arr: T[] | undefined, index: number): T {
+	if (!arr) throw new Error("Array not initialized");
+	const val = arr[index];
+	if (val === undefined) throw new Error(`Index ${index} out of bounds`);
+	return val;
+}
+
 const schema = {
 	text1: z.string().describe("First text"),
 	text2: z.string().describe("Second text"),
@@ -22,13 +33,13 @@ function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 	);
 	// dp table is guaranteed to be fully initialized (m+1 x n+1)
 	for (let i = 1; i <= m; i++) {
-		const currRow = dp[i]!;
-		const prevRow = dp[i - 1]!;
+		const currRow = arrayGet(dp, i);
+		const prevRow = arrayGet(dp, i - 1);
 		for (let j = 1; j <= n; j++) {
 			if (a[i - 1] === b[j - 1]) {
-				currRow[j] = prevRow[j - 1]! + 1;
+				currRow[j] = arrayGet(prevRow, j - 1) + 1;
 			} else {
-				currRow[j] = Math.max(prevRow[j]!, currRow[j - 1]!);
+				currRow[j] = Math.max(arrayGet(prevRow, j), arrayGet(currRow, j - 1));
 			}
 		}
 	}
@@ -44,7 +55,9 @@ function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 			inLcsB[j - 1] = true;
 			i--;
 			j--;
-		} else if (dp[i - 1]![j]! >= dp[i]![j - 1]!) {
+		} else if (
+			arrayGet(arrayGet(dp, i - 1), j) >= arrayGet(arrayGet(dp, i), j - 1)
+		) {
 			i--;
 		} else {
 			j--;
@@ -90,28 +103,28 @@ function levenshteinDistance(s: string, t: string): number {
 
 	// dp table is guaranteed to be fully initialized
 	for (let i = 0; i <= m; i++) {
-		dp[i]![0] = i;
+		arrayGet(dp, i)[0] = i;
 	}
 	for (let j = 0; j <= n; j++) {
-		dp[0]![j] = j;
+		arrayGet(dp, 0)[j] = j;
 	}
 
 	// dp table is fully initialized, indices are within bounds
 	for (let i = 1; i <= m; i++) {
-		const currRow = dp[i]!;
-		const prevRow = dp[i - 1]!;
+		const currRow = arrayGet(dp, i);
+		const prevRow = arrayGet(dp, i - 1);
 		for (let j = 1; j <= n; j++) {
 			const cost = s[i - 1] === t[j - 1] ? 0 : 1;
 			currRow[j] = Math.min(
-				prevRow[j]! + 1,
-				currRow[j - 1]! + 1,
-				prevRow[j - 1]! + cost,
+				arrayGet(prevRow, j) + 1,
+				arrayGet(currRow, j - 1) + 1,
+				arrayGet(prevRow, j - 1) + cost,
 			);
 		}
 	}
 
 	// dp[m][n] is guaranteed to exist after the loop
-	return dp[m]![n]!;
+	return arrayGet(arrayGet(dp, m), n);
 }
 
 export function execute(input: Input): string {

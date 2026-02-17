@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const schema = {
 	type: z
@@ -127,15 +128,17 @@ function uniformRandomInt(range: number): number {
 	let value: number;
 	do {
 		crypto.getRandomValues(array);
-		value = array[0]!;
+		value = assertExists(array[0], "random number generation");
 	} while (value >= limit);
 	return value % range;
 }
 
 function generatePassword(length: number, charset: string): string {
-	return Array.from(
-		{ length },
-		() => charset[uniformRandomInt(charset.length)]!,
+	return Array.from({ length }, () =>
+		assertExists(
+			charset[uniformRandomInt(charset.length)],
+			"password generation",
+		),
 	).join("");
 }
 
@@ -151,9 +154,8 @@ function generateUUIDv7(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
 	const ms = BigInt(now);
-	// Uint8Array(16) is always fully initialized
-	const b6 = bytes[6]!;
-	const b8 = bytes[8]!;
+	const b6 = assertExists(bytes[6], "UUID v7 generation");
+	const b8 = assertExists(bytes[8], "UUID v7 generation");
 	bytes[0] = Number((ms >> 40n) & 0xffn);
 	bytes[1] = Number((ms >> 32n) & 0xffn);
 	bytes[2] = Number((ms >> 24n) & 0xffn);
@@ -173,7 +175,8 @@ function generateULID(): string {
 	let timeStr = "";
 	let t = now;
 	for (let i = 0; i < 10; i++) {
-		timeStr = ULID_ENCODING[t % 32]! + timeStr;
+		timeStr =
+			assertExists(ULID_ENCODING[t % 32], "ULID time encoding") + timeStr;
 		t = Math.floor(t / 32);
 	}
 	const randomBytes = new Uint8Array(10);
@@ -184,14 +187,19 @@ function generateULID(): string {
 		const bitOffset = (i * 5) % 8;
 		let value: number;
 		if (bitOffset <= 3) {
-			value = (randomBytes[byteIndex]! >> (3 - bitOffset)) & 0x1f;
+			value =
+				(assertExists(randomBytes[byteIndex], "ULID random generation") >>
+					(3 - bitOffset)) &
+				0x1f;
 		} else {
 			value =
-				((randomBytes[byteIndex]! << (bitOffset - 3)) |
-					(randomBytes[byteIndex + 1]! >> (11 - bitOffset))) &
+				((assertExists(randomBytes[byteIndex], "ULID random generation") <<
+					(bitOffset - 3)) |
+					(assertExists(randomBytes[byteIndex + 1], "ULID random generation") >>
+						(11 - bitOffset))) &
 				0x1f;
 		}
-		randomStr += ULID_ENCODING[value]!;
+		randomStr += assertExists(ULID_ENCODING[value], "ULID random encoding");
 	}
 	return timeStr + randomStr;
 }

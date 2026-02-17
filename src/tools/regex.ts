@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const schema = {
 	pattern: z.string().describe("Regular expression pattern"),
@@ -89,7 +90,7 @@ export function execute(input: Input): string {
 			if (matches.length === 0) {
 				return JSON.stringify({ matches: null, index: null, groups: null });
 			}
-			const firstMatch = matches[0]!;
+			const firstMatch = assertExists(matches[0], "regex matching");
 			return JSON.stringify({
 				matches: matches.map((m) => m[0]),
 				index: firstMatch.index,
