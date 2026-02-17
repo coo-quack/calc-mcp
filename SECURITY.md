@@ -64,7 +64,7 @@ calc-mcp sanitizes error messages to prevent accidental data leakage:
 
 - Sensitive tool names trigger redaction in error messages
 - Generic errors are returned when possible
-- No stack traces containing input data
+- Only error messages are returned (stack traces are not included)
 
 **Example:**
 

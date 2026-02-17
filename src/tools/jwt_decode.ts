@@ -8,9 +8,6 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
-// JWT tuple schema (header.payload.signature - all strings)
-const jwtTuple = z.tuple([z.string(), z.string(), z.string()]);
-
 function base64UrlDecode(str: string): string {
 	// Replace URL-safe chars
 	let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -22,7 +19,15 @@ function base64UrlDecode(str: string): string {
 }
 
 export function execute(input: Input): string {
-	const parts = jwtTuple.parse(input.token.split("."));
+	// Validate JWT structure before parsing to avoid leaking token in zod errors
+	const parts = input.token.split(".");
+	if (parts.length !== 3) {
+		throw new Error(`Invalid JWT: expected 3 parts, got ${parts.length}`);
+	}
+	// Header and payload must be non-empty, but signature can be empty (unsigned JWT)
+	if (parts[0].length === 0 || parts[1].length === 0) {
+		throw new Error("Invalid JWT: header and payload must be non-empty");
+	}
 
 	let header: unknown;
 	let payload: unknown;

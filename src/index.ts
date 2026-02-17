@@ -66,13 +66,18 @@ const server = new McpServer({
 });
 
 // Tools that may process sensitive data
-const SENSITIVE_TOOLS = new Set(["jwt_decode", "hash", "base64", "encode"]);
+export const SENSITIVE_TOOLS = new Set([
+	"jwt_decode",
+	"hash",
+	"base64",
+	"encode",
+]);
 
 /**
  * Sanitize error messages to prevent accidental data leakage.
  * For sensitive tools, redact common parameter names from error messages.
  */
-function sanitizeErrorMessage(
+export function sanitizeErrorMessage(
 	toolName: string,
 	error: unknown,
 	args: Record<string, unknown>,

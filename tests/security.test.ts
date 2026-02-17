@@ -55,6 +55,7 @@ describe("Security: Error Message Sanitization", () => {
 
 			// Check that error is descriptive but doesn't leak the input
 			expect(message.length).toBeGreaterThan(0);
+			expect(message).not.toContain(sensitiveData);
 		}
 	});
 });

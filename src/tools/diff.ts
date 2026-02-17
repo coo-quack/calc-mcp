@@ -1,16 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
-
-/**
- * Safely access array element, throwing on undefined.
- * Used for initialized arrays where TypeScript can't infer non-null.
- */
-function arrayGet<T>(arr: T[] | undefined, index: number): T {
-	if (!arr) throw new Error("Array not initialized");
-	const val = arr[index];
-	if (val === undefined) throw new Error(`Index ${index} out of bounds`);
-	return val;
-}
+import { arrayGet } from "../utils.js";
 
 const schema = {
 	text1: z.string().describe("First text"),

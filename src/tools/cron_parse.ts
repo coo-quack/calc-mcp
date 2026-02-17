@@ -1,36 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
-
-/**
- * Safely access array element, throwing on undefined.
- */
-function arrayGet<T>(arr: T[] | undefined, index: number): T {
-	if (!arr) throw new Error("Array not initialized");
-	const val = arr[index];
-	if (val === undefined) throw new Error(`Index ${index} out of bounds`);
-	return val;
-}
-
-/**
- * Safely access regex match group, throwing if undefined.
- */
-function matchGet(match: RegExpMatchArray | null, index: number): string {
-	if (!match) throw new Error("Regex match is null");
-	const val = match[index];
-	if (val === undefined) throw new Error(`Match group ${index} not found`);
-	return val;
-}
-
-/**
- * Safely access object property after hasOwn check.
- */
-function objGet<T>(obj: Record<string, T>, key: string): T {
-	if (!Object.hasOwn(obj, key))
-		throw new Error(`Key "${key}" not found in object`);
-	const val = obj[key];
-	if (val === undefined) throw new Error(`Value for key "${key}" is undefined`);
-	return val;
-}
+import { arrayGet, matchGet, objGet } from "../utils.js";
 
 const schema = {
 	expression: z

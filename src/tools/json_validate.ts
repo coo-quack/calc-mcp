@@ -1,26 +1,7 @@
 import { parse } from "yaml";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
-
-/**
- * Safely access array element, throwing on undefined.
- */
-function arrayGet<T>(arr: T[] | undefined, index: number): T {
-	if (!arr) throw new Error("Array not initialized");
-	const val = arr[index];
-	if (val === undefined) throw new Error(`Index ${index} out of bounds`);
-	return val;
-}
-
-/**
- * Safely access regex match group, throwing if undefined.
- */
-function matchGet(match: RegExpMatchArray | null, index: number): string {
-	if (!match) throw new Error("Regex match is null");
-	const val = match[index];
-	if (val === undefined) throw new Error(`Match group ${index} not found`);
-	return val;
-}
+import { arrayGet, matchGet } from "../utils.js";
 
 const schema = {
 	input: z.string().describe("String to validate/parse"),

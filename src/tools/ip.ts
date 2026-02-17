@@ -61,15 +61,16 @@ function isPrivate(ip: string): boolean {
 	return false;
 }
 
-// CIDR notation tuple schema (IP/prefix)
-const cidrTuple = z.tuple([z.string(), z.string()]);
-
 function parseCidr(cidr: string): {
 	network: number;
 	prefix: number;
 	mask: number;
 } {
-	const parts = cidrTuple.parse(cidr.split("/"));
+	// Validate CIDR format before parsing to avoid ambiguous errors
+	const parts = cidr.split("/");
+	if (parts.length !== 2) {
+		throw new Error(`Invalid CIDR format: ${cidr}`);
+	}
 	const [ip, prefixStr] = parts;
 	const prefix = Number.parseInt(prefixStr, 10);
 	if (prefix < 0 || prefix > 32)
