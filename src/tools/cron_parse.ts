@@ -346,7 +346,9 @@ function resolveToken(
 	const trimmed = token.trim();
 	const key = trimmed.toLowerCase();
 	if (Object.hasOwn(nameMap, key)) {
-		return arrayGet(labels, objGet(nameMap, key)) ?? trimmed;
+		const index = objGet(nameMap, key);
+		const label = index !== undefined ? labels[index] : undefined;
+		return label ?? trimmed;
 	}
 	let num = Number.parseInt(trimmed, 10);
 	if (!Number.isNaN(num)) {

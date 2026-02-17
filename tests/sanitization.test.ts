@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { SENSITIVE_TOOLS, sanitizeErrorMessage } from "../src/index.js";
+import { SENSITIVE_TOOLS, sanitizeErrorMessage } from "../src/sanitization.js";
 
 describe("sanitizeErrorMessage", () => {
 	test("should redact token parameter for sensitive tools", () => {

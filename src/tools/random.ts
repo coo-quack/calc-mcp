@@ -210,8 +210,8 @@ function shuffle(items: string[]): string[] {
 	// Fisher-Yates shuffle with crypto random (unbiased)
 	for (let i = result.length - 1; i > 0; i--) {
 		const j = uniformRandomInt(i + 1);
-		const temp = result[j] as string;
-		result[j] = result[i] as string;
+		const temp = assertExists(result[j], "shuffle item");
+		result[j] = assertExists(result[i], "shuffle item");
 		result[i] = temp;
 	}
 	return result;

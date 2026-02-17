@@ -8,6 +8,7 @@ import { tool as baseTool } from "./tools/base.js";
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json") as { version: string };
 
+import { sanitizeErrorMessage } from "./sanitization.js";
 import { tool as base64Tool } from "./tools/base64.js";
 import { tool as charInfoTool } from "./tools/char_info.js";
 import { tool as colorTool } from "./tools/color.js";
@@ -64,46 +65,6 @@ const server = new McpServer({
 	name: "calc-mcp",
 	version,
 });
-
-// Tools that may process sensitive data
-export const SENSITIVE_TOOLS = new Set([
-	"jwt_decode",
-	"hash",
-	"base64",
-	"encode",
-]);
-
-/**
- * Sanitize error messages to prevent accidental data leakage.
- * For sensitive tools, redact common parameter names from error messages.
- */
-export function sanitizeErrorMessage(
-	toolName: string,
-	error: unknown,
-	args: Record<string, unknown>,
-): string {
-	const message = error instanceof Error ? error.message : String(error);
-
-	// For sensitive tools, redact input values from error messages
-	if (SENSITIVE_TOOLS.has(toolName)) {
-		let sanitized = message;
-
-		// Redact common sensitive parameter names
-		const sensitiveParams = ["token", "key", "input", "secret", "password"];
-
-		for (const param of sensitiveParams) {
-			const value = args[param];
-			if (typeof value === "string" && value.length > 0) {
-				// Replace the actual value with [REDACTED] in error messages
-				sanitized = sanitized.replaceAll(value, "[REDACTED]");
-			}
-		}
-
-		return sanitized;
-	}
-
-	return message;
-}
 
 for (const tool of tools) {
 	server.tool(
