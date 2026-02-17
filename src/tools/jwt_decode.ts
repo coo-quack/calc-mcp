@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { arrayGet } from "../utils.js";
 
 const schema = {
 	token: z.string().describe("JWT token to decode"),
@@ -25,7 +26,7 @@ export function execute(input: Input): string {
 		throw new Error(`Invalid JWT: expected 3 parts, got ${parts.length}`);
 	}
 	// Header and payload must be non-empty, but signature can be empty (unsigned JWT)
-	if (parts[0].length === 0 || parts[1].length === 0) {
+	if (arrayGet(parts, 0).length === 0 || arrayGet(parts, 1).length === 0) {
 		throw new Error("Invalid JWT: header and payload must be non-empty");
 	}
 
@@ -33,13 +34,13 @@ export function execute(input: Input): string {
 	let payload: unknown;
 
 	try {
-		header = JSON.parse(base64UrlDecode(parts[0]));
+		header = JSON.parse(base64UrlDecode(arrayGet(parts, 0)));
 	} catch {
 		throw new Error("Failed to decode JWT header");
 	}
 
 	try {
-		payload = JSON.parse(base64UrlDecode(parts[1]));
+		payload = JSON.parse(base64UrlDecode(arrayGet(parts, 1)));
 	} catch {
 		throw new Error("Failed to decode JWT payload");
 	}

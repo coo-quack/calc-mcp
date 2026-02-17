@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { arrayGet } from "../utils.js";
 
 const schema = {
 	action: z
@@ -71,7 +72,8 @@ function parseCidr(cidr: string): {
 	if (parts.length !== 2) {
 		throw new Error(`Invalid CIDR format: ${cidr}`);
 	}
-	const [ip, prefixStr] = parts;
+	const ip = arrayGet(parts, 0);
+	const prefixStr = arrayGet(parts, 1);
 	const prefix = Number.parseInt(prefixStr, 10);
 	if (prefix < 0 || prefix > 32)
 		throw new Error(`Invalid prefix length: ${prefix}`);

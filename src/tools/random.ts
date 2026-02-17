@@ -210,7 +210,9 @@ function shuffle(items: string[]): string[] {
 	// Fisher-Yates shuffle with crypto random (unbiased)
 	for (let i = result.length - 1; i > 0; i--) {
 		const j = uniformRandomInt(i + 1);
-		[result[i], result[j]] = [result[j], result[i]];
+		const temp = result[j] as string;
+		result[j] = result[i] as string;
+		result[i] = temp;
 	}
 	return result;
 }

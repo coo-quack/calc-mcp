@@ -38,7 +38,9 @@ describe("sanitizeErrorMessage", () => {
 
 	test("should handle multiple occurrences of the same value", () => {
 		const secret = "SECRET123";
-		const error = new Error(`Error: ${secret} is invalid. ${secret} was rejected.`);
+		const error = new Error(
+			`Error: ${secret} is invalid. ${secret} was rejected.`,
+		);
 		const args = { token: secret };
 
 		const result = sanitizeErrorMessage("jwt_decode", error, args);

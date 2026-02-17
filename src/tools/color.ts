@@ -198,12 +198,25 @@ function parseColor(color: string): RGB {
 
 		// Expand 3-digit shorthand: #RGB -> #RRGGBB
 		if (hex.length === 3) {
-			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+			hex =
+				hex.charAt(0) +
+				hex.charAt(0) +
+				hex.charAt(1) +
+				hex.charAt(1) +
+				hex.charAt(2) +
+				hex.charAt(2);
 		}
 		// Expand 4-digit shorthand: #RGBA -> #RRGGBBAA
 		else if (hex.length === 4) {
 			hex =
-				hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+				hex.charAt(0) +
+				hex.charAt(0) +
+				hex.charAt(1) +
+				hex.charAt(1) +
+				hex.charAt(2) +
+				hex.charAt(2) +
+				hex.charAt(3) +
+				hex.charAt(3);
 		}
 
 		// Parse 8-digit HEX with alpha
