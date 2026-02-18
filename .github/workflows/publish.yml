@@ -64,8 +64,9 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ needs.check.outputs.version }}"
-          # Extract the section for this version from CHANGELOG.md
-          NOTES=$(awk "/^## v${VERSION}/,/^## v[0-9]/" CHANGELOG.md | head -n -1 | tail -n +2)
+          # Extract the section for this version from CHANGELOG.md.
+          # Uses a flag-based approach to avoid awk range matching the header line itself.
+          NOTES=$(awk "/^## v${VERSION}/{found=1; next} found && /^## v/{exit} found{print}" CHANGELOG.md)
           if [ -z "$NOTES" ]; then
             NOTES="Release v${VERSION}"
           fi
