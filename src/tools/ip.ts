@@ -25,7 +25,12 @@ const ipv4Tuple = z.tuple([
 ]);
 
 function ipv4ToNum(ip: string): number {
-	const parts = ipv4Tuple.parse(ip.split(".").map(Number));
+	const octets = ip.split(".");
+	// Pre-validate: exactly 4 non-empty decimal-digit segments (rejects "1..1.1", "1e2.0.0.0", etc.)
+	if (octets.length !== 4 || octets.some((o) => !/^\d+$/.test(o))) {
+		throw new Error(`Invalid IPv4 address: ${ip}`);
+	}
+	const parts = ipv4Tuple.parse(octets.map(Number));
 	// Type is now [number, number, number, number], no assertion needed
 	return (
 		((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0

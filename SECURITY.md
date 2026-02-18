@@ -79,8 +79,8 @@ calc-mcp sanitizes error messages to prevent accidental data leakage:
 ## Security Features
 
 ### 1. Input Validation
-- All inputs are validated using Zod schemas
-- Type checking prevents injection attacks
+- All inputs are validated using Zod schemas at runtime
+- Runtime schema validation (not TypeScript types) prevents malformed inputs
 - Invalid inputs are rejected before processing
 
 ### 2. No Persistence
@@ -143,13 +143,13 @@ mcporter call calc-mcp.jwt_decode token="$(cat test-jwt.txt)"
 
 ## Compliance
 
-calc-mcp is designed to be compliant with:
+calc-mcp is designed with the following principles that support compliance:
 
-- ✅ GDPR (no personal data storage)
-- ✅ SOC 2 (local processing, no external dependencies)
-- ✅ HIPAA (no PHI transmission or storage)
+- ✅ GDPR-friendly (no personal data storage or transmission)
+- 🔄 SOC 2 compatible (local-only processing; note: third-party npm dependencies apply)
+- 🔄 HIPAA-friendly (no PHI transmission or storage by this tool itself)
 
-**Note:** Compliance ultimately depends on **how you use the tool**. Always follow your organization's security policies.
+**Note:** Compliance is an organizational and process claim, not a product feature. Whether your use of calc-mcp meets a given standard depends entirely on your organization's policies, processes, and broader system architecture. Always follow your organization's security policies.
 
 ---
 
