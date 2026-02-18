@@ -2,6 +2,34 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.8.2 (2026-02-19)
+
+### Documentation
+
+- Add missing changelog entry for v1.8.1 (#48)
+- Update `CLAUDE.md` to document release note format, correct `CHANGELOG.md` location, and reflect current `noUncheckedIndexedAccess` coding conventions (#48)
+
+## v1.8.1 (2026-02-19)
+
+### Security
+
+- Add `SECURITY.md` with vulnerability reporting policy, sensitive data handling guidelines, and LLM integration considerations (#46)
+- Add error sanitization to prevent accidental leakage of sensitive input values (tokens, keys, passwords) in error messages for `jwt_decode`, `hash`, `base64`, and `encode` tools (#46)
+
+### Improvements
+
+- **color** — Replace non-null assertions with type-safe alternatives (`objGet`, `Array.from`, destructuring) (#46)
+- **diff** — Rewrite LCS and Levenshtein DP tables as flat 1D arrays for better cache efficiency and type safety (#46)
+- **ip** — Fix double-parsing of IPv4 address in `ipInfo()` (#46)
+- **jwt_decode** — Use destructuring with defaults to safely access JWT parts without type assertions (#46)
+- **cron_parse** — Use local variable narrowing to eliminate redundant nullish coalescing (#46)
+- **random** — Restore idiomatic Fisher-Yates destructuring swap (#46)
+
+### Tests
+
+- Add `tests/sanitization.test.ts` covering `sanitizeErrorMessage` for all sensitive tools (#46)
+- Add `tests/security.test.ts` verifying that sensitive input values are not leaked in error messages (#46)
+
 ## v1.8.0 (2026-02-14)
 
 ### Features

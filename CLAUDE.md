@@ -86,9 +86,7 @@ Registration: import in `src/index.ts` → add to `tools` array.
 ## Code Style
 
 - Indentation: tabs (enforced by Biome)
-- Biome rules: `noExplicitAny: "error"`, `noNonNullAssertion: "warn"`
-- Use `!` non-null assertion when value is guaranteed by prior logic (e.g. array length check, `in` operator, regex match)
-- Avoid redundant runtime null checks for values guaranteed to exist
+- Follow Biome rules (`bun run lint`); all warnings are treated as errors in CI
 
 ## Git / GitHub Rules
 
@@ -107,21 +105,54 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 ### Changelog Policy
 
-- Do NOT update `docs/changelog.md` in feature PRs
+- Do NOT update `CHANGELOG.md` in feature PRs
 - Changelog entries are created only in the release PR
+- The canonical changelog file is `CHANGELOG.md` (root); `docs/changelog.md` is a symlink to it for VitePress
 
 ### Release PR Process
 
 1. **Branch**: Create `release/vX.Y.Z` from `main`
 2. **Version bump**: Update `version` in `package.json`
-3. **Changelog**: Update `docs/changelog.md`
-   - Move items from `## Unreleased` into a new `## vX.Y.Z (YYYY-MM-DD)` section
-   - Categorize: Features, Bug Fixes, Improvements, Security, Tests, etc.
+3. **Changelog**: Update `CHANGELOG.md`
+   - Add a new `## vX.Y.Z (YYYY-MM-DD)` section at the top (below the heading)
+   - Categorize entries: Features, Bug Fixes, Improvements, Security, Tests, Documentation, etc.
    - Reference PR numbers (e.g. `(#34)`)
+   - This content is automatically extracted and used as the GitHub Release notes by `publish.yml`
 4. **Documentation review**: Update if new features/changes require it:
    - `docs/tools.md` — tool parameters, descriptions
    - `docs/examples.md` — usage examples
    - `README.md` — tool table, examples
 5. **Commit**: Single commit with message `chore: release vX.Y.Z`
 6. **PR**: Title `chore: release vX.Y.Z`, target `main`
-7. **After merge**: `publish.yml` automatically handles npm publish, git tag, GitHub Release
+7. **After merge**: `publish.yml` automatically handles npm publish, git tag, and GitHub Release
+   - GitHub Release notes are extracted from the `## vX.Y.Z` section in `CHANGELOG.md`
+
+### Release Notes Format
+
+```markdown
+## vX.Y.Z (YYYY-MM-DD)
+
+### Features
+
+- **tool-name** — Description of new feature (#PR)
+
+### Bug Fixes
+
+- **tool-name** — Description of fix (#PR)
+
+### Improvements
+
+- Description of improvement (#PR)
+
+### Security
+
+- Description of security fix (#PR)
+
+### Tests
+
+- Description of test additions (#PR)
+
+### Documentation
+
+- Description of doc changes (#PR)
+```

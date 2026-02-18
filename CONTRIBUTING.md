@@ -29,14 +29,17 @@ bun run build     # Build for production
 
 ## Release Checklist
 
-When bumping a version:
+When bumping a version, create a `release/vX.Y.Z` branch and open a PR with:
 
-1. Update `CHANGELOG.md` with new version entry
-2. Update `docs/changelog.md` to match
+1. Update `version` in `package.json`
+2. Update `CHANGELOG.md` with a new `## vX.Y.Z (YYYY-MM-DD)` section
+   - `docs/changelog.md` is a symlink to `CHANGELOG.md` — do not edit it separately
+   - This content is automatically used as the GitHub Release notes by `publish.yml`
 3. Review `docs/tools.md` — add/update any changed tool parameters or examples
 4. Review `docs/examples.md` — add examples for new features
 5. Review `README.md` — update tool table and examples if needed
-6. Create GitHub Release with release notes
+
+After merging, `publish.yml` automatically publishes to npm, creates a git tag, and creates a GitHub Release with the notes extracted from `CHANGELOG.md`.
 
 ## Pull Requests
 
