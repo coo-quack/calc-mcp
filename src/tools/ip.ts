@@ -101,15 +101,16 @@ function ipInfo(ip: string): string {
 		});
 	}
 
-	const parts = ipv4Tuple.parse(ip.split(".").map(Number));
+	// ipv4ToNum validates the address and parses octets internally — avoid double-parsing
 	const num = ipv4ToNum(ip);
+	const firstOctet = (num >>> 24) & 0xff;
 
 	return JSON.stringify({
 		ip,
 		version: 4,
-		class: getIpv4Class(parts[0]),
+		class: getIpv4Class(firstOctet),
 		isPrivate: isPrivate(ip),
-		isLoopback: parts[0] === 127,
+		isLoopback: firstOctet === 127,
 		binary: num.toString(2).padStart(32, "0"),
 		decimal: num,
 	});

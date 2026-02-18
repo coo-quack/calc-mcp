@@ -51,18 +51,18 @@ describe("Security: Error Message Sanitization (via MCP error path)", () => {
 		expect(message).not.toContain("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
 	});
 
-	test("hash errors do not expose HMAC key", async () => {
+	test("sanitizeErrorMessage redacts HMAC key in hash errors", async () => {
+		// Craft an error whose message contains the key, then verify sanitization redacts it.
+		// (Mirrors the first test, which does the same for jwt_decode.)
 		const sensitiveKey = "my-super-secret-key-12345";
-
-		const message = await callTool(hashTool, {
-			input: "test",
-			algorithm: "sha256",
-			action: "hmac",
+		const error = new Error(`HMAC computation failed: key=${sensitiveKey}`);
+		const result = sanitizeErrorMessage("hash", error, {
+			input: "data",
 			key: sensitiveKey,
 		});
 
-		// Successful call (valid args) should not expose the key either
-		expect(message).not.toContain(sensitiveKey);
+		expect(result).not.toContain(sensitiveKey);
+		expect(result).toContain("[REDACTED]");
 	});
 
 	test("base64 errors do not expose input data", async () => {
