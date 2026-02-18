@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { objGet } from "../utils.js";
 
 const namedColors: Record<string, RGB> = {
 	aliceblue: { r: 240, g: 248, b: 255 },
@@ -184,7 +185,7 @@ function parseColor(color: string): RGB {
 
 	// Named color
 	if (trimmed in namedColors) {
-		return namedColors[trimmed]!;
+		return objGet(namedColors, trimmed);
 	}
 
 	// HEX (3, 4, 6, or 8 digits only)
@@ -192,17 +193,20 @@ function parseColor(color: string): RGB {
 		/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
 	);
 	if (hexMatch) {
-		let hex = hexMatch[1]!;
+		// ?? "" is required by noUncheckedIndexedAccess: destructuring from a regex
+		// match result yields string | undefined at compile time, even though capture
+		// group 1 is non-optional in the pattern above.
+		const [, hexCapture] = hexMatch;
+		let hex = hexCapture ?? "";
 		let alpha: number | undefined;
 
 		// Expand 3-digit shorthand: #RGB -> #RRGGBB
 		if (hex.length === 3) {
-			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+			hex = Array.from(hex, (c) => c + c).join("");
 		}
 		// Expand 4-digit shorthand: #RGBA -> #RRGGBBAA
 		else if (hex.length === 4) {
-			hex =
-				hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+			hex = Array.from(hex, (c) => c + c).join("");
 		}
 
 		// Parse 8-digit HEX with alpha
@@ -228,10 +232,13 @@ function parseColor(color: string): RGB {
 		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (rgbMatch) {
+		// ?? "0" is required by noUncheckedIndexedAccess (same reason as hexCapture above).
+		// Capture groups 1-3 are non-optional in the regex, so the fallback never applies.
+		const [, rStr, gStr, bStr] = rgbMatch;
 		const rgb: RGB = {
-			r: Number.parseInt(rgbMatch[1]!, 10),
-			g: Number.parseInt(rgbMatch[2]!, 10),
-			b: Number.parseInt(rgbMatch[3]!, 10),
+			r: Number.parseInt(rStr ?? "0", 10),
+			g: Number.parseInt(gStr ?? "0", 10),
+			b: Number.parseInt(bStr ?? "0", 10),
 		};
 		if (rgbMatch[4]) {
 			const alpha = Number.parseFloat(rgbMatch[4]);
@@ -248,10 +255,13 @@ function parseColor(color: string): RGB {
 		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (hslMatch) {
+		// ?? "0" is required by noUncheckedIndexedAccess (same reason as hexCapture above).
+		// Capture groups 1-3 are non-optional in the regex, so the fallback never applies.
+		const [, hStr, sStr, lStr] = hslMatch;
 		const hsl: HSL = {
-			h: Number.parseInt(hslMatch[1]!, 10),
-			s: Number.parseInt(hslMatch[2]!, 10),
-			l: Number.parseInt(hslMatch[3]!, 10),
+			h: Number.parseInt(hStr ?? "0", 10),
+			s: Number.parseInt(sStr ?? "0", 10),
+			l: Number.parseInt(lStr ?? "0", 10),
 		};
 		if (hslMatch[4]) {
 			const alpha = Number.parseFloat(hslMatch[4]);

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { assertExists } from "../utils.js";
 
 const schema = {
 	value: z.number().describe("Value to convert"),
@@ -306,7 +307,9 @@ export function execute(input: Input): string {
 			`Unknown unit '${to}' in ${category}. Supported: ${supported}`,
 		);
 
-	const result = (value * table[fromLower]!) / table[toLower]!;
+	const result =
+		(value * assertExists(table[fromLower], "unit conversion")) /
+		assertExists(table[toLower], "unit conversion");
 
 	return JSON.stringify({
 		value,

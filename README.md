@@ -203,6 +203,38 @@ bun run lint      # Biome
 bun run format    # Biome
 ```
 
+## Security
+
+calc-mcp processes all data **locally** and does **not**:
+
+- ❌ Send data to external servers
+- ❌ Log data to files or remote services
+- ❌ Store processed data persistently
+
+**For detailed security information, see [SECURITY.md](SECURITY.md).**
+
+### Safe Usage with LLMs
+
+When using with LLM-based tools (Claude, GPT, etc.):
+
+- ✅ **DO:** Use test/sample data when possible
+- ✅ **DO:** Review LLM conversation history for accidental leaks
+- ❌ **DON'T:** Pass API keys, passwords, or tokens directly as arguments
+
+Example:
+
+```bash
+# ❌ Unsafe: API key exposed in command history
+mcporter call calc-mcp.hash input="sk-1234567890abcdef" algorithm="sha256"
+
+# ✅ Safe: Use placeholder or test data
+mcporter call calc-mcp.hash input="my-test-string" algorithm="sha256"
+```
+
+**Note:** Error messages are automatically sanitized to prevent accidental data leakage.
+
+For security issues, please see our [Security Policy](SECURITY.md#reporting-security-issues).
+
 ## License
 
 MIT

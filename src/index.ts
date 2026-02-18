@@ -8,6 +8,7 @@ import { tool as baseTool } from "./tools/base.js";
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json") as { version: string };
 
+import { sanitizeErrorMessage } from "./sanitization.js";
 import { tool as base64Tool } from "./tools/base64.js";
 import { tool as charInfoTool } from "./tools/char_info.js";
 import { tool as colorTool } from "./tools/color.js";
@@ -77,7 +78,7 @@ for (const tool of tools) {
 					content: [{ type: "text" as const, text: result }],
 				};
 			} catch (error) {
-				const message = error instanceof Error ? error.message : String(error);
+				const message = sanitizeErrorMessage(tool.name, error, args);
 				return {
 					content: [{ type: "text" as const, text: `Error: ${message}` }],
 					isError: true,

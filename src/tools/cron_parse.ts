@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { arrayGet, matchGet, objGet } from "../utils.js";
 
 const schema = {
 	expression: z
@@ -100,8 +101,8 @@ function parseCronFieldTokens(field: string): CronToken[] {
 	return field.split(",").map((part) => {
 		const trimmed = part.trim();
 		const stepMatch = trimmed.match(/^(.+)\/(\d+)$/);
-		const range = (stepMatch ? stepMatch[1]! : trimmed).trim();
-		const step = stepMatch ? Number.parseInt(stepMatch[2]!, 10) : 1;
+		const range = (stepMatch ? matchGet(stepMatch, 1) : trimmed).trim();
+		const step = stepMatch ? Number.parseInt(matchGet(stepMatch, 2), 10) : 1;
 
 		if (!Number.isFinite(step) || !Number.isInteger(step) || step <= 0) {
 			throw new Error("Step value must be a positive integer");
@@ -143,7 +144,7 @@ function parseField(
 		if (nameMap) {
 			const key = trimmed.toLowerCase();
 			if (Object.hasOwn(nameMap, key)) {
-				return nameMap[key]!;
+				return objGet(nameMap, key);
 			}
 		}
 		if (!/^-?\d+$/.test(trimmed)) {
@@ -185,11 +186,11 @@ function getNextOccurrences(
 	count: number,
 	timezone = "UTC",
 ): Date[] {
-	const minute = parseField(fields[0]!, 0, 59, "numeric", "minute");
-	const hour = parseField(fields[1]!, 0, 23, "numeric", "hour");
-	const dom = parseField(fields[2]!, 1, 31, "numeric", "day-of-month");
-	const month = parseField(fields[3]!, 1, 12, "month", "month");
-	const dow = parseField(fields[4]!, 0, 7, "weekday", "weekday");
+	const minute = parseField(arrayGet(fields, 0), 0, 59, "numeric", "minute");
+	const hour = parseField(arrayGet(fields, 1), 0, 23, "numeric", "hour");
+	const dom = parseField(arrayGet(fields, 2), 1, 31, "numeric", "day-of-month");
+	const month = parseField(arrayGet(fields, 3), 1, 12, "month", "month");
+	const dow = parseField(arrayGet(fields, 4), 0, 7, "weekday", "weekday");
 
 	const results: Date[] = [];
 	const now = new Date();
@@ -291,7 +292,7 @@ export function execute(input: Input): string {
 	let expression = input.expression.trim();
 
 	if (Object.hasOwn(cronAliases, expression)) {
-		expression = cronAliases[expression]!;
+		expression = objGet(cronAliases, expression);
 		if (expression === "") {
 			throw new Error("@reboot is not supported (systemd-only)");
 		}
@@ -345,13 +346,18 @@ function resolveToken(
 	const trimmed = token.trim();
 	const key = trimmed.toLowerCase();
 	if (Object.hasOwn(nameMap, key)) {
-		return labels[nameMap[key]!] ?? trimmed;
+		const index = objGet(nameMap, key);
+		return labels[index] ?? trimmed;
 	}
 	let num = Number.parseInt(trimmed, 10);
 	if (!Number.isNaN(num)) {
 		// Normalize weekday 7 → 0 (Sunday) for description consistency
 		if (isWeekday && num === 7) num = 0;
-		if (labels[num] !== undefined) return labels[num]!;
+		// Assign to a local variable so TypeScript can narrow the type to string
+		// (noUncheckedIndexedAccess makes repeated index access return string | undefined
+		// even after an undefined check, but a local variable correctly narrows)
+		const label = labels[num];
+		if (label !== undefined) return label;
 	}
 	return trimmed;
 }
@@ -386,11 +392,11 @@ function describeCron(fields: string[]): string {
 	if (fields[2] !== "*") parts.push(`on day ${fields[2]}`);
 	if (fields[3] !== "*")
 		parts.push(
-			`in month ${describeField(fields[3]!, MONTH_NAMES, MONTH_LABELS)}`,
+			`in month ${describeField(arrayGet(fields, 3), MONTH_NAMES, MONTH_LABELS)}`,
 		);
 	if (fields[4] !== "*")
 		parts.push(
-			`on ${describeField(fields[4]!, WEEKDAY_NAMES, DAY_LABELS, true)}`,
+			`on ${describeField(arrayGet(fields, 4), WEEKDAY_NAMES, DAY_LABELS, true)}`,
 		);
 
 	return parts.length > 0 ? parts.join(", ") : "every minute";

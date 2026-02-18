@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { arrayGet } from "../utils.js";
 
 const schema = {
 	action: z
@@ -15,16 +16,24 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
+// IPv4 octet tuple schema (4 numbers, 0-255 each)
+const ipv4Tuple = z.tuple([
+	z.number().int().min(0).max(255),
+	z.number().int().min(0).max(255),
+	z.number().int().min(0).max(255),
+	z.number().int().min(0).max(255),
+]);
+
 function ipv4ToNum(ip: string): number {
-	const parts = ip.split(".").map(Number);
-	if (
-		parts.length !== 4 ||
-		parts.some((p) => Number.isNaN(p) || p < 0 || p > 255)
-	) {
+	const octets = ip.split(".");
+	// Pre-validate: exactly 4 non-empty decimal-digit segments (rejects "1..1.1", "1e2.0.0.0", etc.)
+	if (octets.length !== 4 || octets.some((o) => !/^\d+$/.test(o))) {
 		throw new Error(`Invalid IPv4 address: ${ip}`);
 	}
+	const parts = ipv4Tuple.parse(octets.map(Number));
+	// Type is now [number, number, number, number], no assertion needed
 	return (
-		((parts[0]! << 24) | (parts[1]! << 16) | (parts[2]! << 8) | parts[3]!) >>> 0
+		((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0
 	);
 }
 
@@ -50,9 +59,9 @@ function getIpv4Class(firstOctet: number): string {
 }
 
 function isPrivate(ip: string): boolean {
-	const parts = ip.split(".").map(Number);
+	const parts = ipv4Tuple.parse(ip.split(".").map(Number));
 	if (parts[0] === 10) return true;
-	if (parts[0] === 172 && parts[1]! >= 16 && parts[1]! <= 31) return true;
+	if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
 	if (parts[0] === 192 && parts[1] === 168) return true;
 	if (parts[0] === 127) return true;
 	return false;
@@ -63,12 +72,13 @@ function parseCidr(cidr: string): {
 	prefix: number;
 	mask: number;
 } {
+	// Validate CIDR format before parsing to avoid ambiguous errors
 	const parts = cidr.split("/");
-	const ip = parts[0];
-	const prefixStr = parts[1];
-	if (!ip || !prefixStr) {
-		throw new Error(`Invalid CIDR notation: ${cidr}`);
+	if (parts.length !== 2) {
+		throw new Error(`Invalid CIDR format: ${cidr}`);
 	}
+	const ip = arrayGet(parts, 0);
+	const prefixStr = arrayGet(parts, 1);
 	const prefix = Number.parseInt(prefixStr, 10);
 	if (prefix < 0 || prefix > 32)
 		throw new Error(`Invalid prefix length: ${prefix}`);
@@ -91,15 +101,16 @@ function ipInfo(ip: string): string {
 		});
 	}
 
-	const parts = ip.split(".").map(Number);
+	// ipv4ToNum validates the address and parses octets internally — avoid double-parsing
 	const num = ipv4ToNum(ip);
+	const firstOctet = (num >>> 24) & 0xff;
 
 	return JSON.stringify({
 		ip,
 		version: 4,
-		class: getIpv4Class(parts[0]!),
+		class: getIpv4Class(firstOctet),
 		isPrivate: isPrivate(ip),
-		isLoopback: parts[0] === 127,
+		isLoopback: firstOctet === 127,
 		binary: num.toString(2).padStart(32, "0"),
 		decimal: num,
 	});
