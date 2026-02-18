@@ -353,7 +353,11 @@ function resolveToken(
 	if (!Number.isNaN(num)) {
 		// Normalize weekday 7 → 0 (Sunday) for description consistency
 		if (isWeekday && num === 7) num = 0;
-		if (labels[num] !== undefined) return labels[num] ?? trimmed;
+		// Assign to a local variable so TypeScript can narrow the type to string
+		// (noUncheckedIndexedAccess makes repeated index access return string | undefined
+		// even after an undefined check, but a local variable correctly narrows)
+		const label = labels[num];
+		if (label !== undefined) return label;
 	}
 	return trimmed;
 }

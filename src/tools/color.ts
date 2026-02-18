@@ -193,6 +193,9 @@ function parseColor(color: string): RGB {
 		/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
 	);
 	if (hexMatch) {
+		// ?? "" is required by noUncheckedIndexedAccess: destructuring from a regex
+		// match result yields string | undefined at compile time, even though capture
+		// group 1 is non-optional in the pattern above.
 		const [, hexCapture] = hexMatch;
 		let hex = hexCapture ?? "";
 		let alpha: number | undefined;
@@ -229,6 +232,8 @@ function parseColor(color: string): RGB {
 		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (rgbMatch) {
+		// ?? "0" is required by noUncheckedIndexedAccess (same reason as hexCapture above).
+		// Capture groups 1-3 are non-optional in the regex, so the fallback never applies.
 		const [, rStr, gStr, bStr] = rgbMatch;
 		const rgb: RGB = {
 			r: Number.parseInt(rStr ?? "0", 10),
@@ -250,6 +255,8 @@ function parseColor(color: string): RGB {
 		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (hslMatch) {
+		// ?? "0" is required by noUncheckedIndexedAccess (same reason as hexCapture above).
+		// Capture groups 1-3 are non-optional in the regex, so the fallback never applies.
 		const [, hStr, sStr, lStr] = hslMatch;
 		const hsl: HSL = {
 			h: Number.parseInt(hStr ?? "0", 10),

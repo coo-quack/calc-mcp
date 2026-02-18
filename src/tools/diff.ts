@@ -18,7 +18,8 @@ function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 	const n = b.length;
 	const w = n + 1;
 	// Flat 1D array: dp[i * w + j] = length of LCS of a[0..i-1] and b[0..j-1]
-	// Using a flat array avoids noUncheckedIndexedAccess issues with number[][]
+	// ?? 0 is required by noUncheckedIndexedAccess (tsconfig), which makes array
+	// index access return number | undefined even for pre-filled arrays at compile time.
 	const dp = new Array<number>((m + 1) * w).fill(0);
 
 	for (let i = 1; i <= m; i++) {
@@ -87,6 +88,7 @@ function levenshteinDistance(s: string, t: string): number {
 	const n = t.length;
 	const w = n + 1;
 	// Flat 1D array: dp[i * w + j] = edit distance between s[0..i-1] and t[0..j-1]
+	// ?? 0 is required by noUncheckedIndexedAccess (see lcs() comment above).
 	const dp = new Array<number>((m + 1) * w).fill(0);
 
 	for (let i = 0; i <= m; i++) dp[i * w] = i;
