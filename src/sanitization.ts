@@ -28,8 +28,9 @@ export function sanitizeErrorMessage(
 
 		for (const param of sensitiveParams) {
 			const value = args[param];
-			if (typeof value === "string" && value.length > 0) {
-				// Replace the actual value with [REDACTED] in error messages
+			// Skip values shorter than 4 characters to avoid replacing common
+			// substrings (e.g. "a", "ok") that could corrupt the error message.
+			if (typeof value === "string" && value.length >= 4) {
 				sanitized = sanitized.replaceAll(value, "[REDACTED]");
 			}
 		}

@@ -25,8 +25,10 @@ export function execute(input: Input): string {
 		throw new Error(`Invalid JWT: expected 3 parts, got ${parts.length}`);
 	}
 	// Header and payload must be non-empty, but signature can be empty (unsigned JWT)
-	// biome-ignore lint/style/noNonNullAssertion: parts.length === 3 checked above
-	if (parts[0]!.length === 0 || parts[1]!.length === 0) {
+	// Destructuring with defaults satisfies noUncheckedIndexedAccess; defaults never
+	// apply because parts.length === 3 is guaranteed by the check above.
+	const [headerPart = "", payloadPart = ""] = parts;
+	if (headerPart.length === 0 || payloadPart.length === 0) {
 		throw new Error("Invalid JWT: header and payload must be non-empty");
 	}
 
@@ -34,15 +36,13 @@ export function execute(input: Input): string {
 	let payload: unknown;
 
 	try {
-		// biome-ignore lint/style/noNonNullAssertion: parts.length === 3 checked above
-		header = JSON.parse(base64UrlDecode(parts[0]!));
+		header = JSON.parse(base64UrlDecode(headerPart));
 	} catch {
 		throw new Error("Failed to decode JWT header");
 	}
 
 	try {
-		// biome-ignore lint/style/noNonNullAssertion: parts.length === 3 checked above
-		payload = JSON.parse(base64UrlDecode(parts[1]!));
+		payload = JSON.parse(base64UrlDecode(payloadPart));
 	} catch {
 		throw new Error("Failed to decode JWT payload");
 	}

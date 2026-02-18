@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
+import { objGet } from "../utils.js";
 
 const namedColors: Record<string, RGB> = {
 	aliceblue: { r: 240, g: 248, b: 255 },
@@ -184,8 +185,7 @@ function parseColor(color: string): RGB {
 
 	// Named color
 	if (trimmed in namedColors) {
-		// biome-ignore lint/style/noNonNullAssertion: guaranteed by 'in' check above
-		return namedColors[trimmed]!;
+		return objGet(namedColors, trimmed);
 	}
 
 	// HEX (3, 4, 6, or 8 digits only)
@@ -193,20 +193,17 @@ function parseColor(color: string): RGB {
 		/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
 	);
 	if (hexMatch) {
-		// biome-ignore lint/style/noNonNullAssertion: capture group 1 guaranteed by regex
-		let hex = hexMatch[1]!;
+		const [, hexCapture] = hexMatch;
+		let hex = hexCapture ?? "";
 		let alpha: number | undefined;
 
 		// Expand 3-digit shorthand: #RGB -> #RRGGBB
 		if (hex.length === 3) {
-			// biome-ignore lint/style/noNonNullAssertion: hex length is 3, indices 0-2 in bounds
-			hex = hex[0]! + hex[0]! + hex[1]! + hex[1]! + hex[2]! + hex[2]!;
+			hex = Array.from(hex, (c) => c + c).join("");
 		}
 		// Expand 4-digit shorthand: #RGBA -> #RRGGBBAA
 		else if (hex.length === 4) {
-			// biome-ignore lint/style/noNonNullAssertion: hex length is 4, indices 0-3 in bounds
-			const [h0, h1, h2, h3] = [hex[0]!, hex[1]!, hex[2]!, hex[3]!];
-			hex = h0 + h0 + h1 + h1 + h2 + h2 + h3 + h3;
+			hex = Array.from(hex, (c) => c + c).join("");
 		}
 
 		// Parse 8-digit HEX with alpha
@@ -232,13 +229,11 @@ function parseColor(color: string): RGB {
 		/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (rgbMatch) {
+		const [, rStr, gStr, bStr] = rgbMatch;
 		const rgb: RGB = {
-			// biome-ignore lint/style/noNonNullAssertion: capture groups 1-3 guaranteed by regex
-			r: Number.parseInt(rgbMatch[1]!, 10),
-			// biome-ignore lint/style/noNonNullAssertion: capture groups 1-3 guaranteed by regex
-			g: Number.parseInt(rgbMatch[2]!, 10),
-			// biome-ignore lint/style/noNonNullAssertion: capture groups 1-3 guaranteed by regex
-			b: Number.parseInt(rgbMatch[3]!, 10),
+			r: Number.parseInt(rStr ?? "0", 10),
+			g: Number.parseInt(gStr ?? "0", 10),
+			b: Number.parseInt(bStr ?? "0", 10),
 		};
 		if (rgbMatch[4]) {
 			const alpha = Number.parseFloat(rgbMatch[4]);
@@ -255,13 +250,11 @@ function parseColor(color: string): RGB {
 		/^hsla?\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*(?:,\s*([-+]?[0-9.]+)\s*)?\)/,
 	);
 	if (hslMatch) {
+		const [, hStr, sStr, lStr] = hslMatch;
 		const hsl: HSL = {
-			// biome-ignore lint/style/noNonNullAssertion: capture groups 1-3 guaranteed by regex
-			h: Number.parseInt(hslMatch[1]!, 10),
-			// biome-ignore lint/style/noNonNullAssertion: capture groups 1-3 guaranteed by regex
-			s: Number.parseInt(hslMatch[2]!, 10),
-			// biome-ignore lint/style/noNonNullAssertion: capture groups 1-3 guaranteed by regex
-			l: Number.parseInt(hslMatch[3]!, 10),
+			h: Number.parseInt(hStr ?? "0", 10),
+			s: Number.parseInt(sStr ?? "0", 10),
+			l: Number.parseInt(lStr ?? "0", 10),
 		};
 		if (hslMatch[4]) {
 			const alpha = Number.parseFloat(hslMatch[4]);
