@@ -159,4 +159,4 @@ calc-mcp is released under the [MIT License](LICENSE). It is provided "AS IS" wi
 
 ---
 
-**Last Updated:** 2026-02-17
+**Last Updated:** See Git history for this file.

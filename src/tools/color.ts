@@ -199,25 +199,14 @@ function parseColor(color: string): RGB {
 
 		// Expand 3-digit shorthand: #RGB -> #RRGGBB
 		if (hex.length === 3) {
-			hex =
-				hex.charAt(0) +
-				hex.charAt(0) +
-				hex.charAt(1) +
-				hex.charAt(1) +
-				hex.charAt(2) +
-				hex.charAt(2);
+			// biome-ignore lint/style/noNonNullAssertion: hex length is 3, indices 0-2 in bounds
+			hex = hex[0]! + hex[0]! + hex[1]! + hex[1]! + hex[2]! + hex[2]!;
 		}
 		// Expand 4-digit shorthand: #RGBA -> #RRGGBBAA
 		else if (hex.length === 4) {
-			hex =
-				hex.charAt(0) +
-				hex.charAt(0) +
-				hex.charAt(1) +
-				hex.charAt(1) +
-				hex.charAt(2) +
-				hex.charAt(2) +
-				hex.charAt(3) +
-				hex.charAt(3);
+			// biome-ignore lint/style/noNonNullAssertion: hex length is 4, indices 0-3 in bounds
+			const [h0, h1, h2, h3] = [hex[0]!, hex[1]!, hex[2]!, hex[3]!];
+			hex = h0 + h0 + h1 + h1 + h2 + h2 + h3 + h3;
 		}
 
 		// Parse 8-digit HEX with alpha

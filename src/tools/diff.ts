@@ -24,11 +24,11 @@ function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 	for (let i = 1; i <= m; i++) {
 		for (let j = 1; j <= n; j++) {
 			if (a[i - 1] === b[j - 1]) {
-				dp[i * w + j] = (dp[(i - 1) * w + (j - 1)] ?? 0) + 1;
+				dp[i * w + j] = (dp[(i - 1) * w + (j - 1)] as number) + 1;
 			} else {
 				dp[i * w + j] = Math.max(
-					dp[(i - 1) * w + j] ?? 0,
-					dp[i * w + (j - 1)] ?? 0,
+					dp[(i - 1) * w + j] as number,
+					dp[i * w + (j - 1)] as number,
 				);
 			}
 		}
@@ -45,7 +45,9 @@ function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 			inLcsB[j - 1] = true;
 			i--;
 			j--;
-		} else if ((dp[(i - 1) * w + j] ?? 0) >= (dp[i * w + (j - 1)] ?? 0)) {
+		} else if (
+			(dp[(i - 1) * w + j] as number) >= (dp[i * w + (j - 1)] as number)
+		) {
 			i--;
 		} else {
 			j--;
