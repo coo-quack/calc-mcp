@@ -1,6 +1,5 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
-import { arrayGet } from "../utils.js";
 
 const schema = {
 	text1: z.string().describe("First text"),
@@ -17,19 +16,20 @@ type Input = z.infer<typeof inputSchema>;
 function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 	const m = a.length;
 	const n = b.length;
-	// dp[i][j] = length of LCS of a[0..i-1] and b[0..j-1]
-	const dp: number[][] = Array.from({ length: m + 1 }, () =>
-		Array(n + 1).fill(0),
-	);
-	// dp table is guaranteed to be fully initialized (m+1 x n+1)
+	const w = n + 1;
+	// Flat 1D array: dp[i * w + j] = length of LCS of a[0..i-1] and b[0..j-1]
+	// Using a flat array avoids noUncheckedIndexedAccess issues with number[][]
+	const dp = new Array<number>((m + 1) * w).fill(0);
+
 	for (let i = 1; i <= m; i++) {
-		const currRow = arrayGet(dp, i);
-		const prevRow = arrayGet(dp, i - 1);
 		for (let j = 1; j <= n; j++) {
 			if (a[i - 1] === b[j - 1]) {
-				currRow[j] = arrayGet(prevRow, j - 1) + 1;
+				dp[i * w + j] = (dp[(i - 1) * w + (j - 1)] ?? 0) + 1;
 			} else {
-				currRow[j] = Math.max(arrayGet(prevRow, j), arrayGet(currRow, j - 1));
+				dp[i * w + j] = Math.max(
+					dp[(i - 1) * w + j] ?? 0,
+					dp[i * w + (j - 1)] ?? 0,
+				);
 			}
 		}
 	}
@@ -45,9 +45,7 @@ function lcs(a: string[], b: string[]): [boolean[], boolean[]] {
 			inLcsB[j - 1] = true;
 			i--;
 			j--;
-		} else if (
-			arrayGet(arrayGet(dp, i - 1), j) >= arrayGet(arrayGet(dp, i), j - 1)
-		) {
+		} else if ((dp[(i - 1) * w + j] ?? 0) >= (dp[i * w + (j - 1)] ?? 0)) {
 			i--;
 		} else {
 			j--;
@@ -87,34 +85,25 @@ function lineDiff(text1: string, text2: string): string {
 function levenshteinDistance(s: string, t: string): number {
 	const m = s.length;
 	const n = t.length;
-	const dp: number[][] = Array.from({ length: m + 1 }, () =>
-		Array(n + 1).fill(0),
-	);
+	const w = n + 1;
+	// Flat 1D array: dp[i * w + j] = edit distance between s[0..i-1] and t[0..j-1]
+	const dp = new Array<number>((m + 1) * w).fill(0);
 
-	// dp table is guaranteed to be fully initialized
-	for (let i = 0; i <= m; i++) {
-		arrayGet(dp, i)[0] = i;
-	}
-	for (let j = 0; j <= n; j++) {
-		arrayGet(dp, 0)[j] = j;
-	}
+	for (let i = 0; i <= m; i++) dp[i * w] = i;
+	for (let j = 0; j <= n; j++) dp[j] = j;
 
-	// dp table is fully initialized, indices are within bounds
 	for (let i = 1; i <= m; i++) {
-		const currRow = arrayGet(dp, i);
-		const prevRow = arrayGet(dp, i - 1);
 		for (let j = 1; j <= n; j++) {
 			const cost = s[i - 1] === t[j - 1] ? 0 : 1;
-			currRow[j] = Math.min(
-				arrayGet(prevRow, j) + 1,
-				arrayGet(currRow, j - 1) + 1,
-				arrayGet(prevRow, j - 1) + cost,
+			dp[i * w + j] = Math.min(
+				(dp[(i - 1) * w + j] ?? 0) + 1,
+				(dp[i * w + (j - 1)] ?? 0) + 1,
+				(dp[(i - 1) * w + (j - 1)] ?? 0) + cost,
 			);
 		}
 	}
 
-	// dp[m][n] is guaranteed to exist after the loop
-	return arrayGet(arrayGet(dp, m), n);
+	return dp[m * w + n] ?? 0;
 }
 
 export function execute(input: Input): string {
