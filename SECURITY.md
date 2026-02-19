@@ -43,13 +43,15 @@ The following tools may handle sensitive information:
 **❌ Unsafe:**
 ```bash
 # API key exposed in command history and LLM context
-mcporter call calc-mcp.hash input="sk-1234567890abcdef" algorithm="sha256"
+# Tool: hash
+# Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 ```
 
 **✅ Safe:**
 ```bash
 # Use placeholder or reference
-mcporter call calc-mcp.hash input="my-test-string" algorithm="sha256"
+# Tool: hash
+# Input: { "input": "my-test-string", "algorithm": "sha256" }
 
 # Or use environment variables (not passed directly)
 SECRET=$(cat /secure/vault/secret)
@@ -133,8 +135,9 @@ When using calc-mcp with LLM-based tools (Claude, GPT, etc.):
 # 1. Prepare anonymized test data
 echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.test" > test-jwt.txt
 
-# 2. Process locally
-mcporter call calc-mcp.jwt_decode token="$(cat test-jwt.txt)"
+# 2. Process locally via MCP client
+# Tool: jwt_decode
+# Input: { "token": "<contents of test-jwt.txt>" }
 
 # 3. Verify output before sharing
 ```
