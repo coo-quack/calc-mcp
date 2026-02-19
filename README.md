@@ -40,12 +40,12 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 - **Deterministic** — Same input, same correct output, every time
 - **Secure** — Sandboxed math, ReDoS protection, weak hash warnings
 - **Private** — All computation runs locally, no data sent to external services
-- **Zero config** — Install once, just ask in natural language
-- **No API key** — Works offline, no external dependencies
+- **No server config** — Install once via npx; MCP client setup required
+- **No API key** — No account or API key required for calc-mcp itself; requires Node.js
 
 ## Examples
 
-Ask in natural language — the AI picks the right tool automatically.
+Ask in natural language — your AI assistant selects the appropriate tool.
 
 ### Math & Numbers
 
@@ -215,20 +215,24 @@ calc-mcp processes all data **locally** and does **not**:
 
 ### Safe Usage with LLMs
 
-When using with LLM-based tools (Claude, GPT, etc.):
+**calc-mcp itself is local-only.** However, when used via an LLM, your inputs are sent to the LLM provider (Anthropic, OpenAI, etc.).
 
 - ✅ **DO:** Use test/sample data when possible
-- ✅ **DO:** Review LLM conversation history for accidental leaks
-- ❌ **DON'T:** Pass API keys, passwords, or tokens directly as arguments
+- ✅ **DO:** Use local-only LLMs for sensitive operations
+- ❌ **DON'T:** Pass production secrets to MCP tools (they will be sent to your LLM provider)
 
 Example:
 
 ```bash
-# ❌ Unsafe: API key exposed in command history
-mcporter call calc-mcp.hash input="sk-1234567890abcdef" algorithm="sha256"
+# ❌ Unsafe: Any secret passed to MCP tool is sent to your LLM provider
+# Tool: hash
+# Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 
-# ✅ Safe: Use placeholder or test data
-mcporter call calc-mcp.hash input="my-test-string" algorithm="sha256"
+# ✅ Safe: Use test data only (for learning/development)
+# Tool: hash
+# Input: { "input": "test-value-123", "algorithm": "sha256" }
+
+# ✅ For production secrets: Use local-only LLMs or process outside MCP
 ```
 
 **Note:** Error messages are automatically sanitized to prevent accidental data leakage.

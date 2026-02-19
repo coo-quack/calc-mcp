@@ -19,16 +19,16 @@ hero:
 features:
   - icon: 🧮
     title: Precise Math
-    details: No more hallucinated calculations. Evaluate complex expressions with mathjs, compute statistics, all deterministic.
+    details: Evaluate complex expressions and compute statistics using mathjs. Results are always deterministic.
   - icon: 🎲
     title: True Randomness
-    details: Cryptographically secure UUIDs, ULIDs, passwords, and shuffling. No fake random numbers from AI.
+    details: Cryptographically secure UUIDs, ULIDs, passwords, and shuffling using the platform's crypto API.
   - icon: 📅
     title: Accurate Dates
-    details: Timezone conversion, date arithmetic, cron parsing. No more guessing what day it is 100 days from now.
+    details: Timezone conversion, date arithmetic, and cron parsing with deterministic, accurate results.
   - icon: 🔐
     title: Hashing & Encoding
-    details: SHA-256, Base64, URL encoding, JWT decoding. Real cryptographic operations, not hallucinated hashes.
+    details: SHA-256, Base64, URL encoding, JWT decoding. Deterministic cryptographic operations.
   - icon: 🌈
     title: Conversions
     details: 8 categories, 72 units. Length, weight, temperature, area, volume, speed, data, time. Including Japanese units (tsubo, tatami).
@@ -39,7 +39,7 @@ features:
 
 ## Why Calc MCP?
 
-LLMs are incredible at natural language understanding, but terrible at things that require **precision**.
+LLMs excel at natural language understanding, but can produce incorrect results for tasks that require **precision**.
 
 | AI alone | With calc-mcp |
 |----------|---------------|
@@ -53,8 +53,8 @@ Calc MCP gives your AI assistant the tools to **delegate** these tasks to determ
 - **Deterministic** — Same input, same correct output, every time. No more "it depends on the run."
 - **Secure** — Sandboxed math evaluation, ReDoS protection, weak hash warnings built in.
 - **Private** — All computation runs locally. No data sent to external services.
-- **Zero config** — Install once, just ask in natural language. The AI picks the right tool.
-- **No API key** — Works offline, no external dependencies. Just Node.js.
+- **No server config** — Install once via npx; MCP client setup required.
+- **No API key** — No account or API key required for calc-mcp itself; requires Node.js.
 
 ## Quick Start
 
@@ -67,7 +67,7 @@ Works with **Claude Desktop**, **VS Code Copilot**, **Cursor**, **Windsurf** —
 
 ## Usage
 
-Just ask in natural language. The AI picks the right tool automatically:
+Just ask in natural language. Your AI assistant selects the appropriate tool:
 
 ```
 You: What's 10 + 34 × 341 ÷ 23?
@@ -101,7 +101,6 @@ See more [examples →](/examples)
 ## Features
 
 - ✅ **21 MCP tools** covering calculations, randomness, dates, encoding, parsing
-- ✅ **Tested** — 453 tests, 512 assertions across unit and E2E
 - ✅ **Fast** — Pure JavaScript/TypeScript, no heavy dependencies
 - ✅ **Cross-platform** — Works with Claude Desktop, VS Code, Cursor, Windsurf
 - ✅ **MIT Licensed** — Free to use, modify, distribute
