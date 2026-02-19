@@ -225,10 +225,12 @@ Example:
 
 ```bash
 # ❌ Unsafe: API key exposed in command history
-mcporter call calc-mcp.hash input="sk-1234567890abcdef" algorithm="sha256"
+# Tool: hash
+# Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 
 # ✅ Safe: Use placeholder or test data
-mcporter call calc-mcp.hash input="my-test-string" algorithm="sha256"
+# Tool: hash
+# Input: { "input": "my-test-string", "algorithm": "sha256" }
 ```
 
 **Note:** Error messages are automatically sanitized to prevent accidental data leakage.
