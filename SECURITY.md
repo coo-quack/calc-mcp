@@ -128,7 +128,7 @@ We aim to respond to security reports within 48 hours.
 **calc-mcp itself does not send data externally.** However, when you use calc-mcp through an LLM-based tool, your inputs and outputs are transmitted to the LLM provider's servers.
 
 ### Data Exposure Risk
-- **LLM may log or learn from inputs and outputs**
+- **LLM provider may log inputs and outputs**
 - **Error messages may be stored by the LLM provider**
 - **Consider your LLM provider's data retention policy**
 

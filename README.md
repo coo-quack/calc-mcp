@@ -40,8 +40,8 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 - **Deterministic** — Same input, same correct output, every time
 - **Secure** — Sandboxed math, ReDoS protection, weak hash warnings
 - **Private** — All computation runs locally, no data sent to external services
-- **Zero config** — Install once, just ask in natural language
-- **No API key** — Works offline, no external dependencies
+- **No server config** — Install once via npx; MCP client setup required
+- **No API key** — No account or API key required for calc-mcp itself; requires Node.js
 
 ## Examples
 
