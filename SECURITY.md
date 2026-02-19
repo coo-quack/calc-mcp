@@ -49,13 +49,14 @@ The following tools may handle sensitive information:
 
 **✅ Safe:**
 ```bash
-# Use placeholder or reference
+# Use test data when learning or developing
 # Tool: hash
-# Input: { "input": "my-test-string", "algorithm": "sha256" }
+# Input: { "input": "test-value-123", "algorithm": "sha256" }
 
-# Or use environment variables (not passed directly)
-SECRET=$(cat /secure/vault/secret)
-# Process in a separate, non-logged context
+# For production: Inject secrets via environment variables or secret managers
+# Tool: hash
+# Input: { "input": "${SECRET}", "algorithm": "sha256" }
+# (Actual secret injection happens outside MCP context)
 ```
 
 ---

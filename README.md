@@ -224,13 +224,18 @@ When using with LLM-based tools (Claude, GPT, etc.):
 Example:
 
 ```bash
-# ❌ Unsafe: API key exposed in command history
+# ❌ Unsafe: API key exposed in command history or LLM context
 # Tool: hash
 # Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 
-# ✅ Safe: Use placeholder or test data
+# ✅ Safe: Use test data when learning or developing
 # Tool: hash
-# Input: { "input": "my-test-string", "algorithm": "sha256" }
+# Input: { "input": "test-value-123", "algorithm": "sha256" }
+
+# ✅ For production: Inject secrets via environment variables or secret managers
+# Tool: hash
+# Input: { "input": "${SECRET}", "algorithm": "sha256" }
+# (Actual secret injection happens outside MCP context)
 ```
 
 **Note:** Error messages are automatically sanitized to prevent accidental data leakage.
