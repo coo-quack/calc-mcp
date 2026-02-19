@@ -45,7 +45,7 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 
 ## Examples
 
-Ask in natural language — the AI picks the right tool automatically.
+Ask in natural language — your AI assistant selects the appropriate tool.
 
 ### Math & Numbers
 

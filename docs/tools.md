@@ -1,6 +1,6 @@
 # All Tools
 
-Calc MCP provides 21 tools for operations that AI models struggle with. Each tool is designed to be called automatically by your AI assistant when you ask questions in natural language.
+Calc MCP provides 21 tools for operations that AI models can struggle with. Tools are invoked by your AI assistant in response to natural language requests.
 
 ## Math & Numbers
 

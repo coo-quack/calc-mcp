@@ -46,7 +46,7 @@ Add to your Claude Desktop config file:
 }
 ```
 
-After editing, restart Claude Desktop. You should see "MCP" in the bottom-right corner with the 21 tools available.
+After editing, restart Claude Desktop. The 21 calc-mcp tools will be available.
 
 ## Cursor
 
