@@ -2,6 +2,18 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.8.3 (2026-02-20)
+
+### Documentation
+
+- Use generic MCP client examples in `SECURITY.md` and `README.md` — replaced tool-specific CLI invocations with client-agnostic `Tool: / Input:` format (#50)
+- Clarify security model: calc-mcp itself is local-only; inputs are sent to the LLM provider (Anthropic, OpenAI, etc.) when used via a cloud LLM (#50)
+- Remove misleading guidance suggesting environment variables prevent LLM provider exposure (#50)
+- Fix factually inaccurate claims: "Zero config", "Works offline", "no external dependencies" (#50)
+- Replace subjective/unverifiable phrasing ("incredible", "terrible", "automatically picks the right tool") with factual descriptions (#50)
+- Remove outdated test count from documentation (#50)
+- Fix UI-specific description in install guide ("bottom-right corner") with version-independent wording (#50)
+
 ## v1.8.2 (2026-02-19)
 
 ### Documentation
