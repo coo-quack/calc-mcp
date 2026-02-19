@@ -215,16 +215,16 @@ calc-mcp processes all data **locally** and does **not**:
 
 ### Safe Usage with LLMs
 
-When using with LLM-based tools (Claude, GPT, etc.):
+**calc-mcp itself is local-only.** However, when used via an LLM, your inputs are sent to the LLM provider (Anthropic, OpenAI, etc.).
 
 - ✅ **DO:** Use test/sample data when possible
-- ✅ **DO:** Review LLM conversation history for accidental leaks
-- ❌ **DON'T:** Pass API keys, passwords, or tokens directly as arguments
+- ✅ **DO:** Use local-only LLMs for sensitive operations
+- ❌ **DON'T:** Pass production secrets to MCP tools (they will be sent to your LLM provider)
 
 Example:
 
 ```bash
-# ❌ Unsafe: Any secret passed to MCP tool enters LLM context
+# ❌ Unsafe: Any secret passed to MCP tool is sent to your LLM provider
 # Tool: hash
 # Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 

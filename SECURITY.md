@@ -26,23 +26,31 @@ The following tools may handle sensitive information:
 | `base64` | Encode/decode Base64 | `input` |
 | `encode` | URL/HTML encoding | `input` |
 
+### Important: calc-mcp vs LLM Provider
+
+**calc-mcp itself** is local-only and never sends data externally. However:
+
+- When you use calc-mcp via an LLM (Claude, GPT, etc.), **your inputs are sent to the LLM provider** (Anthropic, OpenAI, etc.)
+- calc-mcp does not reject secrets — it processes whatever input it receives
+- The risk is not calc-mcp itself, but the LLM provider's servers
+
 ### Safe Usage Guidelines
 
 ✅ **DO:**
-- Use environment variables or secure vaults for secrets
 - Process test/sample data when learning the tools
-- Review error messages before sharing logs
+- Use local-only LLMs for sensitive operations
+- Process secrets outside MCP entirely (e.g., `openssl` CLI)
 
 ❌ **DON'T:**
-- Pass API keys, passwords, or tokens directly as arguments
+- Pass production secrets to MCP tools (they will be sent to your LLM provider)
 - Share error messages containing sensitive data
-- Use production secrets in development/testing
+- Assume environment variables or secret managers prevent LLM exposure
 
 ### Example: Safe vs Unsafe
 
 **❌ Unsafe:**
 ```bash
-# Any secret passed to MCP tool enters LLM context
+# Any secret passed to MCP tool is sent to your LLM provider
 # Tool: hash
 # Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 ```
@@ -115,7 +123,9 @@ We aim to respond to security reports within 48 hours.
 
 ## LLM Integration Considerations
 
-When using calc-mcp with LLM-based tools (Claude, GPT, etc.):
+### Key Point
+
+**calc-mcp itself does not send data externally.** However, when you use calc-mcp through an LLM-based tool, your inputs and outputs are transmitted to the LLM provider's servers.
 
 ### Data Exposure Risk
 - **LLM may log or learn from inputs and outputs**
