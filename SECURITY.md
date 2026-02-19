@@ -42,21 +42,18 @@ The following tools may handle sensitive information:
 
 **❌ Unsafe:**
 ```bash
-# API key exposed in command history and LLM context
+# Any secret passed to MCP tool enters LLM context
 # Tool: hash
 # Input: { "input": "sk-1234567890abcdef", "algorithm": "sha256" }
 ```
 
 **✅ Safe:**
 ```bash
-# Use test data when learning or developing
+# Use test data only (for learning/development)
 # Tool: hash
 # Input: { "input": "test-value-123", "algorithm": "sha256" }
 
-# For production: Inject secrets via environment variables or secret managers
-# Tool: hash
-# Input: { "input": "${SECRET}", "algorithm": "sha256" }
-# (Actual secret injection happens outside MCP context)
+# For production secrets: Use local-only LLMs or process outside MCP
 ```
 
 ---
