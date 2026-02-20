@@ -2,6 +2,12 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.8.4 (2026-02-20)
+
+### Documentation
+
+- Add `mcpName` to `package.json` for MCP Registry listing (`io.github.coo-quack/calc-mcp`)
+
 ## v1.8.3 (2026-02-20)
 
 ### Documentation
