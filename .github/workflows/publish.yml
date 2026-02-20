@@ -92,11 +92,28 @@ jobs:
             | tar xz mcp-publisher
           sudo mv mcp-publisher /usr/local/bin/
 
-      - name: Update server.json version
+      - name: Generate server.json
         run: |
-          VERSION="${{ needs.check.outputs.version }}"
-          jq --arg v "$VERSION" '.version = $v | .packages[0].version = $v' server.json > server.json.tmp
-          mv server.json.tmp server.json
+          REPO_URL=$(node -p "require('./package.json').repository.url.replace(/^git\+/, '').replace(/\.git$/, '')")
+          VERSION=$(node -p "require('./package.json').version")
+          MCP_NAME=$(node -p "require('./package.json').mcpName")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          DESCRIPTION=$(node -p "require('./package.json').description")
+          jq -n \
+            --arg schema "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json" \
+            --arg name "$MCP_NAME" \
+            --arg description "$DESCRIPTION" \
+            --arg repoUrl "$REPO_URL" \
+            --arg version "$VERSION" \
+            --arg pkgName "$PKG_NAME" \
+            '{
+              "$schema": $schema,
+              "name": $name,
+              "description": $description,
+              "repository": {"url": $repoUrl, "source": "github"},
+              "version": $version,
+              "packages": [{"registryType": "npm", "identifier": $pkgName, "version": $version, "transport": {"type": "stdio"}}]
+            }' > server.json
 
       - name: Login to MCP Registry
         run: mcp-publisher login github-oidc
