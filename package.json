@@ -1,6 +1,7 @@
 {
 	"name": "@coo-quack/calc-mcp",
-	"version": "1.8.3",
+	"version": "1.8.4",
+	"mcpName": "io.github.coo-quack/calc-mcp",
 	"type": "module",
 	"bin": {
 		"calc-mcp": "dist/index.js"
