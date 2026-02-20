@@ -1,0 +1,36 @@
+name: Test MCP Registry Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-mcp-registry:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mcp-publisher
+        run: |
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" \
+            | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+          mcp-publisher --version
+
+      - name: Update server.json version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Version: $VERSION"
+          jq --arg v "$VERSION" '.version = $v | .packages[0].version = $v' server.json > server.json.tmp
+          mv server.json.tmp server.json
+          cat server.json
+
+      - name: Validate server.json
+        run: mcp-publisher validate server.json
+
+      - name: Login to MCP Registry (OIDC)
+        run: mcp-publisher login github-oidc
+
+      - name: Publish to MCP Registry (dry-run check)
+        run: mcp-publisher validate server.json
