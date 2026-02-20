@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.coo-quack/calc-mcp",
+  "description": "21 MCP tools for math, randomness, dates, encoding, hashing, and more — deterministic and accurate.",
+  "repository": {
+    "url": "https://github.com/coo-quack/calc-mcp",
+    "source": "github"
+  },
+  "version": "1.8.4",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@coo-quack/calc-mcp",
+      "version": "1.8.4",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
