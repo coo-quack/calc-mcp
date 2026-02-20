@@ -2,6 +2,7 @@
 	"name": "@coo-quack/calc-mcp",
 	"version": "1.8.4",
 	"mcpName": "io.github.coo-quack/calc-mcp",
+	"description": "21 MCP tools for math, randomness, dates, encoding, hashing, and more — deterministic and accurate.",
 	"type": "module",
 	"bin": {
 		"calc-mcp": "dist/index.js"
