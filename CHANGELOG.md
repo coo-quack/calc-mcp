@@ -2,6 +2,12 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.9.0 (2026-02-22)
+
+### Features
+
+- Add auto-publish to MCP Registry on release — GitHub Actions workflow now automatically publishes to the official MCP Registry when a release is created (#53)
+
 ## v1.8.4 (2026-02-20)
 
 ### Documentation
