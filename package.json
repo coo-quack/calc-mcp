@@ -13,6 +13,7 @@
 		"test": "bun test",
 		"lint": "biome check .",
 		"format": "biome format . --write",
+		"ci": "bun run lint && bun run build && bun test",
 		"changelog": "bunx changelogen",
 		"release": "bunx bumpp",
 		"docs:dev": "vitepress dev docs",
