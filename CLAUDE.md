@@ -98,7 +98,7 @@ Registration: import in `src/index.ts` → add to `tools` array.
 | Workflow | Trigger | Purpose |
 |---|---|---|
 | `ci.yml` | push to main / PR to main | lint + unit test + e2e test |
-| `publish.yml` | push to main | npm publish (only if version is new) + git tag + GitHub Release |
+| `release.yml` | push to main | npm publish (only if version is new) + git tag + GitHub Release + MCP Registry |
 | `docs.yml` | push to main / manual | Build & deploy VitePress docs to GitHub Pages |
 
 ## Release Workflow
@@ -117,14 +117,14 @@ Registration: import in `src/index.ts` → add to `tools` array.
    - Add a new `## vX.Y.Z (YYYY-MM-DD)` section at the top (below the heading)
    - Categorize entries: Features, Bug Fixes, Improvements, Security, Tests, Documentation, etc.
    - Reference PR numbers (e.g. `(#34)`)
-   - This content is automatically extracted and used as the GitHub Release notes by `publish.yml`
+   - This content is automatically extracted and used as the GitHub Release notes by `release.yml`
 4. **Documentation review**: Update if new features/changes require it:
    - `docs/tools.md` — tool parameters, descriptions
    - `docs/examples.md` — usage examples
    - `README.md` — tool table, examples
 5. **Commit**: Single commit with message `chore: release vX.Y.Z`
 6. **PR**: Title `chore: release vX.Y.Z`, target `main`
-7. **After merge**: `publish.yml` automatically handles npm publish, git tag, and GitHub Release
+7. **After merge**: `release.yml` automatically handles npm publish, git tag, and GitHub Release
    - GitHub Release notes are extracted from the `## vX.Y.Z` section in `CHANGELOG.md`
 
 ### Release Notes Format
