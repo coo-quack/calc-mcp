@@ -1,4 +1,4 @@
-name: Publish
+name: Release
 
 on:
   push:
@@ -8,7 +8,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     outputs:
-      should_publish: ${{ steps.check.outputs.should_publish }}
+      should_release: ${{ steps.check.outputs.should_release }}
       version: ${{ steps.check.outputs.version }}
     steps:
       - uses: actions/checkout@v4
@@ -16,16 +16,17 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          # Check if this version already exists on npm
-          if npm view "@coo-quack/calc-mcp@$VERSION" version 2>/dev/null; then
-            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+          if git ls-remote --tags origin "v$VERSION" | grep -q "v$VERSION"; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          elif npm view "@coo-quack/calc-mcp@$VERSION" version 2>/dev/null; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
           fi
 
-  publish:
+  release:
     needs: check
-    if: needs.check.outputs.should_publish == 'true'
+    if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -39,9 +40,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: bun install --frozen-lockfile
-      - run: bun run lint
-      - run: bun run build
-      - run: bun test
+      - run: bun run ci
 
       - name: Publish to npm
         run: npm publish --provenance --access public
@@ -64,13 +63,10 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ needs.check.outputs.version }}"
-          # Extract the section for this version from CHANGELOG.md.
-          # Uses a flag-based approach to avoid awk range matching the header line itself.
           NOTES=$(awk "/^## v${VERSION}/{found=1; next} found && /^## v/{exit} found{print}" CHANGELOG.md)
           if [ -z "$NOTES" ]; then
             NOTES="Release v${VERSION}"
           fi
-          # Write to file to avoid escaping issues
           echo "$NOTES" > /tmp/release-notes.md
 
       - name: Create GitHub Release
