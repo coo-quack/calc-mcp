@@ -2,6 +2,15 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.8.5 (2026-02-23)
+
+### Improvements
+
+- Rename `publish.yml` to `release.yml` to align with sensitive-canary workflow naming (#60)
+- Add dual version check (git tag + npm) for more robust release gating (#60)
+- Add `ci` script to package.json for unified CI execution (#60)
+- Add backport workflow to auto-sync main to develop (#56)
+
 ## v1.8.4 (2026-02-20)
 
 ### Documentation
