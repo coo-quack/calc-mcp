@@ -2,6 +2,12 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.8.6 (2026-02-24)
+
+### Documentation
+
+- Switch README image hosting to imgur for better reliability (#64)
+
 ## v1.8.5 (2026-02-23)
 
 ### Improvements
