@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <br />
 <br />
-<img width="1220" height="942" alt="Screenshot 2026-02-14 at 18 28 43" src="https://github.com/user-attachments/assets/364d3148-4c56-4b50-b504-28cc1de654ac" />
+<img width="100%" alt="Calc MCP demo" src="https://i.imgur.com/DcOhAD4.png" />
 <br />
 <br />
 📖 **[Documentation](https://coo-quack.github.io/calc-mcp/)** — Full tool reference, examples, and install guides.
