@@ -2,6 +2,23 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v1.9.0 (2026-02-27)
+
+### Features
+
+- Add Docker image support with multi-stage builds (#67)
+- Publish Docker images to GitHub Container Registry (ghcr.io)
+- Add automated Docker build & test workflow
+
+### Security
+
+- Run Docker container as non-root user (`node`)
+
+### Improvements
+
+- Add `.dockerignore` for optimized Docker builds
+- Add GitHub Actions cache for Docker builds
+
 ## v1.8.6 (2026-02-24)
 
 ### Documentation
