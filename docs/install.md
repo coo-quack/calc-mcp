@@ -99,6 +99,31 @@ For workspace-specific setup, add `.vscode/mcp.json` in your project:
 
 Reload VS Code after creating the file.
 
+## Docker
+
+Run Calc MCP with Docker:
+
+```bash
+docker run --rm -i ghcr.io/coo-quack/calc-mcp:latest
+```
+
+For MCP clients, use:
+
+```json
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "ghcr.io/coo-quack/calc-mcp:latest"]
+    }
+  }
+}
+```
+
+Available tags:
+- `ghcr.io/coo-quack/calc-mcp:latest` — Latest release
+- `ghcr.io/coo-quack/calc-mcp:1.8.6` — Specific version
+
 ## Other MCP Clients
 
 Calc MCP works with any MCP-compatible client that supports stdio transport. To integrate with a client not listed above, configure it to run:
