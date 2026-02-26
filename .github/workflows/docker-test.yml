@@ -1,0 +1,53 @@
+name: Docker Build & Test
+
+on:
+  push:
+    branches: [main, develop, 'release/**', 'feature/**']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: calc-mcp:test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test MCP handshake
+        run: |
+          # Send initialize request and check response
+          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' | \
+            docker run --rm -i calc-mcp:test | \
+            jq -e '.result.protocolVersion == "2024-11-05"' > /dev/null && \
+            echo "✅ MCP handshake successful"
+
+      - name: Test tools/list
+        run: |
+          # Initialize first, then list tools
+          (echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}'; \
+           echo '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}') | \
+            docker run --rm -i calc-mcp:test | \
+            jq -s -e '.[1].result.tools | length > 0' > /dev/null && \
+            echo "✅ Tools list successful"
+
+      - name: Test math tool
+        run: |
+          # Test basic math operation
+          (echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}'; \
+           echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"math","arguments":{"expression":"2+2"}}}') | \
+            docker run --rm -i calc-mcp:test | \
+            jq -s -e '.[1].result.content[0].text | contains("4")' > /dev/null && \
+            echo "✅ Math tool test successful"
