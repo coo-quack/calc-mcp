@@ -67,6 +67,8 @@ jobs:
             ghcr.io/coo-quack/calc-mcp:latest
             ghcr.io/coo-quack/calc-mcp:${{ needs.check.outputs.version }}
           platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=release-docker-cache
+          cache-to: type=gha,mode=max,scope=release-docker-cache
 
       - name: Create git tag
         run: |

@@ -122,7 +122,7 @@ For MCP clients, use:
 
 Available tags:
 - `ghcr.io/coo-quack/calc-mcp:latest` — Latest release
-- `ghcr.io/coo-quack/calc-mcp:1.8.6` — Specific version
+- `ghcr.io/coo-quack/calc-mcp:X.Y.Z` — Specific version (replace X.Y.Z with the desired version)
 
 ## Other MCP Clients
 
