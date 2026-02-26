@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@coo-quack/calc-mcp)](https://www.npmjs.com/package/@coo-quack/calc-mcp)
 [![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Glama](https://img.shields.io/badge/Glama-Registered-blue)](https://glama.ai/mcp/servers/@coo-quack/calc-mcp)
 <br />
 <br />
 <img width="100%" alt="Calc MCP demo" src="https://i.imgur.com/DcOhAD4.png" />
@@ -182,6 +183,31 @@ Add to `.vscode/mcp.json` in your workspace:
   }
 }
 ```
+
+### Docker
+
+Run with Docker:
+
+```bash
+docker run --rm -i ghcr.io/coo-quack/calc-mcp:latest
+```
+
+Or use in MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "ghcr.io/coo-quack/calc-mcp:latest"]
+    }
+  }
+}
+```
+
+Available tags:
+- `ghcr.io/coo-quack/calc-mcp:latest` — Latest release
+- `ghcr.io/coo-quack/calc-mcp:1.8.6` — Specific version
 
 ### Other MCP Clients
 
