@@ -1,0 +1,32 @@
+# Git
+.git/
+.gitignore
+
+# Dependencies (will be installed during build)
+node_modules/
+
+# Build output (will be generated during build)
+dist/
+
+# Documentation
+*.md
+!package.json
+docs/
+
+# CI/CD
+.github/
+
+# Tests
+test/
+tests/
+*.test.ts
+*.spec.ts
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.DS_Store
+*.log
+.env*
