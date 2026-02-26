@@ -3,7 +3,6 @@
 [![npm version](https://img.shields.io/npm/v/@coo-quack/calc-mcp)](https://www.npmjs.com/package/@coo-quack/calc-mcp)
 [![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Glama](https://img.shields.io/badge/Glama-Registered-blue)](https://glama.ai/mcp/servers/@coo-quack/calc-mcp)
 <br />
 <br />
 <img width="100%" alt="Calc MCP demo" src="https://i.imgur.com/DcOhAD4.png" />
