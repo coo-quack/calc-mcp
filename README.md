@@ -183,9 +183,9 @@ Add to `.vscode/mcp.json` in your workspace:
 }
 ```
 
-### Docker
+### Docker Image
 
-Run with Docker:
+Calc MCP is available as a Docker image from GitHub Container Registry:
 
 ```bash
 docker run --rm -i ghcr.io/coo-quack/calc-mcp:latest
