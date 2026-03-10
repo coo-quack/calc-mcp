@@ -28,6 +28,5 @@ docs/.vitepress/dist/
 *.local
 .env
 .env.*
-server.json
 .mcpregistry_github_token
 .mcpregistry_registry_token
