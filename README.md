@@ -1,7 +1,7 @@
 # Calc MCP
 
 [![npm version](https://img.shields.io/npm/v/@coo-quack/calc-mcp)](https://www.npmjs.com/package/@coo-quack/calc-mcp)
-[![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/coo-quack/calc-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <br />
 <br />
