@@ -579,9 +579,10 @@ describe("MCP Server E2E", () => {
 		const text = await callTool("url_parse", {
 			url: "https://user:pass@example.com:8080/path?q=test#hash",
 		});
-		assert.ok(text.includes("example.com"));
-		assert.ok(text.includes("8080"));
-		assert.ok(text.includes("q=test") || text.includes("test"));
+		const parsed = JSON.parse(text);
+		assert.strictEqual(parsed.hostname, "example.com");
+		assert.strictEqual(parsed.port, "8080");
+		assert.strictEqual(parsed.search, "?q=test");
 	});
 
 	// ─── semver ───
@@ -1015,14 +1016,16 @@ describe("MCP Server E2E", () => {
 
 	it("url_parse — minimal URL 'http://a.com'", async () => {
 		const text = await callTool("url_parse", { url: "http://a.com" });
-		assert.ok(text.includes("a.com"));
+		const parsed = JSON.parse(text);
+		assert.strictEqual(parsed.hostname, "a.com");
 	});
 
 	it("url_parse — URL with unicode path", async () => {
 		const text = await callTool("url_parse", {
 			url: "https://example.com/日本語/パス",
 		});
-		assert.ok(text.includes("example.com"));
+		const parsed = JSON.parse(text);
+		assert.strictEqual(parsed.hostname, "example.com");
 	});
 
 	it("ip — contains - out of range returns false", async () => {
