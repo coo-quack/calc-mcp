@@ -1,4 +1,13 @@
 # Changelog
+## v1.9.3 (2026-03-12)
+
+### Security
+
+- Add explicit permissions to all workflow jobs
+- Use exact field assertions in url_parse e2e tests to resolve CodeQL alerts
+
+---
+
 ## v1.9.2 (2026-03-12)
 
 ### Fixes
