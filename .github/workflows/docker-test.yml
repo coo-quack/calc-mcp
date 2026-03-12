@@ -4,9 +4,13 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions: {}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
