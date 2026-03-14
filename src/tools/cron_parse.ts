@@ -181,10 +181,11 @@ function parseField(
 	return { values };
 }
 
-function getNextOccurrences(
+export function getNextOccurrences(
 	fields: string[],
 	count: number,
 	timezone = "UTC",
+	now?: Date,
 ): Date[] {
 	const minute = parseField(arrayGet(fields, 0), 0, 59, "numeric", "minute");
 	const hour = parseField(arrayGet(fields, 1), 0, 23, "numeric", "hour");
@@ -193,7 +194,7 @@ function getNextOccurrences(
 	const dow = parseField(arrayGet(fields, 4), 0, 7, "weekday", "weekday");
 
 	const results: Date[] = [];
-	const now = new Date();
+	const startTime = now ?? new Date();
 
 	// Validate timezone early to provide clear error message
 	let formatter: Intl.DateTimeFormat;
@@ -261,7 +262,7 @@ function getNextOccurrences(
 	}
 
 	// Start from next minute in the target timezone
-	const current = new Date(now.getTime() + 60000);
+	const current = new Date(startTime.getTime() + 60000);
 	current.setSeconds(0, 0);
 
 	// Cap on loop iterations (not minutes). With skipTo(), a single iteration
@@ -300,11 +301,11 @@ function getNextOccurrences(
 				break;
 		}
 
-		// Jump using the estimate
-		current.setTime(current.getTime() + estimateMinutes * 60000);
+		// Jump using the estimate, then verify with parseInTimezone.
+		// DST can shift by ±30 or ±60 min. Adjustments must keep current >= preSkip.
+		const preSkip = current.getTime();
+		current.setTime(preSkip + estimateMinutes * 60000);
 
-		// Verify and adjust: DST can shift by arbitrary amounts (±30 or ±60 min).
-		// Adjustments only advance forward to avoid re-processing timestamps.
 		const landed = parseInTimezone(current);
 		if (target === "nextHour") {
 			// We expect minute=0; advance forward to reach it
@@ -313,14 +314,21 @@ function getNextOccurrences(
 			}
 		} else {
 			// nextMonth/nextDay: we expect hour=0, minute=0
-			if (landed.hour > 12) {
-				// Undershot (still on previous day, e.g., 23:00): advance to cross midnight
-				current.setTime(
-					current.getTime() + ((24 - landed.hour) * 60 - landed.minute) * 60000,
-				);
+			const driftMin = landed.hour * 60 + landed.minute;
+			if (driftMin !== 0) {
+				if (landed.hour > 12) {
+					// Undershot (e.g., 23:00): advance forward to cross midnight
+					current.setTime(current.getTime() + (1440 - driftMin) * 60000);
+				} else {
+					// Overshot (e.g., 01:00 from spring-forward): correct back
+					// to 00:00 only if it stays past the pre-skip timestamp
+					const corrected = current.getTime() - driftMin * 60000;
+					if (corrected > preSkip) {
+						current.setTime(corrected);
+					}
+					// If correction would go backward, accept the overshoot
+				}
 			}
-			// Overshot slightly (e.g., 01:00 due to spring-forward): acceptable,
-			// the main loop will process from here without skipping valid matches.
 		}
 	}
 
