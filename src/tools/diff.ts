@@ -237,7 +237,8 @@ export function execute(input: Input): string {
 
 export const tool: ToolDefinition = {
 	name: "diff",
-	description: "Compare two texts: line-by-line diff or Levenshtein distance",
+	description:
+		"Compare two texts: line-by-line diff (Myers algorithm, falls back to full replacement if edit distance exceeds 1000) or Levenshtein distance",
 	schema,
 	handler: async (args: Record<string, unknown>) => {
 		const input = inputSchema.parse(args);
