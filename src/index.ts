@@ -19,9 +19,9 @@ import { tool as dateTool } from "./tools/date.js";
 import { tool as datetimeTool } from "./tools/datetime.js";
 import { tool as diffTool } from "./tools/diff.js";
 import { tool as encodeTool } from "./tools/encode.js";
+import { tool as formatValidateTool } from "./tools/format_validate.js";
 import { tool as hashTool } from "./tools/hash.js";
 import { tool as ipTool } from "./tools/ip.js";
-import { tool as jsonValidateTool } from "./tools/json_validate.js";
 import { tool as jwtDecodeTool } from "./tools/jwt_decode.js";
 import { tool as luhnTool } from "./tools/luhn.js";
 import { tool as mathTool } from "./tools/math.js";
@@ -49,7 +49,7 @@ const tools: ToolDefinition[] = [
 	regexTool,
 	baseTool,
 	diffTool,
-	jsonValidateTool,
+	formatValidateTool,
 	cronParseTool,
 	luhnTool,
 	ipTool,

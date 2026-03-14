@@ -224,7 +224,7 @@ export function execute(input: Input): string {
 }
 
 export const tool: ToolDefinition = {
-	name: "json_validate",
+	name: "format_validate",
 	description: "Validate and parse JSON, CSV, XML, or YAML strings",
 	schema,
 	handler: async (args: Record<string, unknown>) => {

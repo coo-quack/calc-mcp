@@ -387,17 +387,19 @@ function describeField(
 function describeCron(fields: string[]): string {
 	const parts: string[] = [];
 
-	if (fields[0] !== "*") parts.push(`at minute ${fields[0]}`);
-	if (fields[1] !== "*") parts.push(`at hour ${fields[1]}`);
-	if (fields[2] !== "*") parts.push(`on day ${fields[2]}`);
-	if (fields[3] !== "*")
-		parts.push(
-			`in month ${describeField(arrayGet(fields, 3), MONTH_NAMES, MONTH_LABELS)}`,
-		);
-	if (fields[4] !== "*")
-		parts.push(
-			`on ${describeField(arrayGet(fields, 4), WEEKDAY_NAMES, DAY_LABELS, true)}`,
-		);
+	const f0 = arrayGet(fields, 0);
+	const f1 = arrayGet(fields, 1);
+	const f2 = arrayGet(fields, 2);
+	const f3 = arrayGet(fields, 3);
+	const f4 = arrayGet(fields, 4);
+
+	if (f0 !== "*") parts.push(`at minute ${f0}`);
+	if (f1 !== "*") parts.push(`at hour ${f1}`);
+	if (f2 !== "*") parts.push(`on day ${f2}`);
+	if (f3 !== "*")
+		parts.push(`in month ${describeField(f3, MONTH_NAMES, MONTH_LABELS)}`);
+	if (f4 !== "*")
+		parts.push(`on ${describeField(f4, WEEKDAY_NAMES, DAY_LABELS, true)}`);
 
 	return parts.length > 0 ? parts.join(", ") : "every minute";
 }

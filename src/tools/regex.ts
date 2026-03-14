@@ -69,13 +69,7 @@ export function execute(input: Input): string {
 	validatePattern(input.pattern);
 
 	let flags = input.flags ?? "";
-	if (input.action === "match" && !flags.includes("g")) {
-		flags = `g${flags}`;
-	}
-	if (input.action === "replace" && !flags.includes("g")) {
-		flags = `g${flags}`;
-	}
-	if (input.action === "matchAll" && !flags.includes("g")) {
+	if (input.action !== "test" && !flags.includes("g")) {
 		flags = `g${flags}`;
 	}
 	const regex = new RegExp(input.pattern, flags);
@@ -111,11 +105,10 @@ export function execute(input: Input): string {
 			);
 		}
 		case "replace": {
-			if (input.replacement === undefined)
+			const replacement = input.replacement;
+			if (replacement === undefined)
 				throw new Error("replacement is required for replace");
-			const result = withTimeout(() =>
-				input.text.replace(regex, input.replacement as string),
-			);
+			const result = withTimeout(() => input.text.replace(regex, replacement));
 			return result;
 		}
 	}

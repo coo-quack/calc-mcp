@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { execute } from "../../src/tools/json_validate.js";
+import { execute } from "../../src/tools/format_validate.js";
 
-describe("json_validate", () => {
+describe("format_validate", () => {
 	test("validates valid JSON", () => {
 		const result = JSON.parse(
 			execute({ input: '{"key": "value"}', format: "json" }),

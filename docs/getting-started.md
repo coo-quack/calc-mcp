@@ -40,7 +40,7 @@ See more [examples →](/examples)
 | **Random** | random (UUID, ULID, password, number, shuffle) |
 | **Dates** | datetime, date, cron_parse |
 | **Text** | base64, encode, hash, regex, diff, char_info |
-| **Validation** | json_validate, luhn, semver |
+| **Validation** | format_validate, luhn, semver |
 | **Parsing** | ip, color, jwt_decode, url_parse |
 
 [View all tools →](/tools)
