@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { execute } from "../../src/tools/cron_parse.js";
+import { execute, getNextOccurrences } from "../../src/tools/cron_parse.js";
 
 describe("cron_parse", () => {
 	test("parses every minute", () => {
@@ -352,5 +352,102 @@ describe("cron_parse", () => {
 			execute({ expression: "0 0 * * MON-FRI/2", count: 1 }),
 		);
 		expect(result.description).toContain("on Mon-Fri/2");
+	});
+
+	// DST transition tests using getNextOccurrences with pinned `now`
+	// to deterministically cross known DST boundaries.
+
+	test("DST spring-forward (America/New_York): daily at 2:00", () => {
+		// 2026 US spring-forward: March 8, 2:00 → 3:00 EST→EDT
+		// Pin now to March 6 so occurrences cross the transition
+		const now = new Date("2026-03-06T00:00:00-05:00");
+		const results = getNextOccurrences(
+			["0", "2", "*", "*", "*"],
+			5,
+			"America/New_York",
+			now,
+		);
+		expect(results.length).toBe(5);
+		const unique = new Set(results.map((d) => d.toISOString()));
+		expect(unique.size).toBe(5);
+	});
+
+	test("DST fall-back (America/New_York): daily at 1:00", () => {
+		// 2026 US fall-back: November 1, 2:00 → 1:00 EDT→EST
+		// Pin now to October 30 so occurrences cross the transition
+		const now = new Date("2026-10-30T00:00:00-04:00");
+		const results = getNextOccurrences(
+			["0", "1", "*", "*", "*"],
+			5,
+			"America/New_York",
+			now,
+		);
+		expect(results.length).toBe(5);
+		const unique = new Set(results.map((d) => d.toISOString()));
+		expect(unique.size).toBe(5);
+	});
+
+	test("DST ±30 min zone (Australia/Lord_Howe): daily at 0:00", () => {
+		// Lord Howe 2026: first Sunday in April (April 5), 2:00 → 1:30 LHDT→LHST
+		// Pin now to April 3 so occurrences cross the transition
+		const now = new Date("2026-04-03T00:00:00+11:00");
+		const results = getNextOccurrences(
+			["0", "0", "*", "*", "*"],
+			5,
+			"Australia/Lord_Howe",
+			now,
+		);
+		expect(results.length).toBe(5);
+		const unique = new Set(results.map((d) => d.toISOString()));
+		expect(unique.size).toBe(5);
+	});
+
+	test("DST ±30 min zone (Australia/Lord_Howe): hourly across transition", () => {
+		// Pin now right before the Lord Howe fall-back transition
+		const now = new Date("2026-04-04T12:00:00+11:00");
+		const results = getNextOccurrences(
+			["0", "*", "*", "*", "*"],
+			30,
+			"Australia/Lord_Howe",
+			now,
+		);
+		expect(results.length).toBe(30);
+		const unique = new Set(results.map((d) => d.toISOString()));
+		expect(unique.size).toBe(30);
+	});
+
+	test("yearly cron with DST timezone produces correct results", () => {
+		// Pin now to Dec 2025 so next Jan 1 occurrences are deterministic
+		const now = new Date("2025-12-30T00:00:00-05:00");
+		const results = getNextOccurrences(
+			["0", "0", "1", "1", "*"],
+			2,
+			"America/New_York",
+			now,
+		);
+		expect(results.length).toBe(2);
+		// January 1st midnight EST = 05:00 UTC
+		for (const occ of results) {
+			expect(occ.getUTCMonth()).toBe(0); // January
+			expect(occ.getUTCDate()).toBe(1);
+			expect(occ.getUTCHours()).toBe(5); // EST = UTC-5
+		}
+	});
+
+	test("skip does not overshoot past midnight on spring-forward day", () => {
+		// Pin now to March 7 23:00 EST, next day is spring-forward
+		// "0 0 * * *" (daily at midnight) should find March 8 00:00 EST
+		const now = new Date("2026-03-07T23:00:00-05:00");
+		const results = getNextOccurrences(
+			["0", "0", "*", "*", "*"],
+			3,
+			"America/New_York",
+			now,
+		);
+		expect(results.length).toBe(3);
+		// First result should be March 8 00:00 EST = 05:00 UTC
+		expect(results[0]?.getUTCMonth()).toBe(2); // March
+		expect(results[0]?.getUTCDate()).toBe(8);
+		expect(results[0]?.getUTCHours()).toBe(5);
 	});
 });

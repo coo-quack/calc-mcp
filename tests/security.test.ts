@@ -108,8 +108,9 @@ describe("Security: Tool Behavior", () => {
 		// Same input should produce same hash
 		expect(result1).toBe(result2);
 
-		// Verify it's a valid SHA-256 hex string (64 chars)
-		expect(result1).toMatch(/^[a-f0-9]{64}$/);
+		// Verify it contains a valid SHA-256 hex string (64 chars)
+		const parsed = JSON.parse(result1);
+		expect(parsed.hash).toMatch(/^[a-f0-9]{64}$/);
 	});
 
 	test("hash HMAC should require key parameter", async () => {
