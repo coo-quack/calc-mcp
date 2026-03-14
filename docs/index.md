@@ -34,7 +34,7 @@ features:
     details: SHA-256, Base64, URL encoding, JWT decoding. Deterministic cryptographic operations.
   - icon: 🌈
     title: Conversions
-    details: 8 categories, 72 units. Length, weight, temperature, area, volume, speed, data, time. Including Japanese units (tsubo, tatami).
+    details: 8 categories, 62 units. Length, weight, temperature, area, volume, speed, data, time. Including Japanese units (tsubo, tatami).
   - icon: 🔍
     title: Parsing & Validation
     details: IP addresses, URLs, JSON, semver, Luhn checksums. Deterministic validation and parsing.

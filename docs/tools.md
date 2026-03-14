@@ -285,7 +285,7 @@ Replace all spaces with dashes in "hello world"
 
 ### diff
 
-Line diff or Levenshtein distance between two texts.
+Line diff (Myers algorithm, falls back to full replacement if edit distance exceeds 1000) or Levenshtein distance between two texts.
 
 **Parameters:**
 - `text1` (string) — First text
