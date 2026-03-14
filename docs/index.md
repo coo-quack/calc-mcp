@@ -5,6 +5,9 @@ hero:
   name: Calc MCP
   text: 21 tools for things AI is not good at
   tagline: Deterministic math, cryptographic randomness, accurate date arithmetic, encoding, hashing, and more
+  image:
+    src: /logo.svg
+    alt: Calc MCP
   actions:
     - theme: brand
       text: Get Started
