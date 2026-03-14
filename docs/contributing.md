@@ -69,3 +69,27 @@ If the backport PR has conflicts, resolve them manually before merging.
 ## Code Style
 
 Enforced by [Biome](https://biomejs.dev/). Run `bun run format` before committing.
+
+## Release Checklist
+
+When bumping a version, open a PR from `develop` → `main` with:
+
+1. Update `version` in `package.json`
+2. Update `CHANGELOG.md` with a new `## vX.Y.Z (YYYY-MM-DD)` section
+   - `docs/changelog.md` is a symlink to `CHANGELOG.md` — do not edit it separately
+   - This content is automatically used as the GitHub Release notes by `release.yml`
+3. Review `docs/tools.md` — add/update any changed tool parameters or examples
+4. Review `docs/examples.md` — add examples for new features
+5. Review `README.md` — update tool table and examples if needed
+
+After merging into `main`, `release.yml` automatically:
+- Publishes to npm with provenance
+- Creates a git tag `vX.Y.Z`
+- Creates a GitHub Release with notes extracted from `CHANGELOG.md`
+- Publishes to MCP Registry
+
+The documentation site is also redeployed automatically on merge to `main`.
+
+---
+
+See also the [CONTRIBUTING.md](https://github.com/coo-quack/calc-mcp/blob/develop/CONTRIBUTING.md) in the repository for the canonical version of this guide.

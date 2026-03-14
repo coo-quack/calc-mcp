@@ -34,10 +34,10 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 
 ## Version info
 
-To check the installed version:
+To check the latest published version:
 
 ```bash
-npx --prefix /tmp @coo-quack/calc-mcp@latest --version
+npx --prefix /tmp -y @coo-quack/calc-mcp@latest --version
 ```
 
 ## Still stuck?
