@@ -1,4 +1,45 @@
 # Changelog
+
+## v2.0.0 (2026-03-15)
+
+### BREAKING CHANGES
+
+- **format_validate** — Renamed `json_validate` tool to `format_validate` to reflect multi-format support (JSON, CSV, XML, YAML) (#86)
+- **convert** — Changed nautical mile unit key from `nm` to `nmi` to avoid ambiguity with nanometer (#86)
+- **hash** — Now returns JSON `{"hash": "..."}` instead of plain hex string; weak algorithm warnings included as `{"hash": "...", "warning": "..."}` instead of `console.warn` (#87)
+
+### Bug Fixes
+
+- **color** — Fix named color typos: `lima`/`limagreen` → `lime`/`limegreen` (CSS Named Colors spec) (#86)
+- **cron_parse** — Fix DST-aware skip optimization with monotonic forward-only adjustments (#87)
+- **cron_parse** — Correct overshoot past midnight on spring-forward days (#87)
+- **cron_parse** — Handle ±30 min DST zones (e.g., Australia/Lord_Howe) (#87)
+
+### Improvements
+
+- **cron_parse** — Skip optimization: jump forward when month/day/hour don't match instead of minute-by-minute iteration; yearly cron 580ms → 7ms (#87)
+- **diff** — Replace O(m×n) LCS with Myers diff algorithm O(nd); 5000-line diff 178ms → 39ms (#87)
+- **diff** — Add edit distance cap (1000) with truncation fallback and notice (#87)
+- **regex** — Simplify flag logic; remove `as string` cast via variable narrowing (#86)
+- **cron_parse** — Unify `arrayGet` usage in `describeCron` for consistency (#86)
+- **convert** — Remove dead code entries from TIME table (#86)
+- **color** — Move RGB/HSL type definitions before first usage (#86)
+
+### Tests
+
+- **cron_parse** — Add 6 DST transition tests pinned to known boundary dates (#87)
+- **diff** — Add truncation fallback test case (#87)
+- **color** — Add `lime`/`limegreen` named color tests (#86)
+- **hash** — Update all tests for JSON output format (#87)
+
+### Documentation
+
+- **docs** — Add logo to hero section on home page (#87)
+- **docs** — Unify documentation site structure (#85)
+- **diff** — Document edit distance limit in tool description (#87)
+
+---
+
 ## v1.9.3 (2026-03-12)
 
 ### Security
