@@ -175,7 +175,7 @@ function lineDiff(text1: string, text2: string): string {
 	const output: string[] = [];
 	if (truncated) {
 		output.push(
-			"# Diff truncated: edit distance exceeded limit, showing full replacement",
+			"  [Diff truncated: edit distance exceeded limit, showing full replacement]",
 		);
 	}
 	for (const edit of edits) {
