@@ -132,7 +132,7 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | `luhn`          | Validate / generate check digits                                                                     |
 | `ip`            | IPv4/IPv6 info, CIDR contains check, range calculation                                               |
 | `color`         | HEX ↔ RGB ↔ HSL (alpha channel supported)                                                            |
-| `convert`       | 8 categories, 62 units: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
+| `convert`       | 8 categories, 146 unit names: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
 | `char_info`     | Unicode code point, block, category                                                                  |
 | `jwt_decode`    | Decode header + payload (no verification)                                                            |
 | `url_parse`     | Protocol, host, path, params, hash                                                                   |
