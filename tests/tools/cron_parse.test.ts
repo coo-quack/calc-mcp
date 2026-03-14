@@ -353,4 +353,83 @@ describe("cron_parse", () => {
 		);
 		expect(result.description).toContain("on Mon-Fri/2");
 	});
+
+	// DST transition tests: verify skip optimization handles timezone boundaries
+	test("DST spring-forward (America/New_York): daily at 2:00", () => {
+		// US spring-forward: 2nd Sunday of March, 2:00 → 3:00
+		// "0 2 * * *" should still produce results around DST transition
+		const result = JSON.parse(
+			execute({
+				expression: "0 2 * * *",
+				count: 10,
+				timezone: "America/New_York",
+			}),
+		);
+		expect(result.nextOccurrences.length).toBe(10);
+		// All results should be distinct
+		const unique = new Set(result.nextOccurrences);
+		expect(unique.size).toBe(10);
+	});
+
+	test("DST fall-back (America/New_York): daily at 1:00", () => {
+		// US fall-back: 1st Sunday of November, 2:00 → 1:00
+		// "0 1 * * *" should still produce results around DST transition
+		const result = JSON.parse(
+			execute({
+				expression: "0 1 * * *",
+				count: 10,
+				timezone: "America/New_York",
+			}),
+		);
+		expect(result.nextOccurrences.length).toBe(10);
+		const unique = new Set(result.nextOccurrences);
+		expect(unique.size).toBe(10);
+	});
+
+	test("DST ±30 min zone (Australia/Lord_Howe): daily at 0:00", () => {
+		// Lord Howe Island: ±30 min DST shift
+		const result = JSON.parse(
+			execute({
+				expression: "0 0 * * *",
+				count: 10,
+				timezone: "Australia/Lord_Howe",
+			}),
+		);
+		expect(result.nextOccurrences.length).toBe(10);
+		const unique = new Set(result.nextOccurrences);
+		expect(unique.size).toBe(10);
+	});
+
+	test("DST ±30 min zone (Australia/Lord_Howe): hourly", () => {
+		// Verify hourly skip works across ±30 min DST boundary
+		const result = JSON.parse(
+			execute({
+				expression: "0 * * * *",
+				count: 30,
+				timezone: "Australia/Lord_Howe",
+			}),
+		);
+		expect(result.nextOccurrences.length).toBe(30);
+		const unique = new Set(result.nextOccurrences);
+		expect(unique.size).toBe(30);
+	});
+
+	test("yearly cron with DST timezone produces correct results", () => {
+		// "0 0 1 1 *" = midnight Jan 1st, in a DST timezone
+		const result = JSON.parse(
+			execute({
+				expression: "0 0 1 1 *",
+				count: 2,
+				timezone: "America/New_York",
+			}),
+		);
+		expect(result.nextOccurrences.length).toBe(2);
+		// January 1st midnight EST = 05:00 UTC
+		for (const occ of result.nextOccurrences) {
+			const d = new Date(occ);
+			expect(d.getUTCMonth()).toBe(0); // January
+			expect(d.getUTCDate()).toBe(1);
+			expect(d.getUTCHours()).toBe(5); // EST = UTC-5
+		}
+	});
 });

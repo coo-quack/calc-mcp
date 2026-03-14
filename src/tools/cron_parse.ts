@@ -304,23 +304,23 @@ function getNextOccurrences(
 		current.setTime(current.getTime() + estimateMinutes * 60000);
 
 		// Verify and adjust: DST can shift by arbitrary amounts (±30 or ±60 min).
-		// Compute total drift in minutes from the expected boundary and correct.
+		// Adjustments only advance forward to avoid re-processing timestamps.
 		const landed = parseInTimezone(current);
 		if (target === "nextHour") {
-			// We expect minute=0
+			// We expect minute=0; advance forward to reach it
 			if (landed.minute !== 0) {
-				const minDrift =
-					landed.minute > 30 ? landed.minute - 60 : landed.minute;
-				current.setTime(current.getTime() - minDrift * 60000);
+				current.setTime(current.getTime() + (60 - landed.minute) * 60000);
 			}
 		} else {
 			// nextMonth/nextDay: we expect hour=0, minute=0
-			const totalDriftMin =
-				(landed.hour > 12 ? landed.hour - 24 : landed.hour) * 60 +
-				landed.minute;
-			if (totalDriftMin !== 0) {
-				current.setTime(current.getTime() - totalDriftMin * 60000);
+			if (landed.hour > 12) {
+				// Undershot (still on previous day, e.g., 23:00): advance to cross midnight
+				current.setTime(
+					current.getTime() + ((24 - landed.hour) * 60 - landed.minute) * 60000,
+				);
 			}
+			// Overshot slightly (e.g., 01:00 due to spring-forward): acceptable,
+			// the main loop will process from here without skipping valid matches.
 		}
 	}
 
