@@ -264,12 +264,14 @@ function getNextOccurrences(
 	const current = new Date(now.getTime() + 60000);
 	current.setSeconds(0, 0);
 
-	const maxIterations = 525600; // 1 year of minutes
+	// Cap on loop iterations (not minutes). With skipTo(), a single iteration
+	// can advance by hours/days/months, so this may scan beyond one calendar year.
+	const maxIterations = 525600;
 	let iterations = 0;
 
 	// Advance `current` to the target local boundary in the given timezone.
 	// Uses parseInTimezone to verify the landing, compensating for DST shifts
-	// where days can be 23 or 25 hours and hours can be skipped or repeated.
+	// including non-standard offsets (e.g., Australia/Lord_Howe ±30 min).
 	function skipTo(
 		target: "nextMonth" | "nextDay" | "nextHour",
 		parsed: {
@@ -301,15 +303,24 @@ function getNextOccurrences(
 		// Jump using the estimate
 		current.setTime(current.getTime() + estimateMinutes * 60000);
 
-		// Verify and adjust: DST can shift ±60 minutes
+		// Verify and adjust: DST can shift by arbitrary amounts (±30 or ±60 min).
+		// Compute total drift in minutes from the expected boundary and correct.
 		const landed = parseInTimezone(current);
-		if (landed.hour !== 0 && target !== "nextHour") {
-			// For nextMonth/nextDay, we expect hour=0; adjust if DST shifted us
-			const hourDrift = landed.hour > 12 ? landed.hour - 24 : landed.hour;
-			current.setTime(current.getTime() - hourDrift * 60 * 60000);
-		} else if (target === "nextHour" && landed.minute !== 0) {
-			// For nextHour, we expect minute=0; adjust if needed
-			current.setTime(current.getTime() - landed.minute * 60000);
+		if (target === "nextHour") {
+			// We expect minute=0
+			if (landed.minute !== 0) {
+				const minDrift =
+					landed.minute > 30 ? landed.minute - 60 : landed.minute;
+				current.setTime(current.getTime() - minDrift * 60000);
+			}
+		} else {
+			// nextMonth/nextDay: we expect hour=0, minute=0
+			const totalDriftMin =
+				(landed.hour > 12 ? landed.hour - 24 : landed.hour) * 60 +
+				landed.minute;
+			if (totalDriftMin !== 0) {
+				current.setTime(current.getTime() - totalDriftMin * 60000);
+			}
 		}
 	}
 

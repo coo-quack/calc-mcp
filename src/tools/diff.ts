@@ -24,6 +24,11 @@ interface DiffEdit {
 	line: string;
 }
 
+interface DiffResult {
+	edits: DiffEdit[];
+	truncated: boolean;
+}
+
 // Safe access for Int32Array — index is always within bounds in Myers algorithm,
 // but noUncheckedIndexedAccess makes the return type number | undefined.
 function vGet(arr: Int32Array, index: number): number {
@@ -35,14 +40,22 @@ function vGet(arr: Int32Array, index: number): number {
 // At maxD=1000: 1001 snapshots × 2001 × 4 bytes ≈ 8 MB — safe for a utility tool.
 const MAX_EDIT_DISTANCE = 1000;
 
-function myersDiff(a: string[], b: string[]): DiffEdit[] {
+function myersDiff(a: string[], b: string[]): DiffResult {
 	const n = a.length;
 	const m = b.length;
 	const max = n + m;
 
 	// Trivial cases
-	if (n === 0) return b.map((line) => ({ type: "insert", line }));
-	if (m === 0) return a.map((line) => ({ type: "delete", line }));
+	if (n === 0)
+		return {
+			edits: b.map((line) => ({ type: "insert", line })),
+			truncated: false,
+		};
+	if (m === 0)
+		return {
+			edits: a.map((line) => ({ type: "delete", line })),
+			truncated: false,
+		};
 
 	// Cap edit distance to prevent excessive memory usage
 	const maxD = Math.min(max, MAX_EDIT_DISTANCE);
@@ -90,10 +103,13 @@ function myersDiff(a: string[], b: string[]): DiffEdit[] {
 
 	// If edit distance exceeds the cap, fall back to simple delete-all/insert-all
 	if (!found) {
-		return [
-			...a.map((line) => ({ type: "delete" as const, line })),
-			...b.map((line) => ({ type: "insert" as const, line })),
-		];
+		return {
+			edits: [
+				...a.map((line) => ({ type: "delete" as const, line })),
+				...b.map((line) => ({ type: "insert" as const, line })),
+			],
+			truncated: true,
+		};
 	}
 
 	// Backtrack to reconstruct the edit script
@@ -148,15 +164,20 @@ function myersDiff(a: string[], b: string[]): DiffEdit[] {
 	}
 
 	edits.reverse();
-	return edits;
+	return { edits, truncated: false };
 }
 
 function lineDiff(text1: string, text2: string): string {
 	const lines1 = text1.split("\n");
 	const lines2 = text2.split("\n");
-	const edits = myersDiff(lines1, lines2);
+	const { edits, truncated } = myersDiff(lines1, lines2);
 
 	const output: string[] = [];
+	if (truncated) {
+		output.push(
+			"# Diff truncated: edit distance exceeded limit, showing full replacement",
+		);
+	}
 	for (const edit of edits) {
 		switch (edit.type) {
 			case "equal":
