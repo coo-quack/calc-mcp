@@ -267,6 +267,52 @@ function getNextOccurrences(
 	const maxIterations = 525600; // 1 year of minutes
 	let iterations = 0;
 
+	// Advance `current` to the target local boundary in the given timezone.
+	// Uses parseInTimezone to verify the landing, compensating for DST shifts
+	// where days can be 23 or 25 hours and hours can be skipped or repeated.
+	function skipTo(
+		target: "nextMonth" | "nextDay" | "nextHour",
+		parsed: {
+			year: number;
+			month: number;
+			day: number;
+			hour: number;
+			minute: number;
+		},
+	): void {
+		// Estimate jump in minutes (assuming no DST), then verify with parseInTimezone
+		let estimateMinutes: number;
+		switch (target) {
+			case "nextMonth": {
+				const daysInMonth = new Date(parsed.year, parsed.month, 0).getDate();
+				const remaining = daysInMonth - parsed.day;
+				estimateMinutes =
+					remaining * 1440 + (1440 - parsed.hour * 60 - parsed.minute);
+				break;
+			}
+			case "nextDay":
+				estimateMinutes = 1440 - parsed.hour * 60 - parsed.minute;
+				break;
+			case "nextHour":
+				estimateMinutes = 60 - parsed.minute;
+				break;
+		}
+
+		// Jump using the estimate
+		current.setTime(current.getTime() + estimateMinutes * 60000);
+
+		// Verify and adjust: DST can shift ±60 minutes
+		const landed = parseInTimezone(current);
+		if (landed.hour !== 0 && target !== "nextHour") {
+			// For nextMonth/nextDay, we expect hour=0; adjust if DST shifted us
+			const hourDrift = landed.hour > 12 ? landed.hour - 24 : landed.hour;
+			current.setTime(current.getTime() - hourDrift * 60 * 60000);
+		} else if (target === "nextHour" && landed.minute !== 0) {
+			// For nextHour, we expect minute=0; adjust if needed
+			current.setTime(current.getTime() - landed.minute * 60000);
+		}
+	}
+
 	while (results.length < count && iterations < maxIterations) {
 		iterations++;
 
@@ -274,28 +320,17 @@ function getNextOccurrences(
 
 		// Skip forward when higher-level fields don't match
 		if (!month.values.has(parsed.month)) {
-			// Jump to 1st day, 00:00 of next month
-			const daysInMonth = new Date(parsed.year, parsed.month, 0).getDate();
-			const remaining = daysInMonth - parsed.day;
-			current.setTime(
-				current.getTime() +
-					(remaining * 1440 + (1440 - parsed.hour * 60 - parsed.minute)) *
-						60000,
-			);
+			skipTo("nextMonth", parsed);
 			continue;
 		}
 
 		if (!dom.values.has(parsed.day) || !dow.values.has(parsed.dow)) {
-			// Jump to 00:00 of next day
-			current.setTime(
-				current.getTime() + (1440 - parsed.hour * 60 - parsed.minute) * 60000,
-			);
+			skipTo("nextDay", parsed);
 			continue;
 		}
 
 		if (!hour.values.has(parsed.hour)) {
-			// Jump to :00 of next hour
-			current.setTime(current.getTime() + (60 - parsed.minute) * 60000);
+			skipTo("nextHour", parsed);
 			continue;
 		}
 

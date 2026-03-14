@@ -30,6 +30,11 @@ function vGet(arr: Int32Array, index: number): number {
 	return arr[index] ?? 0;
 }
 
+// Maximum edit distance before falling back to a simple all-delete/all-insert output.
+// Limits memory usage: trace stores one Int32Array(2*max+1) per d, so capping d
+// prevents OOM for large, highly-different inputs.
+const MAX_EDIT_DISTANCE = 10000;
+
 function myersDiff(a: string[], b: string[]): DiffEdit[] {
 	const n = a.length;
 	const m = b.length;
@@ -39,16 +44,20 @@ function myersDiff(a: string[], b: string[]): DiffEdit[] {
 	if (n === 0) return b.map((line) => ({ type: "insert", line }));
 	if (m === 0) return a.map((line) => ({ type: "delete", line }));
 
+	// Cap edit distance to prevent excessive memory usage
+	const maxD = Math.min(max, MAX_EDIT_DISTANCE);
+
 	// v[k] stores the furthest-reaching x for diagonal k
 	// Use offset to handle negative indices: v[k + offset]
-	const offset = max;
-	const size = 2 * max + 1;
+	const offset = maxD;
+	const size = 2 * maxD + 1;
 	const v = new Int32Array(size);
 
 	// Trace stores v snapshots for backtracking
 	const trace: Int32Array[] = [];
 
-	outer: for (let d = 0; d <= max; d++) {
+	let found = false;
+	outer: for (let d = 0; d <= maxD; d++) {
 		const vCopy = new Int32Array(v);
 		trace.push(vCopy);
 
@@ -73,9 +82,18 @@ function myersDiff(a: string[], b: string[]): DiffEdit[] {
 			v[k + offset] = x;
 
 			if (x >= n && y >= m) {
+				found = true;
 				break outer;
 			}
 		}
+	}
+
+	// If edit distance exceeds the cap, fall back to simple delete-all/insert-all
+	if (!found) {
+		return [
+			...a.map((line) => ({ type: "delete" as const, line })),
+			...b.map((line) => ({ type: "insert" as const, line })),
+		];
 	}
 
 	// Backtrack to reconstruct the edit script
