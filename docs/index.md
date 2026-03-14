@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /install
+      link: /getting-started
     - theme: alt
       text: View Tools
       link: /tools
@@ -55,52 +55,3 @@ Calc MCP gives your AI assistant the tools to **delegate** these tasks to determ
 - **Private** — All computation runs locally. No data sent to external services.
 - **No server config** — Install once via npx; MCP client setup required.
 - **No API key** — No account or API key required for calc-mcp itself; requires Node.js.
-
-## Quick Start
-
-```bash
-# Claude Code
-claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@latest
-```
-
-Works with **Claude Desktop**, **VS Code Copilot**, **Cursor**, **Windsurf** — see [installation guides](/install).
-
-## Usage
-
-Just ask in natural language. Your AI assistant selects the appropriate tool:
-
-```
-You: What's 10 + 34 × 341 ÷ 23?
-AI: [uses math tool] → 514.087
-
-You: Generate a UUID v7
-AI: [uses random tool] → 019c4b54-aad2-7e52-8a3b-...
-
-You: What's 100 days after 2026-02-11?
-AI: [uses date tool] → 2026-05-22
-
-You: SHA-256 hash of "password123"
-AI: [uses hash tool] → ef92b778bafe771e89245b89ec...
-```
-
-See more [examples →](/examples)
-
-## All 21 Tools
-
-| Category | Tools |
-|----------|-------|
-| **Math** | math, count, convert, base |
-| **Random** | random (UUID, ULID, password, number, shuffle) |
-| **Dates** | datetime, date, cron_parse |
-| **Text** | base64, encode, hash, regex, diff, char_info |
-| **Validation** | json_validate, luhn, semver |
-| **Parsing** | ip, color, jwt_decode, url_parse |
-
-[View all tools →](/tools)
-
-## Features
-
-- ✅ **21 MCP tools** covering calculations, randomness, dates, encoding, parsing
-- ✅ **Fast** — Pure JavaScript/TypeScript, no heavy dependencies
-- ✅ **Cross-platform** — Works with Claude Desktop, VS Code, Cursor, Windsurf
-- ✅ **MIT Licensed** — Free to use, modify, distribute
