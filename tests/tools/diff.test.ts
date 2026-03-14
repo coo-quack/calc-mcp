@@ -50,7 +50,7 @@ describe("diff", () => {
 		// Should contain truncation notice
 		expect(result).toContain("[Diff truncated:");
 
-		// Should be all deletes and inserts (no equal lines)
+		// All lines should be deletes, inserts, or the truncation notice
 		const lines = result.split("\n");
 		for (const line of lines) {
 			expect(
