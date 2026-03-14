@@ -34,7 +34,7 @@ const LENGTH: Record<string, number> = {
 	ft: 0.3048,
 	yd: 0.9144,
 	mi: 1609.344,
-	nm: 1852,
+	nmi: 1852,
 	um: 0.000001,
 };
 
@@ -85,18 +85,12 @@ const SPEED: Record<string, number> = {
 const TIME: Record<string, number> = {
 	ms: 0.001,
 	s: 1,
-	sec: 1,
 	min: 60,
 	h: 3600,
-	hr: 3600,
 	d: 86400,
-	day: 86400,
 	wk: 604800,
-	week: 604800,
 	mo: 2592000,
-	month: 2592000,
 	yr: 31536000,
-	year: 31536000,
 };
 
 const DATA: Record<string, number> = {
@@ -148,6 +142,8 @@ const UNIT_ALIASES: Record<string, string> = {
 	yards: "yd",
 	mile: "mi",
 	miles: "mi",
+	nauticalmile: "nmi",
+	nauticalmiles: "nmi",
 	kilogram: "kg",
 	kilograms: "kg",
 	gram: "g",

@@ -49,6 +49,14 @@ describe("color", () => {
 		expect(result.rgb).toBe("rgb(0, 128, 0)");
 	});
 
+	test("parses named color lime", () => {
+		expect(execute({ color: "lime", to: "hex" })).toBe("#00ff00");
+	});
+
+	test("parses named color limegreen", () => {
+		expect(execute({ color: "limegreen", to: "hex" })).toBe("#32cd32");
+	});
+
 	test("parses named color without case sensitivity", () => {
 		expect(execute({ color: "RED", to: "hex" })).toBe("#ff0000");
 		expect(execute({ color: "Blue", to: "hex" })).toBe("#0000ff");

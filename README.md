@@ -103,7 +103,7 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | IP range of 192.168.1.0/24?          | `192.168.1.1 – .254 (254 hosts)` | ip            |
 | Edit distance: "kitten" → "sitting"  | `3`                              | diff          |
 | Unicode info for "€"                 | `U+20AC, Currency Symbols`       | char_info     |
-| Is `{"name":"test"}` valid JSON?     | `valid, object`                  | json_validate |
+| Is `{"name":"test"}` valid JSON?     | `valid, object`                  | format_validate |
 
 ### Decode & Parse
 
@@ -127,7 +127,7 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | `regex`         | Test, match, matchAll, replace                                                                       |
 | `base`          | Number base conversion (2–36)                                                                        |
 | `diff`          | Line diff, Levenshtein distance                                                                      |
-| `json_validate` | Validate JSON, CSV, XML, YAML                                                                        |
+| `format_validate` | Validate JSON, CSV, XML, YAML                                                                        |
 | `cron_parse`    | Human-readable cron + next runs (weekday/month names supported)                                      |
 | `luhn`          | Validate / generate check digits                                                                     |
 | `ip`            | IPv4/IPv6 info, CIDR contains check, range calculation                                               |

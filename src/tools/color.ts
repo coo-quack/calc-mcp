@@ -2,6 +2,19 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { objGet } from "../utils.js";
 
+interface RGB {
+	r: number;
+	g: number;
+	b: number;
+	a?: number; // 0-1 range for alpha
+}
+interface HSL {
+	h: number;
+	s: number;
+	l: number;
+	a?: number; // 0-1 range for alpha
+}
+
 const namedColors: Record<string, RGB> = {
 	aliceblue: { r: 240, g: 248, b: 255 },
 	antiquewhite: { r: 250, g: 235, b: 215 },
@@ -84,8 +97,8 @@ const namedColors: Record<string, RGB> = {
 	lightslategrey: { r: 119, g: 136, b: 153 },
 	lightsteelblue: { r: 176, g: 196, b: 222 },
 	lightyellow: { r: 255, g: 255, b: 224 },
-	lima: { r: 0, g: 255, b: 0 },
-	limagreen: { r: 50, g: 205, b: 50 },
+	lime: { r: 0, g: 255, b: 0 },
+	limegreen: { r: 50, g: 205, b: 50 },
 	linen: { r: 250, g: 240, b: 230 },
 	magenta: { r: 255, g: 0, b: 255 },
 	maroon: { r: 128, g: 0, b: 0 },
@@ -166,19 +179,6 @@ const schema = {
 
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
-
-interface RGB {
-	r: number;
-	g: number;
-	b: number;
-	a?: number; // 0-1 range for alpha
-}
-interface HSL {
-	h: number;
-	s: number;
-	l: number;
-	a?: number; // 0-1 range for alpha
-}
 
 function parseColor(color: string): RGB {
 	const trimmed = color.trim().toLowerCase();

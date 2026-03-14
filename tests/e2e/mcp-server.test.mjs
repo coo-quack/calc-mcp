@@ -71,9 +71,9 @@ describe("MCP Server E2E", () => {
 			"datetime",
 			"diff",
 			"encode",
+			"format_validate",
 			"hash",
 			"ip",
-			"json_validate",
 			"jwt_decode",
 			"luhn",
 			"math",
@@ -418,20 +418,20 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("3"));
 	});
 
-	// ─── json_validate ───
+	// ─── format_validate ───
 
-	it("json_validate — valid JSON with schema", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — valid JSON", async () => {
+		const text = await callTool("format_validate", {
 			input: '{"name": "test"}',
-			schema:
-				'{"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}',
+			format: "json",
 		});
 		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
-	it("json_validate — invalid JSON", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — invalid JSON", async () => {
+		const text = await callTool("format_validate", {
 			input: "{broken",
+			format: "json",
 		});
 		assert.ok(
 			text.toLowerCase().includes("invalid") ||
@@ -941,8 +941,8 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.length > 0); // Should have differences
 	});
 
-	it("json_validate — CSV format", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — CSV format", async () => {
+		const text = await callTool("format_validate", {
 			input: "name,age\nJohn,30",
 			format: "csv",
 		});
@@ -950,16 +950,16 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("2")); // 2 rows or 2 columns
 	});
 
-	it("json_validate — XML format", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — XML format", async () => {
+		const text = await callTool("format_validate", {
 			input: "<root><item>test</item></root>",
 			format: "xml",
 		});
 		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
-	it("json_validate — YAML format", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — YAML format", async () => {
+		const text = await callTool("format_validate", {
 			input: "name: test\nage: 30",
 			format: "yaml",
 		});
@@ -1187,11 +1187,9 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("27.7") || text.includes("27.8"));
 	});
 
-	it("json_validate — validate API response structure", async () => {
+	it("format_validate — validate API response structure", async () => {
 		const input = '{"status": "success", "data": {"id": 123, "name": "Test"}}';
-		const schema =
-			'{"type": "object", "properties": {"status": {"type": "string"}, "data": {"type": "object"}}, "required": ["status", "data"]}';
-		const text = await callTool("json_validate", { input, schema });
+		const text = await callTool("format_validate", { input, format: "json" });
 		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
