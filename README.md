@@ -35,7 +35,7 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 | "10 + 34 × 341 ÷ 23 = 507.8" ❌                | `514.087` ✅ (math)                             |
 | "Here's a UUID: 550e8400-..." 🤷 fake          | Cryptographically random UUID v4/v7 ✅ (random) |
 | "100 days from now is..." 🤔 guess             | `2026-05-22` ✅ (date)                          |
-| "SHA-256 of password123 is..." 💀 hallucinated | `ef92b778bafe...` ✅ (hash)                     |
+| "SHA-256 of password123 is..." 💀 hallucinated | `{"hash": "ef92b778bafe..."}` ✅ (hash)          |
 
 - **Deterministic** — Same input, same correct output, every time
 - **Secure** — Sandboxed math, ReDoS protection, weak hash warnings
@@ -65,8 +65,8 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | URL-encode "hello world"                   | `hello%20world`      | encode |
 | URL-decode "hello%20world"                 | `hello world`        | encode |
 | HTML-decode `&lt;script&gt;`               | `<script>`           | encode |
-| SHA-256 hash of "password123"              | `ef92b778bafe...`    | hash   |
-| HMAC-SHA256 of "message" with key "secret" | `8b5f48702995...`    | hash   |
+| SHA-256 hash of "password123"              | `{"hash": "ef92b778bafe..."}` | hash   |
+| HMAC-SHA256 of "message" with key "secret" | `{"hash": "8b5f48702995..."}` | hash   |
 
 ### Date & Time
 

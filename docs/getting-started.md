@@ -27,7 +27,7 @@ You: What's 100 days after 2026-02-11?
 AI: [uses date tool] → 2026-05-22
 
 You: SHA-256 hash of "password123"
-AI: [uses hash tool] → ef92b778bafe771e89245b89ec...
+AI: [uses hash tool] → {"hash": "ef92b778bafe771e89245b89ec..."}
 ```
 
 See more [examples →](/examples)

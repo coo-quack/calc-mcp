@@ -72,7 +72,7 @@ Convert between units across 8 categories: length, weight, temperature, area, vo
 - `category` (enum, optional) — Category (auto-detected if omitted)
 
 **Supported units:**
-- **Length:** m, km, cm, mm, in, ft, yd, mi, nm, um
+- **Length:** m, km, cm, mm, in, ft, yd, mi, nmi, um
 - **Weight:** kg, g, mg, lb, oz, t, st
 - **Temperature:** c, f, k (Celsius, Fahrenheit, Kelvin)
 - **Area:** m2, km2, cm2, ha, acre, ft2, in2, tsubo, jo, tatami
@@ -215,13 +215,13 @@ MD5 and SHA-1 (`sha1`) are cryptographically weak. Use SHA-256 or SHA-512 for se
 **Examples:**
 ```
 SHA-256 hash of "password123"
-→ ef92b778bafe771e89245b89ec...
+→ {"hash": "ef92b778bafe771e89245b89ec..."}
 
 HMAC-SHA256 of "message" with key "secret"
-→ 8b5f48702995c159...
+→ {"hash": "8b5f48702995c159..."}
 
-MD5 of "hello world" (MD5 is cryptographically weak; avoid for security-sensitive uses)
-→ 5eb63bbbe01eeed093cb22bb8f5acdc3
+MD5 of "hello world"
+→ {"hash": "5eb63bbbe01eeed093cb22bb8f5acdc3", "warning": "MD5 is cryptographically weak..."}
 ```
 
 ### base64

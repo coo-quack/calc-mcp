@@ -104,16 +104,16 @@ Unicode-decode "\u3053\u3093\u306b\u3061\u306f"
 
 ```
 SHA-256 hash of "password123"
-→ ef92b778bafe771e89245b89ec... (hash)
+→ {"hash": "ef92b778bafe771e89245b89ec..."} (hash)
 
 HMAC-SHA256 of "message" with key "secret"
-→ 8b5f48702995c159... (hash)
+→ {"hash": "8b5f48702995c159..."} (hash)
 
 MD5 of "hello world"
-→ 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
+→ {"hash": "5eb63bbbe01eeed...", "warning": "MD5 is cryptographically weak..."} (hash)
 
 CRC32 checksum of "test"
-→ d87f7e0c (hash)
+→ {"hash": "d87f7e0c"} (hash)
 ```
 
 ## Date & Time

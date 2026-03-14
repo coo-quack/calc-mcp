@@ -49,7 +49,7 @@ LLMs excel at natural language understanding, but can produce incorrect results 
 | "10 + 34 × 341 ÷ 23 = 507.8" ❌ | `514.087` ✅ (math) |
 | "Here's a UUID: 550e8400-..." 🤷 fake | Cryptographically random UUID v4/v7 ✅ (random) |
 | "100 days from now is..." 🤔 guess | `2026-05-22` ✅ (date) |
-| "SHA-256 of password123 is..." 💀 hallucinated | `ef92b778bafe...` ✅ (hash) |
+| "SHA-256 of password123 is..." 💀 hallucinated | `{"hash": "ef92b778bafe..."}` ✅ (hash) |
 
 Calc MCP gives your AI assistant the tools to **delegate** these tasks to deterministic, tested code.
 
