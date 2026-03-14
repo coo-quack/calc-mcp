@@ -10,9 +10,9 @@ export default defineConfig({
 
 		nav: [
 			{ text: "Home", link: "/" },
-			{ text: "Tools", link: "/tools" },
+			{ text: "Getting Started", link: "/getting-started" },
 			{ text: "Install", link: "/install" },
-			{ text: "Examples", link: "/examples" },
+			{ text: "All Tools", link: "/tools" },
 			{ text: "Changelog", link: "/changelog" },
 		],
 
@@ -20,15 +20,22 @@ export default defineConfig({
 			{
 				text: "Guide",
 				items: [
-					{ text: "Getting Started", link: "/" },
+					{ text: "Getting Started", link: "/getting-started" },
 					{ text: "Installation", link: "/install" },
-					{ text: "Examples", link: "/examples" },
 				],
 			},
 			{
 				text: "Reference",
 				items: [
 					{ text: "All Tools", link: "/tools" },
+					{ text: "Examples", link: "/examples" },
+				],
+			},
+			{
+				text: "Support",
+				items: [
+					{ text: "Troubleshooting", link: "/troubleshooting" },
+					{ text: "Contributing", link: "/contributing" },
 					{ text: "Changelog", link: "/changelog" },
 				],
 			},
