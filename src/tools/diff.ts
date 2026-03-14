@@ -31,9 +31,9 @@ function vGet(arr: Int32Array, index: number): number {
 }
 
 // Maximum edit distance before falling back to a simple all-delete/all-insert output.
-// Limits memory usage: trace stores one Int32Array(2*max+1) per d, so capping d
-// prevents OOM for large, highly-different inputs.
-const MAX_EDIT_DISTANCE = 10000;
+// Memory: trace stores one Int32Array(2*maxD+1) per d level.
+// At maxD=1000: 1001 snapshots × 2001 × 4 bytes ≈ 8 MB — safe for a utility tool.
+const MAX_EDIT_DISTANCE = 1000;
 
 function myersDiff(a: string[], b: string[]): DiffEdit[] {
 	const n = a.length;
