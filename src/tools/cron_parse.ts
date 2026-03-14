@@ -272,13 +272,34 @@ function getNextOccurrences(
 
 		const parsed = parseInTimezone(current);
 
-		if (
-			month.values.has(parsed.month) &&
-			dom.values.has(parsed.day) &&
-			dow.values.has(parsed.dow) &&
-			hour.values.has(parsed.hour) &&
-			minute.values.has(parsed.minute)
-		) {
+		// Skip forward when higher-level fields don't match
+		if (!month.values.has(parsed.month)) {
+			// Jump to 1st day, 00:00 of next month
+			const daysInMonth = new Date(parsed.year, parsed.month, 0).getDate();
+			const remaining = daysInMonth - parsed.day;
+			current.setTime(
+				current.getTime() +
+					(remaining * 1440 + (1440 - parsed.hour * 60 - parsed.minute)) *
+						60000,
+			);
+			continue;
+		}
+
+		if (!dom.values.has(parsed.day) || !dow.values.has(parsed.dow)) {
+			// Jump to 00:00 of next day
+			current.setTime(
+				current.getTime() + (1440 - parsed.hour * 60 - parsed.minute) * 60000,
+			);
+			continue;
+		}
+
+		if (!hour.values.has(parsed.hour)) {
+			// Jump to :00 of next hour
+			current.setTime(current.getTime() + (60 - parsed.minute) * 60000);
+			continue;
+		}
+
+		if (minute.values.has(parsed.minute)) {
 			results.push(new Date(current));
 		}
 

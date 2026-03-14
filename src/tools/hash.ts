@@ -45,12 +45,11 @@ function crc32(str: string): string {
 export function execute(input: Input): string {
 	const action = input.action ?? "hash";
 
-	// Warn about weak algorithms
-	if (WEAK_ALGORITHMS.has(input.algorithm)) {
-		console.warn(
-			`Warning: ${input.algorithm.toUpperCase()} is cryptographically weak and should not be used for security-sensitive applications. Consider SHA-256 or SHA-512 instead.`,
-		);
-	}
+	const warning = WEAK_ALGORITHMS.has(input.algorithm)
+		? `${input.algorithm.toUpperCase()} is cryptographically weak. Consider SHA-256 or SHA-512 instead.`
+		: undefined;
+
+	let hash: string;
 
 	if (action === "hmac") {
 		if (!input.key) {
@@ -59,16 +58,16 @@ export function execute(input: Input): string {
 		if (input.algorithm === "crc32") {
 			throw new Error("CRC32 does not support HMAC");
 		}
-		return createHmac(input.algorithm, input.key)
+		hash = createHmac(input.algorithm, input.key)
 			.update(input.input)
 			.digest("hex");
+	} else if (input.algorithm === "crc32") {
+		hash = crc32(input.input);
+	} else {
+		hash = createHash(input.algorithm).update(input.input).digest("hex");
 	}
 
-	// hash (default)
-	if (input.algorithm === "crc32") {
-		return crc32(input.input);
-	}
-	return createHash(input.algorithm).update(input.input).digest("hex");
+	return JSON.stringify(warning ? { hash, warning } : { hash });
 }
 
 export const tool: ToolDefinition = {
