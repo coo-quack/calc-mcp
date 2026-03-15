@@ -35,7 +35,7 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 | "10 + 34 × 341 ÷ 23 = 507.8" ❌                | `514.087` ✅ (math)                             |
 | "Here's a UUID: 550e8400-..." 🤷 fake          | Cryptographically random UUID v4/v7 ✅ (random) |
 | "100 days from now is..." 🤔 guess             | `2026-05-22` ✅ (date)                          |
-| "SHA-256 of password123 is..." 💀 hallucinated | `ef92b778bafe...` ✅ (hash)                     |
+| "SHA-256 of password123 is..." 💀 hallucinated | `{"hash": "ef92b778bafe..."}` ✅ (hash)          |
 
 - **Deterministic** — Same input, same correct output, every time
 - **Secure** — Sandboxed math, ReDoS protection, weak hash warnings
@@ -65,8 +65,8 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | URL-encode "hello world"                   | `hello%20world`      | encode |
 | URL-decode "hello%20world"                 | `hello world`        | encode |
 | HTML-decode `&lt;script&gt;`               | `<script>`           | encode |
-| SHA-256 hash of "password123"              | `ef92b778bafe...`    | hash   |
-| HMAC-SHA256 of "message" with key "secret" | `8b5f48702995...`    | hash   |
+| SHA-256 hash of "password123"              | `{"hash": "ef92b778bafe..."}` | hash   |
+| HMAC-SHA256 of "message" with key "secret" | `{"hash": "8b5f48702995..."}` | hash   |
 
 ### Date & Time
 
@@ -103,7 +103,7 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | IP range of 192.168.1.0/24?          | `192.168.1.1 – .254 (254 hosts)` | ip            |
 | Edit distance: "kitten" → "sitting"  | `3`                              | diff          |
 | Unicode info for "€"                 | `U+20AC, Currency Symbols`       | char_info     |
-| Is `{"name":"test"}` valid JSON?     | `valid, object`                  | json_validate |
+| Is `{"name":"test"}` valid JSON?     | `valid, object`                  | format_validate |
 
 ### Decode & Parse
 
@@ -127,12 +127,12 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 | `regex`         | Test, match, matchAll, replace                                                                       |
 | `base`          | Number base conversion (2–36)                                                                        |
 | `diff`          | Line diff, Levenshtein distance                                                                      |
-| `json_validate` | Validate JSON, CSV, XML, YAML                                                                        |
+| `format_validate` | Validate JSON, CSV, XML, YAML                                                                        |
 | `cron_parse`    | Human-readable cron + next runs (weekday/month names supported)                                      |
 | `luhn`          | Validate / generate check digits                                                                     |
 | `ip`            | IPv4/IPv6 info, CIDR contains check, range calculation                                               |
 | `color`         | HEX ↔ RGB ↔ HSL (alpha channel supported)                                                            |
-| `convert`       | 8 categories, 72 units: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
+| `convert`       | 8 categories, 146 unit names: length, weight, temperature, area (tsubo, tatami), volume, speed, data, time |
 | `char_info`     | Unicode code point, block, category                                                                  |
 | `jwt_decode`    | Decode header + payload (no verification)                                                            |
 | `url_parse`     | Protocol, host, path, params, hash                                                                   |

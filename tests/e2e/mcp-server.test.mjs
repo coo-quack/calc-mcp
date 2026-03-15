@@ -71,9 +71,9 @@ describe("MCP Server E2E", () => {
 			"datetime",
 			"diff",
 			"encode",
+			"format_validate",
 			"hash",
 			"ip",
-			"json_validate",
 			"jwt_decode",
 			"luhn",
 			"math",
@@ -103,12 +103,16 @@ describe("MCP Server E2E", () => {
 
 	it("hash — md5", async () => {
 		const text = await callTool("hash", { input: "hello", algorithm: "md5" });
-		assert.equal(text, "5d41402abc4b2a76b9719d911017c592");
+		const result = JSON.parse(text);
+		assert.equal(result.hash, "5d41402abc4b2a76b9719d911017c592");
+		assert.ok(result.warning); // MD5 is weak
 	});
 
 	it("hash — sha1", async () => {
 		const text = await callTool("hash", { input: "hello", algorithm: "sha1" });
-		assert.equal(text, "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d");
+		const result = JSON.parse(text);
+		assert.equal(result.hash, "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d");
+		assert.ok(result.warning); // SHA1 is weak
 	});
 
 	it("hash — sha256", async () => {
@@ -116,10 +120,12 @@ describe("MCP Server E2E", () => {
 			input: "hello",
 			algorithm: "sha256",
 		});
+		const result = JSON.parse(text);
 		assert.equal(
-			text,
+			result.hash,
 			"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
 		);
+		assert.equal(result.warning, undefined); // SHA256 is not weak
 	});
 
 	it("hash — sha512", async () => {
@@ -127,12 +133,14 @@ describe("MCP Server E2E", () => {
 			input: "hello",
 			algorithm: "sha512",
 		});
-		assert.ok(text.startsWith("9b71d224bd62f378"));
+		const result = JSON.parse(text);
+		assert.ok(result.hash.startsWith("9b71d224bd62f378"));
 	});
 
 	it("hash — crc32", async () => {
 		const text = await callTool("hash", { input: "hello", algorithm: "crc32" });
-		assert.equal(text, "3610a686");
+		const result = JSON.parse(text);
+		assert.equal(result.hash, "3610a686");
 	});
 
 	// ─── base64 ───
@@ -418,20 +426,20 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("3"));
 	});
 
-	// ─── json_validate ───
+	// ─── format_validate ───
 
-	it("json_validate — valid JSON with schema", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — valid JSON", async () => {
+		const text = await callTool("format_validate", {
 			input: '{"name": "test"}',
-			schema:
-				'{"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}',
+			format: "json",
 		});
 		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
-	it("json_validate — invalid JSON", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — invalid JSON", async () => {
+		const text = await callTool("format_validate", {
 			input: "{broken",
+			format: "json",
 		});
 		assert.ok(
 			text.toLowerCase().includes("invalid") ||
@@ -715,7 +723,8 @@ describe("MCP Server E2E", () => {
 
 	it("hash — empty string", async () => {
 		const text = await callTool("hash", { input: "", algorithm: "md5" });
-		assert.equal(text, "d41d8cd98f00b204e9800998ecf8427e");
+		const result = JSON.parse(text);
+		assert.equal(result.hash, "d41d8cd98f00b204e9800998ecf8427e");
 	});
 
 	it("datetime — invalid date string 'not-a-date'", async () => {
@@ -832,7 +841,8 @@ describe("MCP Server E2E", () => {
 
 	it("hash — empty string hashes (md5)", async () => {
 		const text = await callTool("hash", { input: "", algorithm: "md5" });
-		assert.equal(text, "d41d8cd98f00b204e9800998ecf8427e");
+		const result = JSON.parse(text);
+		assert.equal(result.hash, "d41d8cd98f00b204e9800998ecf8427e");
 	});
 
 	it("hash — Japanese text (multibyte input)", async () => {
@@ -840,7 +850,8 @@ describe("MCP Server E2E", () => {
 			input: "東京都",
 			algorithm: "sha256",
 		});
-		assert.ok(text.length === 64); // SHA-256 produces 64 hex chars
+		const result = JSON.parse(text);
+		assert.ok(result.hash.length === 64); // SHA-256 produces 64 hex chars
 	});
 
 	it("count — empty string", async () => {
@@ -941,8 +952,8 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.length > 0); // Should have differences
 	});
 
-	it("json_validate — CSV format", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — CSV format", async () => {
+		const text = await callTool("format_validate", {
 			input: "name,age\nJohn,30",
 			format: "csv",
 		});
@@ -950,16 +961,16 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("2")); // 2 rows or 2 columns
 	});
 
-	it("json_validate — XML format", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — XML format", async () => {
+		const text = await callTool("format_validate", {
 			input: "<root><item>test</item></root>",
 			format: "xml",
 		});
 		assert.ok(text.toLowerCase().includes("valid"));
 	});
 
-	it("json_validate — YAML format", async () => {
-		const text = await callTool("json_validate", {
+	it("format_validate — YAML format", async () => {
+		const text = await callTool("format_validate", {
 			input: "name: test\nage: 30",
 			format: "yaml",
 		});
@@ -1187,11 +1198,9 @@ describe("MCP Server E2E", () => {
 		assert.ok(text.includes("27.7") || text.includes("27.8"));
 	});
 
-	it("json_validate — validate API response structure", async () => {
+	it("format_validate — validate API response structure", async () => {
 		const input = '{"status": "success", "data": {"id": 123, "name": "Test"}}';
-		const schema =
-			'{"type": "object", "properties": {"status": {"type": "string"}, "data": {"type": "object"}}, "required": ["status", "data"]}';
-		const text = await callTool("json_validate", { input, schema });
+		const text = await callTool("format_validate", { input, format: "json" });
 		assert.ok(text.toLowerCase().includes("valid"));
 	});
 

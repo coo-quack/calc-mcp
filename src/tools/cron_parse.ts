@@ -181,10 +181,11 @@ function parseField(
 	return { values };
 }
 
-function getNextOccurrences(
+export function getNextOccurrences(
 	fields: string[],
 	count: number,
 	timezone = "UTC",
+	now?: Date,
 ): Date[] {
 	const minute = parseField(arrayGet(fields, 0), 0, 59, "numeric", "minute");
 	const hour = parseField(arrayGet(fields, 1), 0, 23, "numeric", "hour");
@@ -193,7 +194,7 @@ function getNextOccurrences(
 	const dow = parseField(arrayGet(fields, 4), 0, 7, "weekday", "weekday");
 
 	const results: Date[] = [];
-	const now = new Date();
+	const startTime = now ?? new Date();
 
 	// Validate timezone early to provide clear error message
 	let formatter: Intl.DateTimeFormat;
@@ -261,24 +262,98 @@ function getNextOccurrences(
 	}
 
 	// Start from next minute in the target timezone
-	const current = new Date(now.getTime() + 60000);
+	const current = new Date(startTime.getTime() + 60000);
 	current.setSeconds(0, 0);
 
-	const maxIterations = 525600; // 1 year of minutes
+	// Cap on loop iterations (not minutes). With skipTo(), a single iteration
+	// can advance by hours/days/months, so this may scan beyond one calendar year.
+	const maxIterations = 525600;
 	let iterations = 0;
+
+	// Advance `current` to the target local boundary in the given timezone.
+	// Uses parseInTimezone to verify the landing, compensating for DST shifts
+	// including non-standard offsets (e.g., Australia/Lord_Howe ±30 min).
+	function skipTo(
+		target: "nextMonth" | "nextDay" | "nextHour",
+		parsed: {
+			year: number;
+			month: number;
+			day: number;
+			hour: number;
+			minute: number;
+		},
+	): void {
+		// Estimate jump in minutes (assuming no DST), then verify with parseInTimezone
+		let estimateMinutes: number;
+		switch (target) {
+			case "nextMonth": {
+				const daysInMonth = new Date(parsed.year, parsed.month, 0).getDate();
+				const remaining = daysInMonth - parsed.day;
+				estimateMinutes =
+					remaining * 1440 + (1440 - parsed.hour * 60 - parsed.minute);
+				break;
+			}
+			case "nextDay":
+				estimateMinutes = 1440 - parsed.hour * 60 - parsed.minute;
+				break;
+			case "nextHour":
+				estimateMinutes = 60 - parsed.minute;
+				break;
+		}
+
+		// Jump using the estimate, then verify with parseInTimezone.
+		// DST can shift by ±30 or ±60 min. Adjustments must keep current >= preSkip.
+		const preSkip = current.getTime();
+		current.setTime(preSkip + estimateMinutes * 60000);
+
+		const landed = parseInTimezone(current);
+		if (target === "nextHour") {
+			// We expect minute=0; advance forward to reach it
+			if (landed.minute !== 0) {
+				current.setTime(current.getTime() + (60 - landed.minute) * 60000);
+			}
+		} else {
+			// nextMonth/nextDay: we expect hour=0, minute=0
+			const driftMin = landed.hour * 60 + landed.minute;
+			if (driftMin !== 0) {
+				if (landed.hour > 12) {
+					// Undershot (e.g., 23:00): advance forward to cross midnight
+					current.setTime(current.getTime() + (1440 - driftMin) * 60000);
+				} else {
+					// Overshot (e.g., 01:00 from spring-forward): correct back
+					// to 00:00 only if it stays past the pre-skip timestamp
+					const corrected = current.getTime() - driftMin * 60000;
+					if (corrected > preSkip) {
+						current.setTime(corrected);
+					}
+					// If correction would go backward, accept the overshoot
+				}
+			}
+		}
+	}
 
 	while (results.length < count && iterations < maxIterations) {
 		iterations++;
 
 		const parsed = parseInTimezone(current);
 
-		if (
-			month.values.has(parsed.month) &&
-			dom.values.has(parsed.day) &&
-			dow.values.has(parsed.dow) &&
-			hour.values.has(parsed.hour) &&
-			minute.values.has(parsed.minute)
-		) {
+		// Skip forward when higher-level fields don't match
+		if (!month.values.has(parsed.month)) {
+			skipTo("nextMonth", parsed);
+			continue;
+		}
+
+		if (!dom.values.has(parsed.day) || !dow.values.has(parsed.dow)) {
+			skipTo("nextDay", parsed);
+			continue;
+		}
+
+		if (!hour.values.has(parsed.hour)) {
+			skipTo("nextHour", parsed);
+			continue;
+		}
+
+		if (minute.values.has(parsed.minute)) {
 			results.push(new Date(current));
 		}
 
@@ -387,17 +462,19 @@ function describeField(
 function describeCron(fields: string[]): string {
 	const parts: string[] = [];
 
-	if (fields[0] !== "*") parts.push(`at minute ${fields[0]}`);
-	if (fields[1] !== "*") parts.push(`at hour ${fields[1]}`);
-	if (fields[2] !== "*") parts.push(`on day ${fields[2]}`);
-	if (fields[3] !== "*")
-		parts.push(
-			`in month ${describeField(arrayGet(fields, 3), MONTH_NAMES, MONTH_LABELS)}`,
-		);
-	if (fields[4] !== "*")
-		parts.push(
-			`on ${describeField(arrayGet(fields, 4), WEEKDAY_NAMES, DAY_LABELS, true)}`,
-		);
+	const f0 = arrayGet(fields, 0);
+	const f1 = arrayGet(fields, 1);
+	const f2 = arrayGet(fields, 2);
+	const f3 = arrayGet(fields, 3);
+	const f4 = arrayGet(fields, 4);
+
+	if (f0 !== "*") parts.push(`at minute ${f0}`);
+	if (f1 !== "*") parts.push(`at hour ${f1}`);
+	if (f2 !== "*") parts.push(`on day ${f2}`);
+	if (f3 !== "*")
+		parts.push(`in month ${describeField(f3, MONTH_NAMES, MONTH_LABELS)}`);
+	if (f4 !== "*")
+		parts.push(`on ${describeField(f4, WEEKDAY_NAMES, DAY_LABELS, true)}`);
 
 	return parts.length > 0 ? parts.join(", ") : "every minute";
 }

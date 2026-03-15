@@ -104,16 +104,16 @@ Unicode-decode "\u3053\u3093\u306b\u3061\u306f"
 
 ```
 SHA-256 hash of "password123"
-→ ef92b778bafe771e89245b89ec... (hash)
+→ {"hash": "ef92b778bafe771e89245b89ec..."} (hash)
 
 HMAC-SHA256 of "message" with key "secret"
-→ 8b5f48702995c159... (hash)
+→ {"hash": "8b5f48702995c159..."} (hash)
 
 MD5 of "hello world"
-→ 5eb63bbbe01eeed093cb22bb8f5acdc3 (hash)
+→ {"hash": "5eb63bbbe01eeed...", "warning": "MD5 is cryptographically weak..."} (hash)
 
 CRC32 checksum of "test"
-→ d87f7e0c (hash)
+→ {"hash": "d87f7e0c"} (hash)
 ```
 
 ## Date & Time
@@ -432,16 +432,16 @@ Parse version "2.1.3-beta.1+build.456"
 
 ```
 Is '{"name":"test"}' valid JSON?
-→ valid, object, keys: ["name"] (json_validate)
+→ valid, object, keys: ["name"] (format_validate)
 
 Validate this YAML: "name: test / version: 1.0"
-→ valid, object, keys: ["name", "version"] (json_validate)
+→ valid, object, keys: ["name", "version"] (format_validate)
 
 Validate CSV with 3 columns
-→ valid, 10 rows, 3 columns (json_validate)
+→ valid, 10 rows, 3 columns (format_validate)
 
 Is this valid XML? (XML input)
-→ valid (json_validate)
+→ valid (format_validate)
 ```
 
 ### JWT Decoding

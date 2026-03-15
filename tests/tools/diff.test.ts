@@ -40,4 +40,28 @@ describe("diff", () => {
 		);
 		expect(result.distance).toBe(3);
 	});
+
+	test("truncation when edit distance exceeds limit", () => {
+		// Create two completely different texts with >1000 lines each
+		const text1 = Array.from({ length: 1100 }, (_, i) => `aaa${i}`).join("\n");
+		const text2 = Array.from({ length: 1100 }, (_, i) => `bbb${i}`).join("\n");
+		const result = execute({ text1, text2 });
+
+		// Should contain truncation notice
+		expect(result).toContain("[Diff truncated:");
+
+		// All lines should be deletes, inserts, or the truncation notice
+		const lines = result.split("\n");
+		for (const line of lines) {
+			expect(
+				line.startsWith("  [") ||
+					line.startsWith("- ") ||
+					line.startsWith("+ "),
+			).toBe(true);
+		}
+
+		// Should have all original lines as deletes and all new lines as inserts
+		expect(result).toContain("- aaa0");
+		expect(result).toContain("+ bbb0");
+	});
 });

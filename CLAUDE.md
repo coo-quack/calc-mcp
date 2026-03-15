@@ -79,7 +79,7 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 ## Naming Conventions
 
-- Tool names / file names: `snake_case` (e.g. `json_validate`, `cron_parse`)
+- Tool names / file names: `snake_case` (e.g. `format_validate`, `cron_parse`)
 - Schema properties: `camelCase`
 - Imports: `import { tool as <camelCase>Tool } from "./tools/<name>.js"`
 
