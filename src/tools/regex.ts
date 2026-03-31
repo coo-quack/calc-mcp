@@ -3,13 +3,13 @@ import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
 const schema = {
-	pattern: z.string().describe("Regular expression pattern"),
-	flags: z.string().optional().describe("Regex flags (g, i, m, etc.)"),
-	text: z.string().describe("Text to search"),
-	action: z
-		.enum(["match", "test", "replace", "matchAll"])
-		.describe("Action to perform"),
-	replacement: z.string().optional().describe("Replacement string for replace"),
+  pattern: z.string().describe("Regular expression pattern"),
+  flags: z.string().optional().describe("Regex flags (g, i, m, etc.)"),
+  text: z.string().describe("Text to search"),
+  action: z
+    .enum(["match", "test", "replace", "matchAll"])
+    .describe("Action to perform"),
+  replacement: z.string().optional().describe("Replacement string for replace"),
 };
 
 const inputSchema = z.object(schema);
@@ -24,102 +24,102 @@ const MAX_PATTERN_LENGTH = 500;
 // parser tracking escape state, character classes, and group depth.
 // However, these simple patterns catch the most common ReDoS cases with minimal overhead.
 const DANGEROUS_PATTERNS = [
-	/\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
-	/\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
-	/\([^)]*\+[^)]*\)\*/, // (x+)* style nesting
-	/\([^)]*\*[^)]*\)\+/, // (x*)+ style nesting
-	/\([^)]*\{[^}]+\}[^)]*\)\{/, // ({n,m}){...} style nesting
+  /\([^)]*\+[^)]*\)\+/, // (x+)+ style nesting
+  /\([^)]*\*[^)]*\)\*/, // (x*)* style nesting
+  /\([^)]*\+[^)]*\)\*/, // (x+)* style nesting
+  /\([^)]*\*[^)]*\)\+/, // (x*)+ style nesting
+  /\([^)]*\{[^}]+\}[^)]*\)\{/, // ({n,m}){...} style nesting
 ];
 
 // Check for potentially dangerous ReDoS patterns
 function validatePattern(pattern: string): void {
-	if (pattern.length > MAX_PATTERN_LENGTH) {
-		throw new Error(
-			`Pattern too long (${pattern.length} chars, max: ${MAX_PATTERN_LENGTH})`,
-		);
-	}
+  if (pattern.length > MAX_PATTERN_LENGTH) {
+    throw new Error(
+      `Pattern too long (${pattern.length} chars, max: ${MAX_PATTERN_LENGTH})`,
+    );
+  }
 
-	for (const dangerousPattern of DANGEROUS_PATTERNS) {
-		if (dangerousPattern.test(pattern)) {
-			throw new Error(
-				"Pattern contains nested quantifiers (possible ReDoS risk)",
-			);
-		}
-	}
+  for (const dangerousPattern of DANGEROUS_PATTERNS) {
+    if (dangerousPattern.test(pattern)) {
+      throw new Error(
+        "Pattern contains nested quantifiers (possible ReDoS risk)",
+      );
+    }
+  }
 }
 
 function withTimeout<T>(fn: () => T): T {
-	// Note: JavaScript regex operations are synchronous and cannot be truly interrupted.
-	// This timeout check happens *after* execution, so it won't prevent actual ReDoS attacks
-	// where the regex engine blocks for extended periods.
-	// The pattern validation above provides the main ReDoS protection.
-	const start = Date.now();
-	const result = fn();
-	const elapsed = Date.now() - start;
-	if (elapsed > TIMEOUT_MS) {
-		throw new Error(
-			`Regex execution took ${elapsed}ms (timeout: ${TIMEOUT_MS}ms, possible ReDoS)`,
-		);
-	}
-	return result;
+  // Note: JavaScript regex operations are synchronous and cannot be truly interrupted.
+  // This timeout check happens *after* execution, so it won't prevent actual ReDoS attacks
+  // where the regex engine blocks for extended periods.
+  // The pattern validation above provides the main ReDoS protection.
+  const start = Date.now();
+  const result = fn();
+  const elapsed = Date.now() - start;
+  if (elapsed > TIMEOUT_MS) {
+    throw new Error(
+      `Regex execution took ${elapsed}ms (timeout: ${TIMEOUT_MS}ms, possible ReDoS)`,
+    );
+  }
+  return result;
 }
 
 export function execute(input: Input): string {
-	// Validate pattern for ReDoS risks
-	validatePattern(input.pattern);
+  // Validate pattern for ReDoS risks
+  validatePattern(input.pattern);
 
-	let flags = input.flags ?? "";
-	if (input.action !== "test" && !flags.includes("g")) {
-		flags = `g${flags}`;
-	}
-	const regex = new RegExp(input.pattern, flags);
+  let flags = input.flags ?? "";
+  if (input.action !== "test" && !flags.includes("g")) {
+    flags = `g${flags}`;
+  }
+  const regex = new RegExp(input.pattern, flags);
 
-	switch (input.action) {
-		case "test": {
-			const result = withTimeout(() => regex.test(input.text));
-			return JSON.stringify({ match: result });
-		}
-		case "match": {
-			const matches = withTimeout(() => [...input.text.matchAll(regex)]);
-			if (matches.length === 0) {
-				return JSON.stringify({ matches: null, index: null, groups: null });
-			}
-			const firstMatch = assertExists(matches[0], "regex matching");
-			return JSON.stringify({
-				matches: matches.map((m) => m[0]),
-				index: firstMatch.index,
-				groups: firstMatch.groups ?? null,
-			});
-		}
-		case "matchAll": {
-			const matches = withTimeout(() => [...input.text.matchAll(regex)]);
-			return JSON.stringify(
-				matches.map((m) => ({
-					match: m[0],
-					index: m.index,
-					groups: m.groups ?? null,
-					captures: m.slice(1),
-				})),
-				null,
-				2,
-			);
-		}
-		case "replace": {
-			const replacement = input.replacement;
-			if (replacement === undefined)
-				throw new Error("replacement is required for replace");
-			const result = withTimeout(() => input.text.replace(regex, replacement));
-			return result;
-		}
-	}
+  switch (input.action) {
+    case "test": {
+      const result = withTimeout(() => regex.test(input.text));
+      return JSON.stringify({ match: result });
+    }
+    case "match": {
+      const matches = withTimeout(() => [...input.text.matchAll(regex)]);
+      if (matches.length === 0) {
+        return JSON.stringify({ matches: null, index: null, groups: null });
+      }
+      const firstMatch = assertExists(matches[0], "regex matching");
+      return JSON.stringify({
+        matches: matches.map((m) => m[0]),
+        index: firstMatch.index,
+        groups: firstMatch.groups ?? null,
+      });
+    }
+    case "matchAll": {
+      const matches = withTimeout(() => [...input.text.matchAll(regex)]);
+      return JSON.stringify(
+        matches.map((m) => ({
+          match: m[0],
+          index: m.index,
+          groups: m.groups ?? null,
+          captures: m.slice(1),
+        })),
+        null,
+        2,
+      );
+    }
+    case "replace": {
+      const replacement = input.replacement;
+      if (replacement === undefined)
+        throw new Error("replacement is required for replace");
+      const result = withTimeout(() => input.text.replace(regex, replacement));
+      return result;
+    }
+  }
 }
 
 export const tool: ToolDefinition = {
-	name: "regex",
-	description: "Test, match, matchAll, or replace using regular expressions",
-	schema,
-	handler: async (args: Record<string, unknown>) => {
-		const input = inputSchema.parse(args);
-		return execute(input);
-	},
+  name: "regex",
+  description: "Test, match, matchAll, or replace using regular expressions",
+  schema,
+  handler: async (args: Record<string, unknown>) => {
+    const input = inputSchema.parse(args);
+    return execute(input);
+  },
 };

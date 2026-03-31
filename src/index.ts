@@ -31,73 +31,73 @@ import { tool as semverTool } from "./tools/semver.js";
 import { tool as urlParseTool } from "./tools/url_parse.js";
 
 export interface ToolDefinition {
-	name: string;
-	description: string;
-	schema: z.ZodRawShape;
-	handler: (args: Record<string, unknown>) => Promise<string>;
+  name: string;
+  description: string;
+  schema: z.ZodRawShape;
+  handler: (args: Record<string, unknown>) => Promise<string>;
 }
 
 const tools: ToolDefinition[] = [
-	randomTool,
-	hashTool,
-	base64Tool,
-	encodeTool,
-	datetimeTool,
-	countTool,
-	mathTool,
-	dateTool,
-	regexTool,
-	baseTool,
-	diffTool,
-	formatValidateTool,
-	cronParseTool,
-	luhnTool,
-	ipTool,
-	colorTool,
-	convertTool,
-	charInfoTool,
-	jwtDecodeTool,
-	urlParseTool,
-	semverTool,
+  randomTool,
+  hashTool,
+  base64Tool,
+  encodeTool,
+  datetimeTool,
+  countTool,
+  mathTool,
+  dateTool,
+  regexTool,
+  baseTool,
+  diffTool,
+  formatValidateTool,
+  cronParseTool,
+  luhnTool,
+  ipTool,
+  colorTool,
+  convertTool,
+  charInfoTool,
+  jwtDecodeTool,
+  urlParseTool,
+  semverTool,
 ];
 
 const server = new McpServer({
-	name: "calc-mcp",
-	version,
+  name: "calc-mcp",
+  version,
 });
 
 for (const tool of tools) {
-	server.tool(
-		tool.name,
-		tool.description,
-		tool.schema,
-		async (args: Record<string, unknown>) => {
-			try {
-				const result = await tool.handler(args);
-				return {
-					content: [{ type: "text" as const, text: result }],
-				};
-			} catch (error) {
-				const message = sanitizeErrorMessage(tool.name, error, args);
-				return {
-					content: [{ type: "text" as const, text: `Error: ${message}` }],
-					isError: true,
-				};
-			}
-		},
-	);
+  server.tool(
+    tool.name,
+    tool.description,
+    tool.schema,
+    async (args: Record<string, unknown>) => {
+      try {
+        const result = await tool.handler(args);
+        return {
+          content: [{ type: "text" as const, text: result }],
+        };
+      } catch (error) {
+        const message = sanitizeErrorMessage(tool.name, error, args);
+        return {
+          content: [{ type: "text" as const, text: `Error: ${message}` }],
+          isError: true,
+        };
+      }
+    },
+  );
 }
 
 async function main() {
-	if (process.argv.includes("--version") || process.argv.includes("-v")) {
-		console.log(version);
-		process.exit(0);
-	}
-	const transport = new StdioServerTransport();
-	await server.connect(transport);
+  if (process.argv.includes("--version") || process.argv.includes("-v")) {
+    console.log(version);
+    process.exit(0);
+  }
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
 }
 
 main().catch((error) => {
-	console.error("Fatal error:", error);
-	process.exit(1);
+  console.error("Fatal error:", error);
+  process.exit(1);
 });
