@@ -1,46 +1,46 @@
 {
-	"name": "@coo-quack/calc-mcp",
-	"version": "2.0.1",
-	"mcpName": "io.github.coo-quack/calc-mcp",
-	"description": "21 MCP tools for math, randomness, dates, encoding, hashing, and more — deterministic and accurate.",
-	"type": "module",
-	"bin": {
-		"calc-mcp": "dist/index.js"
-	},
-	"scripts": {
-		"dev": "bun run src/index.ts",
-		"build": "bun build src/index.ts --outdir dist --target node --sourcemap=external --minify && printf '#!/usr/bin/env node\\n' | cat - dist/index.js > dist/tmp && mv dist/tmp dist/index.js && chmod +x dist/index.js",
-		"test": "bun test",
-		"lint": "biome check .",
-		"format": "biome format . --write",
-		"ci": "bun run lint && bun run build && bun test",
-		"changelog": "bunx changelogen",
-		"release": "bunx bumpp",
-		"docs:dev": "vitepress dev docs",
-		"docs:build": "vitepress build docs",
-		"docs:preview": "vitepress preview docs"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.3.14",
-		"@types/bun": "latest",
-		"typescript": "^5.9.3",
-		"vitepress": "^1.6.4"
-	},
-	"homepage": "https://coo-quack.github.io/calc-mcp/",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/coo-quack/calc-mcp.git"
-	},
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.26.0",
-		"date-fns": "^4.1.0",
-		"mathjs": "^15.1.1",
-		"yaml": "^2.8.2",
-		"zod": "^4.3.6"
-	},
-	"files": [
-		"dist/index.js",
-		"README.md",
-		"LICENSE"
-	]
+  "name": "@coo-quack/calc-mcp",
+  "version": "2.0.1",
+  "mcpName": "io.github.coo-quack/calc-mcp",
+  "description": "21 MCP tools for math, randomness, dates, encoding, hashing, and more — deterministic and accurate.",
+  "type": "module",
+  "bin": {
+    "calc-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target node --sourcemap=external --minify && printf '#!/usr/bin/env node\\n' | cat - dist/index.js > dist/tmp && mv dist/tmp dist/index.js && chmod +x dist/index.js",
+    "test": "bun test",
+    "lint": "biome check .",
+    "format": "biome format . --write",
+    "ci": "bun run lint && bun run build && bun test",
+    "changelog": "bunx changelogen",
+    "release": "bunx bumpp",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
+    "@types/bun": "latest",
+    "typescript": "^5.9.3",
+    "vitepress": "^1.6.4"
+  },
+  "homepage": "https://coo-quack.github.io/calc-mcp/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coo-quack/calc-mcp.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "date-fns": "^4.1.0",
+    "mathjs": "^15.1.1",
+    "yaml": "^2.8.2",
+    "zod": "^4.3.6"
+  },
+  "files": [
+    "dist/index.js",
+    "README.md",
+    "LICENSE"
+  ]
 }
