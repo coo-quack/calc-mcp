@@ -3,488 +3,488 @@ import type { ToolDefinition } from "../index.js";
 import { arrayGet, matchGet, objGet } from "../utils.js";
 
 const schema = {
-	expression: z
-		.string()
-		.describe("Cron expression (5 fields: min hour dom mon dow)"),
-	count: z
-		.number()
-		.optional()
-		.describe("Number of next occurrences to return (default: 5)"),
-	timezone: z.string().optional().describe("IANA timezone (default: UTC)"),
+  expression: z
+    .string()
+    .describe("Cron expression (5 fields: min hour dom mon dow)"),
+  count: z
+    .number()
+    .optional()
+    .describe("Number of next occurrences to return (default: 5)"),
+  timezone: z.string().optional().describe("IANA timezone (default: UTC)"),
 };
 
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
 const cronAliases: Record<string, string> = {
-	"@yearly": "0 0 1 1 *",
-	"@annually": "0 0 1 1 *",
-	"@monthly": "0 0 1 * *",
-	"@weekly": "0 0 * * 0",
-	"@daily": "0 0 * * *",
-	"@midnight": "0 0 * * *",
-	"@hourly": "0 * * * *",
-	"@reboot": "",
+  "@yearly": "0 0 1 1 *",
+  "@annually": "0 0 1 1 *",
+  "@monthly": "0 0 1 * *",
+  "@weekly": "0 0 * * 0",
+  "@daily": "0 0 * * *",
+  "@midnight": "0 0 * * *",
+  "@hourly": "0 * * * *",
+  "@reboot": "",
 };
 
 interface CronField {
-	values: Set<number>;
+  values: Set<number>;
 }
 
 // Weekday name mapping (case-insensitive, English and Japanese)
 const WEEKDAY_NAMES: Record<string, number> = {
-	// English (3-letter abbreviations)
-	sun: 0,
-	mon: 1,
-	tue: 2,
-	wed: 3,
-	thu: 4,
-	fri: 5,
-	sat: 6,
-	// English (full names)
-	sunday: 0,
-	monday: 1,
-	tuesday: 2,
-	wednesday: 3,
-	thursday: 4,
-	friday: 5,
-	saturday: 6,
-	// Japanese (Kanji)
-	日: 0,
-	月: 1,
-	火: 2,
-	水: 3,
-	木: 4,
-	金: 5,
-	土: 6,
+  // English (3-letter abbreviations)
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+  // English (full names)
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  // Japanese (Kanji)
+  日: 0,
+  月: 1,
+  火: 2,
+  水: 3,
+  木: 4,
+  金: 5,
+  土: 6,
 };
 
 // Month name mapping (case-insensitive)
 const MONTH_NAMES: Record<string, number> = {
-	jan: 1,
-	feb: 2,
-	mar: 3,
-	apr: 4,
-	may: 5,
-	jun: 6,
-	jul: 7,
-	aug: 8,
-	sep: 9,
-	oct: 10,
-	nov: 11,
-	dec: 12,
-	january: 1,
-	february: 2,
-	march: 3,
-	april: 4,
-	// "may" already defined as abbreviation (identical to full form)
-	june: 6,
-	july: 7,
-	august: 8,
-	september: 9,
-	october: 10,
-	november: 11,
-	december: 12,
+  jan: 1,
+  feb: 2,
+  mar: 3,
+  apr: 4,
+  may: 5,
+  jun: 6,
+  jul: 7,
+  aug: 8,
+  sep: 9,
+  oct: 10,
+  nov: 11,
+  dec: 12,
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  // "may" already defined as abbreviation (identical to full form)
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
 };
 
 type FieldType = "weekday" | "month" | "numeric";
 
 interface CronToken {
-	range: string;
-	step: number;
-	rangeStart: string | null;
-	rangeEnd: string | null;
-	isWildcard: boolean;
+  range: string;
+  step: number;
+  rangeStart: string | null;
+  rangeEnd: string | null;
+  isWildcard: boolean;
 }
 
 function parseCronFieldTokens(field: string): CronToken[] {
-	return field.split(",").map((part) => {
-		const trimmed = part.trim();
-		const stepMatch = trimmed.match(/^(.+)\/(\d+)$/);
-		const range = (stepMatch ? matchGet(stepMatch, 1) : trimmed).trim();
-		const step = stepMatch ? Number.parseInt(matchGet(stepMatch, 2), 10) : 1;
+  return field.split(",").map((part) => {
+    const trimmed = part.trim();
+    const stepMatch = trimmed.match(/^(.+)\/(\d+)$/);
+    const range = (stepMatch ? matchGet(stepMatch, 1) : trimmed).trim();
+    const step = stepMatch ? Number.parseInt(matchGet(stepMatch, 2), 10) : 1;
 
-		if (!Number.isFinite(step) || !Number.isInteger(step) || step <= 0) {
-			throw new Error("Step value must be a positive integer");
-		}
+    if (!Number.isFinite(step) || !Number.isInteger(step) || step <= 0) {
+      throw new Error("Step value must be a positive integer");
+    }
 
-		let rangeStart: string | null = null;
-		let rangeEnd: string | null = null;
-		if (range.includes("-") && /^\S+-\S+$/.test(range)) {
-			const rangeParts = range.split("-");
-			if (rangeParts.length !== 2) {
-				throw new Error(
-					`Invalid range "${range}": ranges must contain exactly one "-"`,
-				);
-			}
-			[rangeStart, rangeEnd] = rangeParts as [string, string];
-		}
+    let rangeStart: string | null = null;
+    let rangeEnd: string | null = null;
+    if (range.includes("-") && /^\S+-\S+$/.test(range)) {
+      const rangeParts = range.split("-");
+      if (rangeParts.length !== 2) {
+        throw new Error(
+          `Invalid range "${range}": ranges must contain exactly one "-"`,
+        );
+      }
+      [rangeStart, rangeEnd] = rangeParts as [string, string];
+    }
 
-		return { range, step, rangeStart, rangeEnd, isWildcard: range === "*" };
-	});
+    return { range, step, rangeStart, rangeEnd, isWildcard: range === "*" };
+  });
 }
 
 function parseField(
-	field: string,
-	min: number,
-	max: number,
-	fieldType: FieldType = "numeric",
-	fieldLabel = "value",
+  field: string,
+  min: number,
+  max: number,
+  fieldType: FieldType = "numeric",
+  fieldLabel = "value",
 ): CronField {
-	const values = new Set<number>();
-	const nameMap =
-		fieldType === "weekday"
-			? WEEKDAY_NAMES
-			: fieldType === "month"
-				? MONTH_NAMES
-				: null;
+  const values = new Set<number>();
+  const nameMap =
+    fieldType === "weekday"
+      ? WEEKDAY_NAMES
+      : fieldType === "month"
+        ? MONTH_NAMES
+        : null;
 
-	const toNumber = (str: string): number => {
-		const trimmed = str.trim();
-		if (nameMap) {
-			const key = trimmed.toLowerCase();
-			if (Object.hasOwn(nameMap, key)) {
-				return objGet(nameMap, key);
-			}
-		}
-		if (!/^-?\d+$/.test(trimmed)) {
-			throw new Error(`Invalid ${fieldLabel}: "${str}"`);
-		}
-		const parsed = Number.parseInt(trimmed, 10);
-		if (parsed < min || parsed > max) {
-			throw new Error(`Invalid ${fieldLabel}: "${str}"`);
-		}
-		return parsed;
-	};
+  const toNumber = (str: string): number => {
+    const trimmed = str.trim();
+    if (nameMap) {
+      const key = trimmed.toLowerCase();
+      if (Object.hasOwn(nameMap, key)) {
+        return objGet(nameMap, key);
+      }
+    }
+    if (!/^-?\d+$/.test(trimmed)) {
+      throw new Error(`Invalid ${fieldLabel}: "${str}"`);
+    }
+    const parsed = Number.parseInt(trimmed, 10);
+    if (parsed < min || parsed > max) {
+      throw new Error(`Invalid ${fieldLabel}: "${str}"`);
+    }
+    return parsed;
+  };
 
-	// In standard cron, weekday 7 is equivalent to 0 (Sunday)
-	const normalize = (v: number): number =>
-		fieldType === "weekday" && v === 7 ? 0 : v;
+  // In standard cron, weekday 7 is equivalent to 0 (Sunday)
+  const normalize = (v: number): number =>
+    fieldType === "weekday" && v === 7 ? 0 : v;
 
-	for (const token of parseCronFieldTokens(field)) {
-		if (token.isWildcard) {
-			for (let i = min; i <= max; i += token.step) values.add(normalize(i));
-		} else if (token.rangeStart !== null && token.rangeEnd !== null) {
-			const start = toNumber(token.rangeStart);
-			const end = toNumber(token.rangeEnd);
-			if (start > end) {
-				throw new Error(
-					`Invalid range "${token.range}": start value must be less than or equal to end value`,
-				);
-			}
-			for (let i = start; i <= end; i += token.step) values.add(normalize(i));
-		} else {
-			values.add(normalize(toNumber(token.range)));
-		}
-	}
+  for (const token of parseCronFieldTokens(field)) {
+    if (token.isWildcard) {
+      for (let i = min; i <= max; i += token.step) values.add(normalize(i));
+    } else if (token.rangeStart !== null && token.rangeEnd !== null) {
+      const start = toNumber(token.rangeStart);
+      const end = toNumber(token.rangeEnd);
+      if (start > end) {
+        throw new Error(
+          `Invalid range "${token.range}": start value must be less than or equal to end value`,
+        );
+      }
+      for (let i = start; i <= end; i += token.step) values.add(normalize(i));
+    } else {
+      values.add(normalize(toNumber(token.range)));
+    }
+  }
 
-	return { values };
+  return { values };
 }
 
 export function getNextOccurrences(
-	fields: string[],
-	count: number,
-	timezone = "UTC",
-	now?: Date,
+  fields: string[],
+  count: number,
+  timezone = "UTC",
+  now?: Date,
 ): Date[] {
-	const minute = parseField(arrayGet(fields, 0), 0, 59, "numeric", "minute");
-	const hour = parseField(arrayGet(fields, 1), 0, 23, "numeric", "hour");
-	const dom = parseField(arrayGet(fields, 2), 1, 31, "numeric", "day-of-month");
-	const month = parseField(arrayGet(fields, 3), 1, 12, "month", "month");
-	const dow = parseField(arrayGet(fields, 4), 0, 7, "weekday", "weekday");
+  const minute = parseField(arrayGet(fields, 0), 0, 59, "numeric", "minute");
+  const hour = parseField(arrayGet(fields, 1), 0, 23, "numeric", "hour");
+  const dom = parseField(arrayGet(fields, 2), 1, 31, "numeric", "day-of-month");
+  const month = parseField(arrayGet(fields, 3), 1, 12, "month", "month");
+  const dow = parseField(arrayGet(fields, 4), 0, 7, "weekday", "weekday");
 
-	const results: Date[] = [];
-	const startTime = now ?? new Date();
+  const results: Date[] = [];
+  const startTime = now ?? new Date();
 
-	// Validate timezone early to provide clear error message
-	let formatter: Intl.DateTimeFormat;
-	try {
-		formatter = new Intl.DateTimeFormat("en-US", {
-			timeZone: timezone,
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: false,
-		});
-	} catch (_error) {
-		throw new Error(
-			`Invalid timezone: "${timezone}". Must be a valid IANA timezone identifier.`,
-		);
-	}
+  // Validate timezone early to provide clear error message
+  let formatter: Intl.DateTimeFormat;
+  try {
+    formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  } catch (_error) {
+    throw new Error(
+      `Invalid timezone: "${timezone}". Must be a valid IANA timezone identifier.`,
+    );
+  }
 
-	// Reuse Map to avoid per-iteration allocations
-	const partMap = new Map<string, string>();
+  // Reuse Map to avoid per-iteration allocations
+  const partMap = new Map<string, string>();
 
-	// Parse the formatted date to get components in the target timezone
-	function parseInTimezone(date: Date): {
-		year: number;
-		month: number;
-		day: number;
-		hour: number;
-		minute: number;
-		dow: number;
-	} {
-		const parts = formatter.formatToParts(date);
+  // Parse the formatted date to get components in the target timezone
+  function parseInTimezone(date: Date): {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    dow: number;
+  } {
+    const parts = formatter.formatToParts(date);
 
-		// Clear and rebuild lookup map
-		partMap.clear();
-		for (const part of parts) {
-			partMap.set(part.type, part.value);
-		}
+    // Clear and rebuild lookup map
+    partMap.clear();
+    for (const part of parts) {
+      partMap.set(part.type, part.value);
+    }
 
-		const get = (type: string) => partMap.get(type) ?? "0";
+    const get = (type: string) => partMap.get(type) ?? "0";
 
-		const year = Number.parseInt(get("year"), 10);
-		const month = Number.parseInt(get("month"), 10);
-		const day = Number.parseInt(get("day"), 10);
-		let parsedHour = Number.parseInt(get("hour"), 10);
-		const parsedMinute = Number.parseInt(get("minute"), 10);
+    const year = Number.parseInt(get("year"), 10);
+    const month = Number.parseInt(get("month"), 10);
+    const day = Number.parseInt(get("day"), 10);
+    let parsedHour = Number.parseInt(get("hour"), 10);
+    const parsedMinute = Number.parseInt(get("minute"), 10);
 
-		// Normalize potential "24" hour at midnight to 0 to ensure cron hour=0 matches
-		if (parsedHour === 24) {
-			parsedHour = 0;
-		}
+    // Normalize potential "24" hour at midnight to 0 to ensure cron hour=0 matches
+    if (parsedHour === 24) {
+      parsedHour = 0;
+    }
 
-		// Compute day-of-week from the UTC date derived from year/month/day only,
-		// to avoid hour/minute parsing edge cases
-		const parsedDow = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+    // Compute day-of-week from the UTC date derived from year/month/day only,
+    // to avoid hour/minute parsing edge cases
+    const parsedDow = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 
-		return {
-			year,
-			month,
-			day,
-			hour: parsedHour,
-			minute: parsedMinute,
-			dow: parsedDow,
-		};
-	}
+    return {
+      year,
+      month,
+      day,
+      hour: parsedHour,
+      minute: parsedMinute,
+      dow: parsedDow,
+    };
+  }
 
-	// Start from next minute in the target timezone
-	const current = new Date(startTime.getTime() + 60000);
-	current.setSeconds(0, 0);
+  // Start from next minute in the target timezone
+  const current = new Date(startTime.getTime() + 60000);
+  current.setSeconds(0, 0);
 
-	// Cap on loop iterations (not minutes). With skipTo(), a single iteration
-	// can advance by hours/days/months, so this may scan beyond one calendar year.
-	const maxIterations = 525600;
-	let iterations = 0;
+  // Cap on loop iterations (not minutes). With skipTo(), a single iteration
+  // can advance by hours/days/months, so this may scan beyond one calendar year.
+  const maxIterations = 525600;
+  let iterations = 0;
 
-	// Advance `current` to the target local boundary in the given timezone.
-	// Uses parseInTimezone to verify the landing, compensating for DST shifts
-	// including non-standard offsets (e.g., Australia/Lord_Howe ±30 min).
-	function skipTo(
-		target: "nextMonth" | "nextDay" | "nextHour",
-		parsed: {
-			year: number;
-			month: number;
-			day: number;
-			hour: number;
-			minute: number;
-		},
-	): void {
-		// Estimate jump in minutes (assuming no DST), then verify with parseInTimezone
-		let estimateMinutes: number;
-		switch (target) {
-			case "nextMonth": {
-				const daysInMonth = new Date(parsed.year, parsed.month, 0).getDate();
-				const remaining = daysInMonth - parsed.day;
-				estimateMinutes =
-					remaining * 1440 + (1440 - parsed.hour * 60 - parsed.minute);
-				break;
-			}
-			case "nextDay":
-				estimateMinutes = 1440 - parsed.hour * 60 - parsed.minute;
-				break;
-			case "nextHour":
-				estimateMinutes = 60 - parsed.minute;
-				break;
-		}
+  // Advance `current` to the target local boundary in the given timezone.
+  // Uses parseInTimezone to verify the landing, compensating for DST shifts
+  // including non-standard offsets (e.g., Australia/Lord_Howe ±30 min).
+  function skipTo(
+    target: "nextMonth" | "nextDay" | "nextHour",
+    parsed: {
+      year: number;
+      month: number;
+      day: number;
+      hour: number;
+      minute: number;
+    },
+  ): void {
+    // Estimate jump in minutes (assuming no DST), then verify with parseInTimezone
+    let estimateMinutes: number;
+    switch (target) {
+      case "nextMonth": {
+        const daysInMonth = new Date(parsed.year, parsed.month, 0).getDate();
+        const remaining = daysInMonth - parsed.day;
+        estimateMinutes =
+          remaining * 1440 + (1440 - parsed.hour * 60 - parsed.minute);
+        break;
+      }
+      case "nextDay":
+        estimateMinutes = 1440 - parsed.hour * 60 - parsed.minute;
+        break;
+      case "nextHour":
+        estimateMinutes = 60 - parsed.minute;
+        break;
+    }
 
-		// Jump using the estimate, then verify with parseInTimezone.
-		// DST can shift by ±30 or ±60 min. Adjustments must keep current >= preSkip.
-		const preSkip = current.getTime();
-		current.setTime(preSkip + estimateMinutes * 60000);
+    // Jump using the estimate, then verify with parseInTimezone.
+    // DST can shift by ±30 or ±60 min. Adjustments must keep current >= preSkip.
+    const preSkip = current.getTime();
+    current.setTime(preSkip + estimateMinutes * 60000);
 
-		const landed = parseInTimezone(current);
-		if (target === "nextHour") {
-			// We expect minute=0; advance forward to reach it
-			if (landed.minute !== 0) {
-				current.setTime(current.getTime() + (60 - landed.minute) * 60000);
-			}
-		} else {
-			// nextMonth/nextDay: we expect hour=0, minute=0
-			const driftMin = landed.hour * 60 + landed.minute;
-			if (driftMin !== 0) {
-				if (landed.hour > 12) {
-					// Undershot (e.g., 23:00): advance forward to cross midnight
-					current.setTime(current.getTime() + (1440 - driftMin) * 60000);
-				} else {
-					// Overshot (e.g., 01:00 from spring-forward): correct back
-					// to 00:00 only if it stays past the pre-skip timestamp
-					const corrected = current.getTime() - driftMin * 60000;
-					if (corrected > preSkip) {
-						current.setTime(corrected);
-					}
-					// If correction would go backward, accept the overshoot
-				}
-			}
-		}
-	}
+    const landed = parseInTimezone(current);
+    if (target === "nextHour") {
+      // We expect minute=0; advance forward to reach it
+      if (landed.minute !== 0) {
+        current.setTime(current.getTime() + (60 - landed.minute) * 60000);
+      }
+    } else {
+      // nextMonth/nextDay: we expect hour=0, minute=0
+      const driftMin = landed.hour * 60 + landed.minute;
+      if (driftMin !== 0) {
+        if (landed.hour > 12) {
+          // Undershot (e.g., 23:00): advance forward to cross midnight
+          current.setTime(current.getTime() + (1440 - driftMin) * 60000);
+        } else {
+          // Overshot (e.g., 01:00 from spring-forward): correct back
+          // to 00:00 only if it stays past the pre-skip timestamp
+          const corrected = current.getTime() - driftMin * 60000;
+          if (corrected > preSkip) {
+            current.setTime(corrected);
+          }
+          // If correction would go backward, accept the overshoot
+        }
+      }
+    }
+  }
 
-	while (results.length < count && iterations < maxIterations) {
-		iterations++;
+  while (results.length < count && iterations < maxIterations) {
+    iterations++;
 
-		const parsed = parseInTimezone(current);
+    const parsed = parseInTimezone(current);
 
-		// Skip forward when higher-level fields don't match
-		if (!month.values.has(parsed.month)) {
-			skipTo("nextMonth", parsed);
-			continue;
-		}
+    // Skip forward when higher-level fields don't match
+    if (!month.values.has(parsed.month)) {
+      skipTo("nextMonth", parsed);
+      continue;
+    }
 
-		if (!dom.values.has(parsed.day) || !dow.values.has(parsed.dow)) {
-			skipTo("nextDay", parsed);
-			continue;
-		}
+    if (!dom.values.has(parsed.day) || !dow.values.has(parsed.dow)) {
+      skipTo("nextDay", parsed);
+      continue;
+    }
 
-		if (!hour.values.has(parsed.hour)) {
-			skipTo("nextHour", parsed);
-			continue;
-		}
+    if (!hour.values.has(parsed.hour)) {
+      skipTo("nextHour", parsed);
+      continue;
+    }
 
-		if (minute.values.has(parsed.minute)) {
-			results.push(new Date(current));
-		}
+    if (minute.values.has(parsed.minute)) {
+      results.push(new Date(current));
+    }
 
-		current.setTime(current.getTime() + 60000); // Add 1 minute
-	}
+    current.setTime(current.getTime() + 60000); // Add 1 minute
+  }
 
-	return results;
+  return results;
 }
 
 export function execute(input: Input): string {
-	let expression = input.expression.trim();
+  let expression = input.expression.trim();
 
-	if (Object.hasOwn(cronAliases, expression)) {
-		expression = objGet(cronAliases, expression);
-		if (expression === "") {
-			throw new Error("@reboot is not supported (systemd-only)");
-		}
-	}
+  if (Object.hasOwn(cronAliases, expression)) {
+    expression = objGet(cronAliases, expression);
+    if (expression === "") {
+      throw new Error("@reboot is not supported (systemd-only)");
+    }
+  }
 
-	const fields = expression.split(/\s+/);
-	if (fields.length !== 5) {
-		throw new Error(
-			`Expected 5 fields (minute hour dom month dow), got ${fields.length}`,
-		);
-	}
+  const fields = expression.split(/\s+/);
+  if (fields.length !== 5) {
+    throw new Error(
+      `Expected 5 fields (minute hour dom month dow), got ${fields.length}`,
+    );
+  }
 
-	const count = input.count ?? 5;
-	const timezone = input.timezone ?? "UTC";
-	const occurrences = getNextOccurrences(fields, count, timezone);
+  const count = input.count ?? 5;
+  const timezone = input.timezone ?? "UTC";
+  const occurrences = getNextOccurrences(fields, count, timezone);
 
-	return JSON.stringify(
-		{
-			expression: input.expression,
-			description: describeCron(fields),
-			nextOccurrences: occurrences.map((d) => d.toISOString()),
-		},
-		null,
-		2,
-	);
+  return JSON.stringify(
+    {
+      expression: input.expression,
+      description: describeCron(fields),
+      nextOccurrences: occurrences.map((d) => d.toISOString()),
+    },
+    null,
+    2,
+  );
 }
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_LABELS = [
-	"",
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec",
+  "",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 function resolveToken(
-	token: string,
-	nameMap: Record<string, number>,
-	labels: string[],
-	isWeekday = false,
+  token: string,
+  nameMap: Record<string, number>,
+  labels: string[],
+  isWeekday = false,
 ): string {
-	const trimmed = token.trim();
-	const key = trimmed.toLowerCase();
-	if (Object.hasOwn(nameMap, key)) {
-		const index = objGet(nameMap, key);
-		return labels[index] ?? trimmed;
-	}
-	let num = Number.parseInt(trimmed, 10);
-	if (!Number.isNaN(num)) {
-		// Normalize weekday 7 → 0 (Sunday) for description consistency
-		if (isWeekday && num === 7) num = 0;
-		// Assign to a local variable so TypeScript can narrow the type to string
-		// (noUncheckedIndexedAccess makes repeated index access return string | undefined
-		// even after an undefined check, but a local variable correctly narrows)
-		const label = labels[num];
-		if (label !== undefined) return label;
-	}
-	return trimmed;
+  const trimmed = token.trim();
+  const key = trimmed.toLowerCase();
+  if (Object.hasOwn(nameMap, key)) {
+    const index = objGet(nameMap, key);
+    return labels[index] ?? trimmed;
+  }
+  let num = Number.parseInt(trimmed, 10);
+  if (!Number.isNaN(num)) {
+    // Normalize weekday 7 → 0 (Sunday) for description consistency
+    if (isWeekday && num === 7) num = 0;
+    // Assign to a local variable so TypeScript can narrow the type to string
+    // (noUncheckedIndexedAccess makes repeated index access return string | undefined
+    // even after an undefined check, but a local variable correctly narrows)
+    const label = labels[num];
+    if (label !== undefined) return label;
+  }
+  return trimmed;
 }
 
 function describeField(
-	field: string,
-	nameMap: Record<string, number>,
-	labels: string[],
-	isWeekday = false,
+  field: string,
+  nameMap: Record<string, number>,
+  labels: string[],
+  isWeekday = false,
 ): string {
-	return parseCronFieldTokens(field)
-		.map((token) => {
-			let desc: string;
-			if (token.rangeStart !== null && token.rangeEnd !== null) {
-				desc = `${resolveToken(token.rangeStart, nameMap, labels, isWeekday)}-${resolveToken(token.rangeEnd, nameMap, labels, isWeekday)}`;
-			} else if (token.isWildcard) {
-				desc = "*";
-			} else {
-				desc = resolveToken(token.range, nameMap, labels, isWeekday);
-			}
+  return parseCronFieldTokens(field)
+    .map((token) => {
+      let desc: string;
+      if (token.rangeStart !== null && token.rangeEnd !== null) {
+        desc = `${resolveToken(token.rangeStart, nameMap, labels, isWeekday)}-${resolveToken(token.rangeEnd, nameMap, labels, isWeekday)}`;
+      } else if (token.isWildcard) {
+        desc = "*";
+      } else {
+        desc = resolveToken(token.range, nameMap, labels, isWeekday);
+      }
 
-			return token.step > 1 ? `${desc}/${token.step}` : desc;
-		})
-		.join(", ");
+      return token.step > 1 ? `${desc}/${token.step}` : desc;
+    })
+    .join(", ");
 }
 
 function describeCron(fields: string[]): string {
-	const parts: string[] = [];
+  const parts: string[] = [];
 
-	const f0 = arrayGet(fields, 0);
-	const f1 = arrayGet(fields, 1);
-	const f2 = arrayGet(fields, 2);
-	const f3 = arrayGet(fields, 3);
-	const f4 = arrayGet(fields, 4);
+  const f0 = arrayGet(fields, 0);
+  const f1 = arrayGet(fields, 1);
+  const f2 = arrayGet(fields, 2);
+  const f3 = arrayGet(fields, 3);
+  const f4 = arrayGet(fields, 4);
 
-	if (f0 !== "*") parts.push(`at minute ${f0}`);
-	if (f1 !== "*") parts.push(`at hour ${f1}`);
-	if (f2 !== "*") parts.push(`on day ${f2}`);
-	if (f3 !== "*")
-		parts.push(`in month ${describeField(f3, MONTH_NAMES, MONTH_LABELS)}`);
-	if (f4 !== "*")
-		parts.push(`on ${describeField(f4, WEEKDAY_NAMES, DAY_LABELS, true)}`);
+  if (f0 !== "*") parts.push(`at minute ${f0}`);
+  if (f1 !== "*") parts.push(`at hour ${f1}`);
+  if (f2 !== "*") parts.push(`on day ${f2}`);
+  if (f3 !== "*")
+    parts.push(`in month ${describeField(f3, MONTH_NAMES, MONTH_LABELS)}`);
+  if (f4 !== "*")
+    parts.push(`on ${describeField(f4, WEEKDAY_NAMES, DAY_LABELS, true)}`);
 
-	return parts.length > 0 ? parts.join(", ") : "every minute";
+  return parts.length > 0 ? parts.join(", ") : "every minute";
 }
 
 export const tool: ToolDefinition = {
-	name: "cron_parse",
-	description: "Parse cron expression and return next N execution times",
-	schema,
-	handler: async (args: Record<string, unknown>) => {
-		const input = inputSchema.parse(args);
-		return execute(input);
-	},
+  name: "cron_parse",
+  description: "Parse cron expression and return next N execution times",
+  schema,
+  handler: async (args: Record<string, unknown>) => {
+    const input = inputSchema.parse(args);
+    return execute(input);
+  },
 };
