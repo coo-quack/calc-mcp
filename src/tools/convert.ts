@@ -2,10 +2,12 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
+const MAX_UNIT_LENGTH = 64;
+
 const schema = {
   value: z.number().describe("Value to convert"),
-  from: z.string().describe("Source unit"),
-  to: z.string().describe("Target unit"),
+  from: z.string().max(MAX_UNIT_LENGTH).describe("Source unit"),
+  to: z.string().max(MAX_UNIT_LENGTH).describe("Target unit"),
   category: z
     .enum([
       "length",

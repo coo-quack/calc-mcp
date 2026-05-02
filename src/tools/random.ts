@@ -29,6 +29,7 @@ const schema = {
     .describe("Maximum value for number generation (default: 100)"),
   charset: z
     .string()
+    .max(4096)
     .optional()
     .describe(
       "Custom character set for password (overrides uppercase/numbers/symbols options)",
@@ -47,6 +48,7 @@ const schema = {
     .describe("Include symbols in password (default: true)"),
   excludeChars: z
     .string()
+    .max(4096)
     .optional()
     .describe('Characters to exclude from password (e.g. "\\\\|{}")'),
   readable: z
@@ -56,7 +58,8 @@ const schema = {
       "Readable mode: excludes ambiguous characters (l/1/I/O/0/o) for easy reading",
     ),
   items: z
-    .array(z.string())
+    .array(z.string().max(10_000))
+    .max(10_000)
     .optional()
     .describe("Items to shuffle (for type=shuffle)"),
 };

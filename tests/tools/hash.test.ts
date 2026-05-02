@@ -96,13 +96,15 @@ describe("hash", () => {
   test("includes warning for MD5", () => {
     const result = parseHash(execute({ input: "test", algorithm: "md5" }));
     expect(result.warning).toBeDefined();
-    expect(result.warning).toContain("MD5 is cryptographically weak");
+    expect(result.warning).toContain("MD5 is cryptographically broken");
+    expect(result.warning).toContain("MUST NOT be used");
   });
 
   test("includes warning for SHA1", () => {
     const result = parseHash(execute({ input: "test", algorithm: "sha1" }));
     expect(result.warning).toBeDefined();
-    expect(result.warning).toContain("SHA1 is cryptographically weak");
+    expect(result.warning).toContain("SHA1 is cryptographically broken");
+    expect(result.warning).toContain("MUST NOT be used");
   });
 
   test("no warning for SHA256", () => {

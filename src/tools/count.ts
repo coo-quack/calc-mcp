@@ -1,8 +1,13 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_TEXT_LENGTH = 1_000_000;
+
 const schema = {
-  text: z.string().describe("Text to analyze"),
+  text: z
+    .string()
+    .max(MAX_TEXT_LENGTH, `Text too long (max: ${MAX_TEXT_LENGTH} chars)`)
+    .describe("Text to analyze"),
   encoding: z
     .enum(["utf8", "shift_jis"])
     .optional()

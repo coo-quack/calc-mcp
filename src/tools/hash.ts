@@ -3,8 +3,14 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
+const MAX_INPUT_LENGTH = 1_000_000;
+const MAX_KEY_LENGTH = 4_096;
+
 const schema = {
-  input: z.string().describe("String to hash"),
+  input: z
+    .string()
+    .max(MAX_INPUT_LENGTH, `Input too long (max: ${MAX_INPUT_LENGTH} chars)`)
+    .describe("String to hash"),
   algorithm: z
     .enum(["md5", "sha1", "sha256", "sha512", "crc32"])
     .describe("Hash algorithm to use"),
@@ -12,7 +18,11 @@ const schema = {
     .enum(["hash", "hmac"])
     .optional()
     .describe("Action: hash (default) or hmac"),
-  key: z.string().optional().describe("Secret key for HMAC"),
+  key: z
+    .string()
+    .max(MAX_KEY_LENGTH, `Key too long (max: ${MAX_KEY_LENGTH} chars)`)
+    .optional()
+    .describe("Secret key for HMAC"),
 };
 
 const inputSchema = z.object(schema);
@@ -46,7 +56,7 @@ export function execute(input: Input): string {
   const action = input.action ?? "hash";
 
   const warning = WEAK_ALGORITHMS.has(input.algorithm)
-    ? `${input.algorithm.toUpperCase()} is cryptographically weak. Consider SHA-256 or SHA-512 instead.`
+    ? `${input.algorithm.toUpperCase()} is cryptographically broken and MUST NOT be used for security (passwords, signatures, integrity, HMAC keys derived from MD5/SHA1, etc.). Use SHA-256 or SHA-512 instead. Acceptable only for non-security checksums.`
     : undefined;
 
   let hash: string;
@@ -73,7 +83,7 @@ export function execute(input: Input): string {
 export const tool: ToolDefinition = {
   name: "hash",
   description:
-    "Compute hash or HMAC of a string using MD5, SHA1, SHA256, SHA512, or CRC32. Note: MD5 and SHA1 are cryptographically weak.",
+    "Compute hash or HMAC of a string using MD5, SHA1, SHA256, SHA512, or CRC32. WARNING: MD5 and SHA1 are cryptographically broken and MUST NOT be used for security (use SHA-256 or SHA-512 instead).",
   schema,
   handler: async (args: Record<string, unknown>) => {
     const input = inputSchema.parse(args);

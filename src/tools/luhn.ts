@@ -1,9 +1,12 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_NUMBER_LENGTH = 256;
+
 const schema = {
   number: z
     .string()
+    .max(MAX_NUMBER_LENGTH)
     .describe("Number string to validate or generate check digit for"),
   action: z
     .enum(["validate", "generate"])

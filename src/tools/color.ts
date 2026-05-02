@@ -165,9 +165,12 @@ const namedColors: Record<string, RGB> = {
   yellowgreen: { r: 154, g: 205, b: 50 },
 };
 
+const MAX_COLOR_LENGTH = 256;
+
 const schema = {
   color: z
     .string()
+    .max(MAX_COLOR_LENGTH)
     .describe(
       "Color value: #hex (3/4/6/8 digits), rgb(r,g,b), rgba(r,g,b,a), hsl(h,s%,l%), hsla(h,s%,l%,a), or named color",
     ),

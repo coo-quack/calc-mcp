@@ -1,8 +1,13 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_URL_LENGTH = 8192;
+
 const schema = {
-  url: z.string().describe("URL to parse"),
+  url: z
+    .string()
+    .max(MAX_URL_LENGTH, `URL too long (max: ${MAX_URL_LENGTH} chars)`)
+    .describe("URL to parse"),
 };
 
 const inputSchema = z.object(schema);
