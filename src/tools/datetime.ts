@@ -3,6 +3,10 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
+const MAX_TIMEZONE_LENGTH = 64;
+const MAX_DATETIME_LENGTH = 64;
+const MAX_FORMAT_LENGTH = 1024;
+
 const schema = {
   action: z
     .enum(["now", "convert", "format", "timestamp"])
@@ -11,19 +15,27 @@ const schema = {
     ),
   timezone: z
     .string()
+    .max(MAX_TIMEZONE_LENGTH)
     .optional()
     .describe("IANA timezone (e.g. Asia/Tokyo, America/New_York)"),
   datetime: z
     .string()
+    .max(MAX_DATETIME_LENGTH)
     .optional()
     .describe("ISO8601 datetime string for convert/format"),
   fromTimezone: z
     .string()
+    .max(MAX_TIMEZONE_LENGTH)
     .optional()
     .describe("Source timezone for conversion"),
-  toTimezone: z.string().optional().describe("Target timezone for conversion"),
+  toTimezone: z
+    .string()
+    .max(MAX_TIMEZONE_LENGTH)
+    .optional()
+    .describe("Target timezone for conversion"),
   format: z
     .string()
+    .max(MAX_FORMAT_LENGTH)
     .optional()
     .describe(
       "Output format: iso, date, time, full, short, or date-fns pattern (e.g. yyyy/MM/dd HH:mm), or Intl JSON options",

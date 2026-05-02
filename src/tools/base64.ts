@@ -1,8 +1,13 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_INPUT_LENGTH = 1_000_000;
+
 const schema = {
-  input: z.string().describe("String to encode or decode"),
+  input: z
+    .string()
+    .max(MAX_INPUT_LENGTH, `Input too long (max: ${MAX_INPUT_LENGTH} chars)`)
+    .describe("String to encode or decode"),
   action: z.enum(["encode", "decode"]).describe("Whether to encode or decode"),
 };
 

@@ -170,4 +170,44 @@ describe("regex", () => {
       }),
     ).toThrow(/too long/);
   });
+
+  test("rejects pattern with nested ? quantifier (a?)+", () => {
+    expect(() =>
+      execute({
+        pattern: "(a?)+",
+        text: "aaa",
+        action: "test",
+      }),
+    ).toThrow(/nested quantifiers/);
+  });
+
+  test("rejects pattern with very large bounded repeat", () => {
+    expect(() =>
+      execute({
+        pattern: "a{10000}",
+        text: "a",
+        action: "test",
+      }),
+    ).toThrow(/Bounded repeat too large/);
+  });
+
+  test("does not flag escaped parentheses as nested quantifiers", () => {
+    expect(() =>
+      execute({
+        pattern: "\\(a+\\)+",
+        text: "(aaa)",
+        action: "test",
+      }),
+    ).not.toThrow();
+  });
+
+  test("does not flag character class containing parentheses", () => {
+    expect(() =>
+      execute({
+        pattern: "[()]+",
+        text: "()()",
+        action: "test",
+      }),
+    ).not.toThrow();
+  });
 });

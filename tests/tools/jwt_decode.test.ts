@@ -39,4 +39,11 @@ describe("jwt_decode", () => {
     expect(result.payload.data).toBe("test");
     expect(result.dates).toBeUndefined();
   });
+
+  test("output always includes a no-verification warning", () => {
+    const token = "eyJhbGciOiJub25lIn0.eyJkYXRhIjoidGVzdCJ9.";
+    const result = JSON.parse(execute({ token }));
+    expect(result.warning).toBeDefined();
+    expect(result.warning).toMatch(/NOT verified/);
+  });
 });

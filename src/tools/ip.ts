@@ -2,15 +2,25 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { arrayGet } from "../utils.js";
 
+const MAX_IP_LENGTH = 64;
+
 const schema = {
   action: z
     .enum(["info", "contains", "range"])
     .describe(
       "info: IP details, contains: check if IP in CIDR, range: CIDR range",
     ),
-  ip: z.string().optional().describe("IP address"),
-  cidr: z.string().optional().describe("CIDR notation (e.g. 192.168.1.0/24)"),
-  target: z.string().optional().describe("Target IP to check against CIDR"),
+  ip: z.string().max(MAX_IP_LENGTH).optional().describe("IP address"),
+  cidr: z
+    .string()
+    .max(MAX_IP_LENGTH)
+    .optional()
+    .describe("CIDR notation (e.g. 192.168.1.0/24)"),
+  target: z
+    .string()
+    .max(MAX_IP_LENGTH)
+    .optional()
+    .describe("Target IP to check against CIDR"),
 };
 
 const inputSchema = z.object(schema);

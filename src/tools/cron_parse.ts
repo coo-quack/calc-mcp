@@ -2,15 +2,32 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { arrayGet, matchGet, objGet } from "../utils.js";
 
+const MAX_EXPRESSION_LENGTH = 256;
+const MAX_TIMEZONE_LENGTH = 64;
+const MAX_COUNT = 100;
+
 const schema = {
   expression: z
     .string()
+    .max(
+      MAX_EXPRESSION_LENGTH,
+      `Expression too long (max: ${MAX_EXPRESSION_LENGTH} chars)`,
+    )
     .describe("Cron expression (5 fields: min hour dom mon dow)"),
   count: z
     .number()
+    .int()
+    .min(1)
+    .max(MAX_COUNT)
     .optional()
-    .describe("Number of next occurrences to return (default: 5)"),
-  timezone: z.string().optional().describe("IANA timezone (default: UTC)"),
+    .describe(
+      `Number of next occurrences to return (default: 5, max: ${MAX_COUNT})`,
+    ),
+  timezone: z
+    .string()
+    .max(MAX_TIMEZONE_LENGTH)
+    .optional()
+    .describe("IANA timezone (default: UTC)"),
 };
 
 const inputSchema = z.object(schema);

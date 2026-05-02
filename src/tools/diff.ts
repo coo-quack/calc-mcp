@@ -2,9 +2,20 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
+// Levenshtein distance is O(m*n) in time and memory (allocates an (m+1)*(n+1)
+// table). A 10_000 char cap keeps the worst case at ~10^8 cells — bounded yet
+// well above realistic LLM-supplied inputs.
+const MAX_TEXT_LENGTH = 10_000;
+
 const schema = {
-  text1: z.string().describe("First text"),
-  text2: z.string().describe("Second text"),
+  text1: z
+    .string()
+    .max(MAX_TEXT_LENGTH, `Text too long (max: ${MAX_TEXT_LENGTH} chars)`)
+    .describe("First text"),
+  text2: z
+    .string()
+    .max(MAX_TEXT_LENGTH, `Text too long (max: ${MAX_TEXT_LENGTH} chars)`)
+    .describe("Second text"),
   action: z
     .enum(["diff", "distance"])
     .optional()

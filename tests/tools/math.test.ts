@@ -81,4 +81,32 @@ describe("math", () => {
     // mathjs has its own scope and does not have access to global objects
     expect(() => execute({ expression: "window['import']" })).toThrow();
   });
+
+  test("rejects oversized factorial argument", () => {
+    expect(() => execute({ expression: "factorial(10000)" })).toThrow(
+      /factorial argument too large/,
+    );
+  });
+
+  test("rejects oversized factorial via ! operator", () => {
+    expect(() => execute({ expression: "10000!" })).toThrow(
+      /factorial argument too large/,
+    );
+  });
+
+  test("allows factorial within safe bound", () => {
+    expect(execute({ expression: "5!" })).toBe("120");
+  });
+
+  test("rejects oversized combinations argument", () => {
+    expect(() => execute({ expression: "combinations(1000000, 2)" })).toThrow(
+      /combinations argument too large/,
+    );
+  });
+
+  test("rejects oversized permutations argument", () => {
+    expect(() => execute({ expression: "permutations(1000000, 2)" })).toThrow(
+      /permutations argument too large/,
+    );
+  });
 });
