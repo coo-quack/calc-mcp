@@ -11,6 +11,8 @@
 
 # Changelog
 
+All notable changes to Calc MCP are documented here.
+
 ## v2.0.0 (2026-03-15)
 
 ### BREAKING CHANGES
@@ -73,9 +75,6 @@
 ### Chores
 
 - Update Renovate configuration with automerge on CI success
-
-
-All notable changes to Calc MCP are documented here.
 
 ## v1.9.0 (2026-02-27)
 
