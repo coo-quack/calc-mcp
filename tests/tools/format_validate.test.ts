@@ -239,13 +239,12 @@ describe("format_validate", () => {
   });
 
   test("limits YAML alias expansion (billion-laughs DoS)", () => {
-    // Construct a YAML with excessive alias references
+    // Exceed the configured maxAliasCount (100) so the parser must reject it.
+    const aliasCount = 101;
+    const aliases = Array.from({ length: aliasCount }, () => "*a").join(",");
     const yaml = `a: &a [1,1,1,1,1,1,1,1,1,1]
-b: [*a,*a,*a,*a,*a,*a,*a,*a,*a,*a,*a,*a,*a,*a,*a]`;
+b: [${aliases}]`;
     const result = JSON.parse(execute({ input: yaml, format: "yaml" }));
-    // With low maxAliasCount this should be rejected (or accepted up to the cap).
-    // The intent here is just to verify the option is wired up; with our cap of
-    // 100, this small example should still parse, but the cap exists.
-    expect(result).toBeDefined();
+    expect(result.valid).toBe(false);
   });
 });
