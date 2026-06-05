@@ -1,3 +1,4 @@
+import { isIP } from "node:net";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { arrayGet } from "../utils.js";
@@ -47,7 +48,7 @@ function numToIpv4(num: number): string {
 }
 
 function isIPv6(ip: string): boolean {
-  return ip.includes(":");
+  return isIP(ip) === 6;
 }
 
 function getIpv4Class(firstOctet: number): string {
