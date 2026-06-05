@@ -296,11 +296,11 @@ export function execute(input: Input): string {
   const supported = Object.keys(table).join(", ");
   if (!(fromLower in table))
     throw new Error(
-      `Unknown unit '${from}' in ${category}. Supported: ${supported}`,
+      `Unknown unit '${from}' in ${category}. Supported units: ${supported}`,
     );
   if (!(toLower in table))
     throw new Error(
-      `Unknown unit '${to}' in ${category}. Supported: ${supported}`,
+      `Unknown unit '${to}' in ${category}. Supported units: ${supported}`,
     );
 
   const result =

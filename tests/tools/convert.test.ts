@@ -54,13 +54,13 @@ describe("convert", () => {
 
   test("unknown unit throws with supported list", () => {
     expect(() => execute({ value: 1, from: "xyz", to: "abc" })).toThrow(
-      "Supported units",
+      /Unknown unit.*Supported units:/i,
     );
   });
 
   test("unknown unit in category throws with supported list", () => {
     expect(() =>
       execute({ value: 1, from: "m", to: "xyz", category: "length" }),
-    ).toThrow("Supported");
+    ).toThrow(/Unknown unit.*Supported units:/i);
   });
 });
