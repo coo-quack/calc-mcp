@@ -56,7 +56,7 @@ export function execute(input: Input): string {
   const action = input.action ?? "hash";
 
   const warning = WEAK_ALGORITHMS.has(input.algorithm)
-    ? `${input.algorithm.toUpperCase()} is cryptographically broken and MUST NOT be used for security (passwords, signatures, integrity, HMAC keys derived from MD5/SHA1, etc.). Use SHA-256 or SHA-512 instead. Acceptable only for non-security checksums.`
+    ? `${input.algorithm.toUpperCase()} is cryptographically broken for collision-resistant security uses such as signatures and unkeyed integrity checks, and MUST NOT be used there. HMAC is a different keyed construction and is not broken by these collision attacks in the same way, but SHA-256 or SHA-512 should be preferred for new security-sensitive use. Acceptable only for non-security checksums.`
     : undefined;
 
   let hash: string;
