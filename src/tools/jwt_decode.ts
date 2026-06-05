@@ -79,7 +79,7 @@ export function execute(input: Input): string {
 export const tool: ToolDefinition = {
   name: "jwt_decode",
   description:
-    "Decode JWT token header and payload for inspection only. WARNING: this tool does NOT verify the signature; never trust the payload for authentication or authorization without separate signature verification using the issuer's public key.",
+    "Decode JWT token header and payload for inspection only. WARNING: this tool does NOT verify the signature; never trust the payload for authentication or authorization without separate signature verification using the issuer's verification key (shared secret or public key, depending on alg).",
   schema,
   handler: async (args: Record<string, unknown>) => {
     const input = inputSchema.parse(args);
