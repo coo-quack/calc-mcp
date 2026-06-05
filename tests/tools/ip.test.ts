@@ -53,4 +53,24 @@ describe("ip", () => {
     expect(result.lastHost).toBe("10.0.0.254");
     expect(result.hostCount).toBe(254);
   });
+
+  test("range - invalid CIDR notation (missing prefix length)", () => {
+    expect(() => execute({ action: "range", cidr: "192.168.1.0" })).toThrow();
+  });
+
+  test("range - CIDR with invalid IP address", () => {
+    expect(() =>
+      execute({ action: "range", cidr: "999.999.999.0/24" }),
+    ).toThrow();
+  });
+
+  test("range - prefix length outside 0-32", () => {
+    expect(() =>
+      execute({ action: "range", cidr: "192.168.1.0/33" }),
+    ).toThrow();
+  });
+
+  test("info - malformed IPv6 address", () => {
+    expect(() => execute({ action: "info", ip: ":::1" })).toThrow();
+  });
 });
