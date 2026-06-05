@@ -2,16 +2,24 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
+const MAX_VERSION_LENGTH = 256;
+const MAX_RANGE_LENGTH = 1024;
+
 const schema = {
   action: z
     .enum(["compare", "valid", "satisfies", "parse"])
     .describe(
       "compare: compare two versions, valid: check validity, satisfies: range match, parse: extract components",
     ),
-  version: z.string().describe("Semver version string"),
-  version2: z.string().optional().describe("Second version for compare"),
+  version: z.string().max(MAX_VERSION_LENGTH).describe("Semver version string"),
+  version2: z
+    .string()
+    .max(MAX_VERSION_LENGTH)
+    .optional()
+    .describe("Second version for compare"),
   range: z
     .string()
+    .max(MAX_RANGE_LENGTH)
     .optional()
     .describe("Version range for satisfies (e.g. ^1.0.0)"),
 };

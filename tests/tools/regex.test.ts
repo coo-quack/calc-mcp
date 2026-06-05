@@ -32,9 +32,9 @@ describe("regex", () => {
         action: "matchAll",
       }),
     );
-    expect(result).toHaveLength(3);
-    expect(result[0].match).toBe("1");
-    expect(result[2].match).toBe("3");
+    expect(result.matches).toHaveLength(3);
+    expect(result.matches[0].match).toBe("1");
+    expect(result.matches[2].match).toBe("3");
   });
 
   test("replace works correctly", () => {
@@ -51,9 +51,9 @@ describe("regex", () => {
     const result = JSON.parse(
       execute({ pattern: "\\d+", text: "a1b2c3", action: "matchAll" }),
     );
-    expect(result).toHaveLength(3);
-    expect(result[0].match).toBe("1");
-    expect(result[2].match).toBe("3");
+    expect(result.matches).toHaveLength(3);
+    expect(result.matches[0].match).toBe("1");
+    expect(result.matches[2].match).toBe("3");
   });
 
   test("works with flags", () => {
@@ -169,5 +169,93 @@ describe("regex", () => {
         action: "test",
       }),
     ).toThrow(/too long/);
+  });
+
+  test("rejects pattern with nested ? quantifier (a?)+", () => {
+    expect(() =>
+      execute({
+        pattern: "(a?)+",
+        text: "aaa",
+        action: "test",
+      }),
+    ).toThrow(/nested quantifiers/);
+  });
+
+  test("rejects pattern with very large bounded repeat", () => {
+    expect(() =>
+      execute({
+        pattern: "a{10000}",
+        text: "a",
+        action: "test",
+      }),
+    ).toThrow(/Bounded repeat too large/);
+  });
+
+  test("does not flag escaped parentheses as nested quantifiers", () => {
+    expect(() =>
+      execute({
+        pattern: "\\(a+\\)+",
+        text: "(aaa)",
+        action: "test",
+      }),
+    ).not.toThrow();
+  });
+
+  test("does not flag character class containing parentheses", () => {
+    expect(() =>
+      execute({
+        pattern: "[()]+",
+        text: "()()",
+        action: "test",
+      }),
+    ).not.toThrow();
+  });
+
+  test("match truncates results when matches exceed MAX_MATCH_COUNT", () => {
+    const text = "a".repeat(1001);
+    const result = JSON.parse(execute({ pattern: "a", text, action: "match" }));
+    expect(result.matches).toHaveLength(1000);
+    expect(result.truncated).toBe(true);
+  });
+
+  test("match does not truncate when matches equal MAX_MATCH_COUNT", () => {
+    const text = "a".repeat(1000);
+    const result = JSON.parse(execute({ pattern: "a", text, action: "match" }));
+    expect(result.matches).toHaveLength(1000);
+    expect(result.truncated).toBeUndefined();
+  });
+
+  test("match does not set truncated when matches are within limit", () => {
+    const result = JSON.parse(
+      execute({ pattern: "\\d+", text: "a1b2c3", action: "match" }),
+    );
+    expect(result.matches).toHaveLength(3);
+    expect(result.truncated).toBeUndefined();
+  });
+
+  test("matchAll truncates results when matches exceed MAX_MATCH_COUNT", () => {
+    const text = "a".repeat(1001);
+    const result = JSON.parse(
+      execute({ pattern: "a", text, action: "matchAll" }),
+    );
+    expect(result.matches).toHaveLength(1000);
+    expect(result.truncated).toBe(true);
+  });
+
+  test("matchAll does not truncate when matches equal MAX_MATCH_COUNT", () => {
+    const text = "a".repeat(1000);
+    const result = JSON.parse(
+      execute({ pattern: "a", text, action: "matchAll" }),
+    );
+    expect(result.matches).toHaveLength(1000);
+    expect(result.truncated).toBeUndefined();
+  });
+
+  test("matchAll does not set truncated when matches are within limit", () => {
+    const result = JSON.parse(
+      execute({ pattern: "\\d+", text: "a1b2c3", action: "matchAll" }),
+    );
+    expect(result.matches).toHaveLength(3);
+    expect(result.truncated).toBeUndefined();
   });
 });

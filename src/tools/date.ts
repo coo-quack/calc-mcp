@@ -15,13 +15,27 @@ import {
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_DATE_LENGTH = 64;
+// Bound the add amount to prevent producing dates outside the safe representable
+// range or otherwise pathological calculations. ~1e6 days ≈ 2737 years.
+const MAX_ADD_AMOUNT = 1_000_000;
+
 const schema = {
   action: z
     .enum(["diff", "add", "weekday", "wareki"])
     .describe("diff: date difference, add: add to date, weekday, wareki"),
-  date: z.string().describe("Date string (ISO8601)"),
-  date2: z.string().optional().describe("Second date for diff"),
-  amount: z.number().optional().describe("Amount to add"),
+  date: z.string().max(MAX_DATE_LENGTH).describe("Date string (ISO8601)"),
+  date2: z
+    .string()
+    .max(MAX_DATE_LENGTH)
+    .optional()
+    .describe("Second date for diff"),
+  amount: z
+    .number()
+    .min(-MAX_ADD_AMOUNT)
+    .max(MAX_ADD_AMOUNT)
+    .optional()
+    .describe("Amount to add"),
   unit: z
     .enum(["days", "months", "years", "hours", "minutes"])
     .optional()

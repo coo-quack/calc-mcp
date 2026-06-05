@@ -129,14 +129,79 @@ const DANGEROUS_PATTERNS = [
   /\bFunction\b/,
 ];
 
+// Argument bounds for combinatorial functions to prevent CPU/memory exhaustion.
+// `factorial(170)` is the largest value representable as a JS number; with
+// BigNumber we can go further but keep results human-readable.
+const MAX_FACTORIAL_ARG = 170;
+const MAX_COMBINATORIAL_ARG = 10_000;
+
+function toPlainNumber(v: unknown): number {
+  if (typeof v === "number") return v;
+  if (v && typeof v === "object" && "toNumber" in v) {
+    return (v as { toNumber: () => number }).toNumber();
+  }
+  return Number(v);
+}
+
+const originalFactorial = math.factorial;
+const originalCombinations = math.combinations;
+const originalPermutations = math.permutations;
+
+math.import(
+  {
+    factorial: (n: unknown) => {
+      const num = toPlainNumber(n);
+      if (!Number.isFinite(num) || num > MAX_FACTORIAL_ARG) {
+        throw new Error(
+          `factorial argument too large (max: ${MAX_FACTORIAL_ARG})`,
+        );
+      }
+      return (originalFactorial as (x: unknown) => unknown)(n);
+    },
+    combinations: (n: unknown, k: unknown) => {
+      const num = toPlainNumber(n);
+      if (!Number.isFinite(num) || num > MAX_COMBINATORIAL_ARG) {
+        throw new Error(
+          `combinations argument too large (max: ${MAX_COMBINATORIAL_ARG})`,
+        );
+      }
+      return (originalCombinations as (a: unknown, b: unknown) => unknown)(
+        n,
+        k,
+      );
+    },
+    permutations: (n: unknown, k: unknown) => {
+      const num = toPlainNumber(n);
+      if (!Number.isFinite(num) || num > MAX_COMBINATORIAL_ARG) {
+        throw new Error(
+          `permutations argument too large (max: ${MAX_COMBINATORIAL_ARG})`,
+        );
+      }
+      return (originalPermutations as (a: unknown, b: unknown) => unknown)(
+        n,
+        k,
+      );
+    },
+  },
+  { override: true },
+);
+
+const MAX_EXPRESSION_LENGTH = 4096;
+const MAX_VALUES = 100_000;
+
 const schema = {
-  expression: z.string().optional().describe("Math expression to evaluate"),
+  expression: z
+    .string()
+    .max(MAX_EXPRESSION_LENGTH)
+    .optional()
+    .describe("Math expression to evaluate"),
   action: z
     .enum(["eval", "statistics"])
     .optional()
     .describe("Action: eval (default) or statistics"),
   values: z
     .array(z.number())
+    .max(MAX_VALUES)
     .optional()
     .describe("Array of numbers for statistics"),
 };
