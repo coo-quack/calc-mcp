@@ -6,6 +6,7 @@ const TIMEOUT_MS = 1000;
 const MAX_PATTERN_LENGTH = 500;
 const MAX_TEXT_LENGTH = 1_000_000;
 const MAX_BOUNDED_REPEAT = 1000;
+const MAX_MATCH_COUNT = 1000;
 
 const schema = {
   pattern: z
@@ -169,7 +170,17 @@ export function execute(input: Input): string {
       return JSON.stringify({ match: result });
     }
     case "match": {
-      const matches = withTimeout(() => [...input.text.matchAll(regex)]);
+      const matches: RegExpExecArray[] = [];
+      let truncated = false;
+      withTimeout(() => {
+        for (const m of input.text.matchAll(regex)) {
+          if (matches.length >= MAX_MATCH_COUNT) {
+            truncated = true;
+            break;
+          }
+          matches.push(m);
+        }
+      });
       if (matches.length === 0) {
         return JSON.stringify({ matches: null, index: null, groups: null });
       }
@@ -178,17 +189,31 @@ export function execute(input: Input): string {
         matches: matches.map((m) => m[0]),
         index: firstMatch.index,
         groups: firstMatch.groups ?? null,
+        ...(truncated && { truncated: true }),
       });
     }
     case "matchAll": {
-      const matches = withTimeout(() => [...input.text.matchAll(regex)]);
+      const matches: RegExpExecArray[] = [];
+      let truncated = false;
+      withTimeout(() => {
+        for (const m of input.text.matchAll(regex)) {
+          if (matches.length >= MAX_MATCH_COUNT) {
+            truncated = true;
+            break;
+          }
+          matches.push(m);
+        }
+      });
       return JSON.stringify(
-        matches.map((m) => ({
-          match: m[0],
-          index: m.index,
-          groups: m.groups ?? null,
-          captures: m.slice(1),
-        })),
+        {
+          matches: matches.map((m) => ({
+            match: m[0],
+            index: m.index,
+            groups: m.groups ?? null,
+            captures: m.slice(1),
+          })),
+          ...(truncated && { truncated: true }),
+        },
         null,
         2,
       );
