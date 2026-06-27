@@ -1,8 +1,13 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_TOKEN_LENGTH = 32_768;
+
 const schema = {
-  token: z.string().describe("JWT token to decode"),
+  token: z
+    .string()
+    .max(MAX_TOKEN_LENGTH, `Token too long (max: ${MAX_TOKEN_LENGTH} chars)`)
+    .describe("JWT token to decode"),
 };
 
 const inputSchema = z.object(schema);
@@ -47,7 +52,12 @@ export function execute(input: Input): string {
     throw new Error("Failed to decode JWT payload");
   }
 
-  const result: Record<string, unknown> = { header, payload };
+  const result: Record<string, unknown> = {
+    header,
+    payload,
+    warning:
+      "Signature is NOT verified. Do not trust the payload for authentication or authorization without verifying the signature using the issuer's public key.",
+  };
 
   // Add human-readable dates for common timestamp fields
   if (typeof payload === "object" && payload !== null) {
@@ -69,7 +79,7 @@ export function execute(input: Input): string {
 export const tool: ToolDefinition = {
   name: "jwt_decode",
   description:
-    "Decode JWT token header and payload (no signature verification)",
+    "Decode JWT token header and payload for inspection only. WARNING: this tool does NOT verify the signature; never trust the payload for authentication or authorization without separate signature verification using the issuer's verification key (shared secret or public key, depending on alg).",
   schema,
   handler: async (args: Record<string, unknown>) => {
     const input = inputSchema.parse(args);

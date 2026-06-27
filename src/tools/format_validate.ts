@@ -3,8 +3,21 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { arrayGet, matchGet } from "../utils.js";
 
+// Cap raw input size to prevent CPU/memory exhaustion in JSON.parse,
+// the YAML parser, and the synchronous XML/CSV scanners.
+const MAX_INPUT_LENGTH = 1_000_000;
+
+// Limit JSON nesting to prevent CPU exhaustion via deeply nested objects.
+const MAX_JSON_DEPTH = 100;
+
+// yaml v2 option to limit alias expansions and prevent billion-laughs DoS.
+const MAX_YAML_ALIASES = 100;
+
 const schema = {
-  input: z.string().describe("String to validate/parse"),
+  input: z
+    .string()
+    .max(MAX_INPUT_LENGTH, `Input too long (max: ${MAX_INPUT_LENGTH} chars)`)
+    .describe("String to validate/parse"),
   format: z
     .enum(["json", "csv", "xml", "yaml"])
     .describe("Format to validate as"),
@@ -34,9 +47,21 @@ function getStructureInfo(parsed: unknown): {
   };
 }
 
+function assertJsonDepth(value: unknown, depth = 0): void {
+  if (depth > MAX_JSON_DEPTH) {
+    throw new Error(`JSON nesting too deep (max depth: ${MAX_JSON_DEPTH})`);
+  }
+  if (Array.isArray(value)) {
+    for (const v of value) assertJsonDepth(v, depth + 1);
+  } else if (typeof value === "object" && value !== null) {
+    for (const v of Object.values(value)) assertJsonDepth(v, depth + 1);
+  }
+}
+
 function validateJson(input: string): string {
   try {
     const parsed = JSON.parse(input);
+    assertJsonDepth(parsed);
     const type = getTypeOfParsed(parsed);
     return JSON.stringify({
       valid: true,
@@ -188,7 +213,10 @@ function isMultiDocumentError(message: string): boolean {
 function validateYaml(input: string): string {
   // YAML spec: empty/whitespace-only documents parse to null — let parse() handle them
   try {
-    const parsed = parse(input, { logLevel: "error" });
+    const parsed = parse(input, {
+      logLevel: "error",
+      maxAliasCount: MAX_YAML_ALIASES,
+    });
     const type = getTypeOfParsed(parsed);
 
     return JSON.stringify({

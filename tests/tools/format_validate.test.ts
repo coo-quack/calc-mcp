@@ -226,4 +226,25 @@ describe("format_validate", () => {
     expect(result.type).toBe("object");
     expect(result.keys).toEqual(["user"]);
   });
+
+  test("rejects deeply nested JSON to prevent CPU exhaustion", () => {
+    // Build 200-level nested object
+    let input = "0";
+    for (let i = 0; i < 200; i++) {
+      input = `{"a":${input}}`;
+    }
+    const result = JSON.parse(execute({ input, format: "json" }));
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/nesting too deep/);
+  });
+
+  test("limits YAML alias expansion (billion-laughs DoS)", () => {
+    // Exceed the configured maxAliasCount (100) so the parser must reject it.
+    const aliasCount = 101;
+    const aliases = Array.from({ length: aliasCount }, () => "*a").join(",");
+    const yaml = `a: &a [1,1,1,1,1,1,1,1,1,1]
+b: [${aliases}]`;
+    const result = JSON.parse(execute({ input: yaml, format: "yaml" }));
+    expect(result.valid).toBe(false);
+  });
 });

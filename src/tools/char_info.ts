@@ -1,8 +1,13 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+const MAX_CHAR_LENGTH = 10_000;
+
 const schema = {
-  char: z.string().describe("Character(s) to get info about"),
+  char: z
+    .string()
+    .max(MAX_CHAR_LENGTH, `Input too long (max: ${MAX_CHAR_LENGTH} chars)`)
+    .describe("Character(s) to get info about"),
 };
 
 const inputSchema = z.object(schema);

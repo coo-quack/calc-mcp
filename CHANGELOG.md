@@ -1,4 +1,17 @@
+## v2.0.1 (2026-03-31)
+
+### Security
+
+- Add `minimumReleaseAge` to renovate.json to prevent supply chain attacks
+  - Waits 7 days before auto-merging dependency updates
+  - Reduces risk of package takeover attacks
+  - Blocks immediate auto-merge of newly published packages
+
+---
+
 # Changelog
+
+All notable changes to Calc MCP are documented here.
 
 ## v2.0.0 (2026-03-15)
 
@@ -62,9 +75,6 @@
 ### Chores
 
 - Update Renovate configuration with automerge on CI success
-
-
-All notable changes to Calc MCP are documented here.
 
 ## v1.9.0 (2026-02-27)
 

@@ -2,9 +2,20 @@ import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
 
+// Levenshtein distance is O(m*n) in time and memory (allocates an (m+1)*(n+1)
+// table). Keep the cap low enough that the worst-case matrix stays practical
+// for the current full-table implementation (~10^6 cells at 1_000 chars).
+const MAX_TEXT_LENGTH = 1_000;
+
 const schema = {
-  text1: z.string().describe("First text"),
-  text2: z.string().describe("Second text"),
+  text1: z
+    .string()
+    .max(MAX_TEXT_LENGTH, `Text too long (max: ${MAX_TEXT_LENGTH} chars)`)
+    .describe("First text"),
+  text2: z
+    .string()
+    .max(MAX_TEXT_LENGTH, `Text too long (max: ${MAX_TEXT_LENGTH} chars)`)
+    .describe("Second text"),
   action: z
     .enum(["diff", "distance"])
     .optional()

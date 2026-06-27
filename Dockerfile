@@ -16,7 +16,7 @@ COPY . .
 RUN bun run build
 
 # Production image
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 

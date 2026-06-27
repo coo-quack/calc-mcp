@@ -1,12 +1,16 @@
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 
+// BigInt parse/format scales superlinearly; cap input at a generous but
+// bounded length so absurdly long inputs cannot stall the event loop.
+const MAX_VALUE_LENGTH = 10_000;
+
 const schema = {
   value: z
-    .union([z.string(), z.number()])
+    .union([z.string().max(MAX_VALUE_LENGTH), z.number()])
     .describe("Value to convert (string or number)"),
-  from: z.number().describe("Source base (2-36)"),
-  to: z.number().describe("Target base (2-36)"),
+  from: z.number().int().min(2).max(36).describe("Source base (2-36)"),
+  to: z.number().int().min(2).max(36).describe("Target base (2-36)"),
 };
 
 const inputSchema = z.object(schema);

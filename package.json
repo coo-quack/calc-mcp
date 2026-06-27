@@ -23,7 +23,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.14",
     "@types/bun": "latest",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.0",
     "vitepress": "^1.6.4"
   },
   "homepage": "https://coo-quack.github.io/calc-mcp/",
