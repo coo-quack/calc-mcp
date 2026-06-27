@@ -12,8 +12,7 @@ const TEST_TOKEN_WITH_TIMESTAMPS =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjIsIm5iZiI6MTUxNjIzNTQyMn0.RxR78hX7e8n1Wc2w3Tzjt0C2c-yYC6lYpJ8a2d4r6Wk";
 
 // Unsigned JWT (alg "none" with empty signature): {"alg":"none"}.{"data":"unsigned"}
-const UNSIGNED_TEST_TOKEN =
-  "eyJhbGciOiJub25lIn0.eyJkYXRhIjoidW5zaWduZWQifQ.";
+const UNSIGNED_TEST_TOKEN = "eyJhbGciOiJub25lIn0.eyJkYXRhIjoidW5zaWduZWQifQ.";
 
 // JWT with non-standard / custom claims:
 // Header:  {"alg":"HS256","typ":"JWT"}
