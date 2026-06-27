@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { execute } from "../../src/tools/semver.js";
 
+const ERROR_MISSING_VERSION2 = "version2 is required";
+const ERROR_MISSING_RANGE = "range is required";
+const ERROR_INVALID_VERSION = "Invalid version";
+
 describe("semver", () => {
   test("validates valid semver", () => {
     const result = JSON.parse(execute({ action: "valid", version: "1.2.3" }));
@@ -155,20 +159,20 @@ describe("semver", () => {
 
   test("throws on missing version2 for compare", () => {
     expect(() => execute({ action: "compare", version: "1.0.0" })).toThrow(
-      "version2 is required",
+      ERROR_MISSING_VERSION2,
     );
   });
 
   test("throws on missing range for satisfies", () => {
     expect(() => execute({ action: "satisfies", version: "1.0.0" })).toThrow(
-      "range is required",
+      ERROR_MISSING_RANGE,
     );
   });
 
   test("throws on invalid version for compare", () => {
     expect(() =>
       execute({ action: "compare", version: "bad", version2: "1.0.0" }),
-    ).toThrow("Invalid version");
+    ).toThrow(ERROR_INVALID_VERSION);
   });
 
   test("parse extracts components", () => {
