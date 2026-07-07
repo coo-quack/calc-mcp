@@ -24,7 +24,7 @@
     "@biomejs/biome": "^2.3.14",
     "@types/bun": "latest",
     "typescript": "^6.0.0",
-    "vitepress": "2.0.0-alpha.17"
+    "vitepress": "2.0.0-alpha.18"
   },
   "homepage": "https://coo-quack.github.io/calc-mcp/",
   "repository": {
