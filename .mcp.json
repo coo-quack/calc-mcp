@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "npx",
+      "args": [
+        "--prefix",
+        "${CLAUDE_PLUGIN_ROOT}/.npx-prefix",
+        "-y",
+        "@coo-quack/calc-mcp@2.0.3"
+      ]
+    }
+  }
+}
