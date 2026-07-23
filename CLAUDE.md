@@ -111,8 +111,8 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 ### Release PR Process
 
-1. **Branch**: Create `release/vX.Y.Z` from `main`
-2. **Version bump**: Update `version` in `package.json`
+1. **Branch**: Create `release/vX.Y.Z` from `develop`
+2. **Version bump**: Update `version` in `package.json`, the pinned version in `.claude-plugin/plugin.json` and `.mcp.json`, and the pinned `@coo-quack/calc-mcp@X.Y.Z` references in `README.md`, `docs/install.md`, `docs/getting-started.md`, and `docs/troubleshooting.md` (`tests/version-sync.test.ts` enforces this)
 3. **Changelog**: Update `CHANGELOG.md`
    - Add a new `## vX.Y.Z (YYYY-MM-DD)` section at the top (below the heading)
    - Categorize entries: Features, Bug Fixes, Improvements, Security, Tests, Documentation, etc.
