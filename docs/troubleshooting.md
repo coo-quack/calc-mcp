@@ -29,7 +29,7 @@ sh: calc-mcp: command not found
 This happens because npx resolves the scoped package locally but fails to link the binary correctly. All the examples on this page already include the fix (`--prefix /tmp`), which forces npx to use a separate directory for package resolution:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp@latest
+npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
 ```
 
 ## Version info
@@ -37,7 +37,7 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@latest
 To check the latest published version:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp@latest --version
+npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2 --version
 ```
 
 ## Still stuck?

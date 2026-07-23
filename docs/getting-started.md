@@ -7,7 +7,7 @@ Get Calc MCP running in under 2 minutes.
 The fastest way to add Calc MCP is via Claude Code:
 
 ```bash
-claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@latest
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
 ```
 
 For other clients (Claude Desktop, VS Code, Cursor, Windsurf, Docker), see the [Installation](/install) page.
