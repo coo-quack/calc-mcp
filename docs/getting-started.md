@@ -10,6 +10,8 @@ The fastest way to add Calc MCP is via Claude Code:
 claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
 ```
 
+> **Windows note**: This example uses `/tmp` as the npx prefix. On Windows, replace it with a writable directory such as `C:\Temp`.
+
 For other clients (Claude Desktop, VS Code, Cursor, Windsurf, Docker), see the [Installation](/install) page.
 
 ## Your First Tool Call

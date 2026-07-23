@@ -26,6 +26,8 @@ npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
 
 > Works with Claude Desktop, VS Code Copilot, Cursor, Windsurf, and any MCP client — [setup guides below](#install).
 
+> **Windows note**: These examples use `/tmp` as the npx prefix — on Windows, replace it with a writable directory such as `C:\Temp`.
+
 ---
 
 ## Why?
@@ -140,11 +142,24 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 
 ## Install
 
+> **Windows note**: The examples below use `/tmp` as the npx prefix. On Windows, replace it with a writable directory such as `C:\Temp`.
+
 ### Claude Code
 
 ```bash
 claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
 ```
+
+### Claude Code plugin
+
+Also available as a plugin from the [coo-quack marketplace](https://github.com/coo-quack/claude-code-marketplace):
+
+```
+/plugin marketplace add coo-quack/claude-code-marketplace
+/plugin install calc-mcp@coo-quack
+```
+
+See the [installation guide](https://coo-quack.github.io/calc-mcp/install) for details.
 
 ### Claude Desktop / Cursor / Windsurf
 

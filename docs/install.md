@@ -2,6 +2,8 @@
 
 Calc MCP works with any MCP-compatible client. Below are setup guides for popular AI assistants.
 
+> **Windows note**: The examples below use `/tmp` as the npx prefix. On Windows, replace it with a writable directory such as `C:\Temp`.
+
 ## Claude Code
 
 The fastest way to add Calc MCP to Claude Code:
