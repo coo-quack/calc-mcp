@@ -9,7 +9,7 @@ Calc MCP works with any MCP-compatible client. Below are setup guides for popula
 The fastest way to add Calc MCP to Claude Code:
 
 ```bash
-claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
+claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.3
 ```
 
 This adds the server to your user-level MCP configuration.
@@ -53,7 +53,7 @@ Add to your Claude Desktop config file:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.2"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.3"]
     }
   }
 }
@@ -70,7 +70,7 @@ Add to `~/.cursor/mcp.json`:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.2"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.3"]
     }
   }
 }
@@ -87,7 +87,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.2"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.3"]
     }
   }
 }
@@ -104,7 +104,7 @@ For workspace-specific setup, add `.vscode/mcp.json` in your project:
   "servers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.2"]
+      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.3"]
     }
   }
 }
@@ -142,7 +142,7 @@ Available tags:
 Calc MCP works with any MCP-compatible client that supports stdio transport. To integrate with a client not listed above, configure it to run:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
+npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.3
 ```
 
 The server communicates over **stdio** using the standard [Model Context Protocol](https://modelcontextprotocol.io/). Most clients accept a `command` + `args` configuration similar to the examples above.
@@ -152,13 +152,13 @@ The server communicates over **stdio** using the standard [Model Context Protoco
 You can also run the server directly for testing:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.2
+npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.3
 ```
 
 Or install globally:
 
 ```bash
-npm install -g @coo-quack/calc-mcp@2.0.2
+npm install -g @coo-quack/calc-mcp@2.0.3
 calc-mcp
 ```
 
