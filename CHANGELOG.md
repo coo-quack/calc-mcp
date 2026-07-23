@@ -1,3 +1,41 @@
+# Changelog
+
+All notable changes to Calc MCP are documented here.
+
+## v2.0.3 (2026-07-24)
+
+### Features
+
+- Claude Code plugin support — add `.claude-plugin/plugin.json` and `.mcp.json` so installing from the coo-quack marketplace registers the MCP server (#151)
+
+### Bug Fixes
+
+- Remove stray `package-lock.json` and regenerate `bun.lock` so Docker builds with `--frozen-lockfile` succeed (#150)
+
+### Tests
+
+- Add `tests/version-sync.test.ts` enforcing that the pinned versions in the plugin manifest and docs match `package.json` (#151)
+
+### Documentation
+
+- Pin install commands to the released version and document the Claude Code plugin install path (#151)
+- Add Windows notes for the `/tmp` npx prefix and use `npm view` for version checks (#151)
+
+## v2.0.2 (2026-06-27)
+
+### Security
+
+- Harden tools against DoS and add stronger crypto/JWT warnings (#107)
+
+### Tests
+
+- Add comprehensive `jwt_decode` tests for timestamps, unsigned JWTs, and non-standard claims
+- Cover invalid CIDR and malformed IPv6 cases in `ip` tests
+
+### Improvements
+
+- CI: sync `main` to `develop` via pull request with auto-merge and a GitHub App token
+
 ## v2.0.1 (2026-03-31)
 
 ### Security
@@ -6,12 +44,6 @@
   - Waits 7 days before auto-merging dependency updates
   - Reduces risk of package takeover attacks
   - Blocks immediate auto-merge of newly published packages
-
----
-
-# Changelog
-
-All notable changes to Calc MCP are documented here.
 
 ## v2.0.0 (2026-03-15)
 
@@ -50,8 +82,6 @@ All notable changes to Calc MCP are documented here.
 - **docs** — Add logo to hero section on home page (#87)
 - **docs** — Unify documentation site structure (#85)
 - **diff** — Document edit distance limit in tool description (#87)
-
----
 
 ## v1.9.3 (2026-03-12)
 
