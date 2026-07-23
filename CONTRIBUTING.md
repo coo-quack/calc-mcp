@@ -67,7 +67,7 @@ When bumping a version, open a PR from `develop` → `main` with:
    - `docs/changelog.md` is a symlink to `CHANGELOG.md` — do not edit it separately
    - This content is automatically used as the GitHub Release notes by `release.yml`
 3. Update the pinned version in `.claude-plugin/plugin.json` and `.mcp.json`
-4. Update the pinned `@coo-quack/calc-mcp@X.Y.Z` references in `docs/install.md`, `docs/getting-started.md`, and `docs/troubleshooting.md`
+4. Update the pinned `@coo-quack/calc-mcp@X.Y.Z` references in `README.md`, `docs/install.md`, `docs/getting-started.md`, and `docs/troubleshooting.md`
 5. Review `docs/tools.md` — add/update any changed tool parameters or examples
 6. Review `docs/examples.md` — add examples for new features
 7. Review `README.md` — update tool table and examples if needed
