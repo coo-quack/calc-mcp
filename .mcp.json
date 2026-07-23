@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "calc-mcp": {
+      "command": "npx",
+      "args": ["-y", "@coo-quack/calc-mcp@latest"]
+    }
+  }
+}
