@@ -2,6 +2,13 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.0.4 (2026-07-24)
+
+### Improvements
+
+- CI: mint a GitHub App installation token for the marketplace sync dispatch instead of the unconfigured `MARKETPLACE_TOKEN` secret (#154)
+- CI: update `actions/setup-node` to v7 (#145)
+
 ## v2.0.3 (2026-07-24)
 
 ### Features

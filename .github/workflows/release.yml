@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
@@ -109,9 +109,18 @@ jobs:
               --notes-file /tmp/release-notes.md
           fi
 
+      - name: Mint app token for marketplace sync
+        id: marketplace-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.BACKPORT_APP_ID }}
+          private-key: ${{ secrets.BACKPORT_APP_PRIVATE_KEY }}
+          owner: coo-quack
+          repositories: claude-code-marketplace
+
       - name: Sync marketplace
         env:
-          GH_TOKEN: ${{ secrets.MARKETPLACE_TOKEN }}
+          GH_TOKEN: ${{ steps.marketplace-token.outputs.token }}
         run: |
           gh api repos/coo-quack/claude-code-marketplace/dispatches \
             -f event_type=plugin-released \
