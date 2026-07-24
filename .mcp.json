@@ -6,7 +6,7 @@
         "--prefix",
         "${CLAUDE_PLUGIN_ROOT}/.npx-prefix",
         "-y",
-        "@coo-quack/calc-mcp@2.0.3"
+        "@coo-quack/calc-mcp@2.0.4"
       ]
     }
   }
