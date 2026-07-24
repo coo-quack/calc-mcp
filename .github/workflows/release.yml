@@ -109,9 +109,18 @@ jobs:
               --notes-file /tmp/release-notes.md
           fi
 
+      - name: Mint app token for marketplace sync
+        id: marketplace-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.BACKPORT_APP_ID }}
+          private-key: ${{ secrets.BACKPORT_APP_PRIVATE_KEY }}
+          owner: coo-quack
+          repositories: claude-code-marketplace
+
       - name: Sync marketplace
         env:
-          GH_TOKEN: ${{ secrets.MARKETPLACE_TOKEN }}
+          GH_TOKEN: ${{ steps.marketplace-token.outputs.token }}
         run: |
           gh api repos/coo-quack/claude-code-marketplace/dispatches \
             -f event_type=plugin-released \
