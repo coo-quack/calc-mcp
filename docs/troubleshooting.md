@@ -18,19 +18,27 @@ Install from [nodejs.org](https://nodejs.org/) if needed.
 3. **Validate JSON** — use a JSON validator to check for syntax errors
 4. **Check logs** — Claude Desktop and other apps may have logs showing connection errors
 
-## "calc-mcp: command not found" inside a Node.js project
+## "calc-mcp: command not found"
 
-If you run `npx` inside a directory that contains `node_modules`, npx may fail with:
+If you run `npx` from a clone of the calc-mcp repository itself, npx may fail with:
 
 ```
 sh: calc-mcp: command not found
 ```
 
-This happens because npx resolves the scoped package locally but fails to link the binary correctly. All the npx examples on this page already include the fix (`--prefix /tmp`), which forces npx to use a separate directory for package resolution:
+npx resolves the local project before the registry. The repository's own `package.json` points the `calc-mcp` binary at `dist/index.js`, which does not exist until the project is built. Either build it first:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.4
+bun run build
 ```
+
+Or run the command from any directory outside the repository:
+
+```bash
+npx -y @coo-quack/calc-mcp@2.0.5
+```
+
+Anywhere else this is not an issue. Projects that contain `node_modules`, and projects that depend on `@coo-quack/calc-mcp`, both run the published binary correctly.
 
 ## Version info
 

@@ -2,6 +2,26 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.0.5 (2026-08-11)
+
+### Bug Fixes
+
+- Claude Code plugin: drop the `--prefix` argument from `.mcp.json`. It pointed at a `.npx-prefix` directory that nothing ever created, so npx exited with `ENOENT` and the plugin's MCP server failed to connect (#179)
+
+### Documentation
+
+- Drop `--prefix /tmp` from every npx example in the README and docs, along with the Windows notes it required (#179)
+- Correct the "calc-mcp: command not found" troubleshooting entry — the cause is running npx from an unbuilt clone of this repository, not the presence of `node_modules` (#179)
+
+### Chores
+
+- Update `@modelcontextprotocol/sdk` to 1.30.0 (#169)
+- Update `@biomejs/biome` to 2.5.7 (#170, #177)
+- Update Node.js to 24.19.0 (#173, #176)
+- Update `vitepress` to 2.0.0-alpha.19 (#175)
+- Update `docker/login-action` to 4.6.0 (#171, #172)
+- Lock file maintenance (#168, #174, #178)
+
 ## v2.0.4 (2026-07-24)
 
 ### Improvements
