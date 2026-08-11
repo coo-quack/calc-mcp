@@ -18,15 +18,13 @@ LLMs hallucinate calculations, can't generate true random numbers, and struggle 
 
 ```bash
 # Claude Code
-claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.4
+claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp@2.0.5
 
 # Or just run it
-npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.4
+npx -y @coo-quack/calc-mcp@2.0.5
 ```
 
 > Works with Claude Desktop, VS Code Copilot, Cursor, Windsurf, and any MCP client — [setup guides below](#install).
-
-> **Windows note**: These examples use `/tmp` as the npx prefix — on Windows, replace it with a writable directory such as `C:\Temp`.
 
 ---
 
@@ -142,12 +140,10 @@ Ask in natural language — your AI assistant selects the appropriate tool.
 
 ## Install
 
-> **Windows note**: The examples below use `/tmp` as the npx prefix. On Windows, replace it with a writable directory such as `C:\Temp`.
-
 ### Claude Code
 
 ```bash
-claude mcp add -s user calc-mcp -- npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.4
+claude mcp add -s user calc-mcp -- npx -y @coo-quack/calc-mcp@2.0.5
 ```
 
 ### Claude Code plugin
@@ -177,7 +173,7 @@ Add to your config file:
   "mcpServers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.4"]
+      "args": ["-y", "@coo-quack/calc-mcp@2.0.5"]
     }
   }
 }
@@ -192,7 +188,7 @@ Add to `.vscode/mcp.json` in your workspace:
   "servers": {
     "calc-mcp": {
       "command": "npx",
-      "args": ["--prefix", "/tmp", "-y", "@coo-quack/calc-mcp@2.0.4"]
+      "args": ["-y", "@coo-quack/calc-mcp@2.0.5"]
     }
   }
 }
@@ -228,7 +224,7 @@ Available tags:
 Calc MCP works with any MCP-compatible client. Run the server via stdio:
 
 ```bash
-npx --prefix /tmp -y @coo-quack/calc-mcp@2.0.4
+npx -y @coo-quack/calc-mcp@2.0.5
 ```
 
 Point your client's MCP config to the command above. The server communicates over **stdio** using the standard [Model Context Protocol](https://modelcontextprotocol.io/).
