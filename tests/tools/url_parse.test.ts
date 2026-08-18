@@ -49,3 +49,25 @@ describe("url_parse", () => {
     expect(result.href).toBe("https://example.com/path");
   });
 });
+
+describe("url_parse - repeated query keys", () => {
+  test("keeps every value of a repeated key, in the order they appear", () => {
+    const result = JSON.parse(
+      execute({ url: "https://example.com/p?q=first&page=3&q=second" }),
+    );
+    expect(result.searchParams.q).toEqual(["first", "second"]);
+    expect(result.searchParams.page).toBe("3");
+  });
+
+  test("a key that appears once stays a string", () => {
+    const result = JSON.parse(execute({ url: "https://example.com/p?q=only" }));
+    expect(result.searchParams.q).toBe("only");
+  });
+
+  test("decodes percent-encoded values", () => {
+    const result = JSON.parse(
+      execute({ url: "https://example.com/p?q=%E6%9D%B1%E4%BA%AC%20duck" }),
+    );
+    expect(result.searchParams.q).toBe("東京 duck");
+  });
+});

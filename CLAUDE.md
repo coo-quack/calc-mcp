@@ -8,7 +8,7 @@ MCP (Model Context Protocol) server providing 21 tools for calculations and oper
 
 - Runtime: Bun
 - Language: TypeScript (strict mode)
-- Linter/Formatter: Biome (tab indentation)
+- Linter/Formatter: Biome (2-space indentation)
 - Docs: VitePress (`docs/`)
 - Dependencies: `@modelcontextprotocol/sdk`, `zod`, `mathjs`, `date-fns`
 
@@ -85,8 +85,10 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 ## Code Style
 
-- Indentation: tabs (enforced by Biome)
-- Follow Biome rules (`bun run lint`); all warnings are treated as errors in CI
+- Indentation: 2 spaces (enforced by Biome)
+- Follow Biome rules (`bun run lint`) — `biome check .` fails on errors and on
+  formatting differences, but exits 0 on lint warnings, so a growing warning count
+  has to be watched by hand rather than left to CI
 
 ## Git / GitHub Rules
 
@@ -97,7 +99,7 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `ci.yml` | push to main / PR to main | lint + unit test + e2e test |
+| `ci.yml` | PR to main or develop | audit + lint + unit test + e2e test |
 | `release.yml` | push to main | npm publish (only if version is new) + git tag + GitHub Release + MCP Registry |
 | `docs.yml` | push to main / manual | Build & deploy VitePress docs to GitHub Pages |
 

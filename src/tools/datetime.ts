@@ -17,17 +17,23 @@ const schema = {
     .string()
     .max(MAX_TIMEZONE_LENGTH)
     .optional()
-    .describe("IANA timezone (e.g. Asia/Tokyo, America/New_York)"),
+    .describe(
+      "IANA timezone (e.g. Asia/Tokyo, America/New_York). Names the output zone for now/format/timestamp; for convert it is read as the source zone when fromTimezone is absent",
+    ),
   datetime: z
     .string()
     .max(MAX_DATETIME_LENGTH)
     .optional()
-    .describe("ISO8601 datetime string for convert/format"),
+    .describe(
+      "Datetime string for convert/format/timestamp. If it carries a UTC designator or a numeric offset (2026-11-03T14:30:00Z, ...+09:00) it is absolute and fromTimezone is ignored. Otherwise it is a wall-clock time read in fromTimezone, defaulting to UTC",
+    ),
   fromTimezone: z
     .string()
     .max(MAX_TIMEZONE_LENGTH)
     .optional()
-    .describe("Source timezone for conversion"),
+    .describe(
+      "IANA timezone the datetime string is written in, used when the string has no offset of its own. Defaults to UTC",
+    ),
   toTimezone: z
     .string()
     .max(MAX_TIMEZONE_LENGTH)
@@ -49,7 +55,12 @@ const schema = {
 const inputSchema = z.object(schema);
 type Input = z.infer<typeof inputSchema>;
 
-function toISOInTimezone(date: Date, timezone: string): string {
+/** Wall-clock fields of `date` as seen in `timezone`. */
+function partsInTimezone(
+  date: Date,
+  timezone: string,
+  fractional = false,
+): Record<string, string> {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: timezone,
     year: "numeric",
@@ -58,14 +69,21 @@ function toISOInTimezone(date: Date, timezone: string): string {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    fractionalSecondDigits: 3,
+    ...(fractional ? { fractionalSecondDigits: 3 as const } : {}),
     hour12: false,
   }).formatToParts(date);
 
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  const hour = get("hour") === "24" ? "00" : get("hour");
+  const out: Record<string, string> = {};
+  for (const part of parts) out[part.type] = part.value;
+  // Some engines render midnight as hour 24.
+  if (out.hour === "24") out.hour = "00";
+  return out;
+}
 
-  return `${get("year")}-${get("month")}-${get("day")}T${hour}:${get("minute")}:${get("second")}.${get("fractionalSecond")}`;
+function toISOInTimezone(date: Date, timezone: string): string {
+  const p = partsInTimezone(date, timezone, true);
+  const get = (type: string) => p[type] ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}.${get("fractionalSecond")}`;
 }
 
 function getOffsetString(date: Date, timezone: string): string {
@@ -85,30 +103,84 @@ function getOffsetString(date: Date, timezone: string): string {
 }
 
 function toDateInTimezone(date: Date, timezone: string): Date {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    fractionalSecondDigits: 3,
-    hour12: false,
-  }).formatToParts(date);
-
-  const get = (type: string) =>
-    Number.parseInt(parts.find((p) => p.type === type)?.value ?? "0", 10);
-  const hour = get("hour") === 24 ? 0 : get("hour");
-
+  const p = partsInTimezone(date, timezone, true);
+  const get = (type: string) => Number.parseInt(p[type] ?? "0", 10);
   return new Date(
     get("year"),
     get("month") - 1,
     get("day"),
-    hour,
+    get("hour"),
     get("minute"),
     get("second"),
   );
+}
+
+const WALL_CLOCK_RE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/;
+
+function assertTimezone(timezone: string): void {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: timezone });
+  } catch {
+    throw new Error(`Invalid timezone: ${timezone}`);
+  }
+}
+
+/** Offset of `timezone` from UTC at `instant`, in milliseconds. */
+function offsetMsAt(instant: Date, timezone: string): number {
+  const p = partsInTimezone(instant, timezone);
+  const get = (type: string) => Number.parseInt(p[type] ?? "0", 10);
+  const asIfUtc = Date.UTC(
+    get("year"),
+    get("month") - 1,
+    get("day"),
+    get("hour"),
+    get("minute"),
+    get("second"),
+  );
+  return asIfUtc - (instant.getTime() - instant.getMilliseconds());
+}
+
+/**
+ * Resolve a datetime string to an absolute instant.
+ *
+ * A string that carries its own UTC designator or numeric offset is already
+ * absolute, and `sourceTimezone` is ignored. A bare wall-clock string is read in
+ * `sourceTimezone`, which defaults to UTC — never the host's local zone, so the
+ * result does not depend on the machine the server runs on.
+ */
+function parseInstant(datetime: string, sourceTimezone?: string): Date {
+  const wall = datetime.trim().match(WALL_CLOCK_RE);
+  if (!wall) {
+    const absolute = new Date(datetime);
+    if (Number.isNaN(absolute.getTime()))
+      throw new Error(`Invalid datetime: ${datetime}`);
+    return absolute;
+  }
+
+  const timezone = sourceTimezone ?? "UTC";
+  assertTimezone(timezone);
+
+  const num = (v: string | undefined) =>
+    v === undefined ? 0 : Number.parseInt(v, 10);
+  const guess = Date.UTC(
+    num(wall[1]),
+    num(wall[2]) - 1,
+    num(wall[3]),
+    num(wall[4]),
+    num(wall[5]),
+    num(wall[6]),
+    num(wall[7]?.padEnd(3, "0")),
+  );
+  if (Number.isNaN(guess)) throw new Error(`Invalid datetime: ${datetime}`);
+
+  // The offset depends on the instant, and the instant depends on the offset.
+  // One refinement settles it everywhere except an ambiguous DST fold, where
+  // either reading is defensible and the first is kept.
+  const first = offsetMsAt(new Date(guess), timezone);
+  const candidate = guess - first;
+  const second = offsetMsAt(new Date(candidate), timezone);
+  return new Date(second === first ? candidate : guess - second);
 }
 
 function formatOutput(date: Date, timezone: string, format?: string): string {
@@ -178,17 +250,20 @@ export function execute(input: Input): string {
     case "convert": {
       if (!input.datetime) throw new Error("datetime is required for convert");
       const toTz = input.toTimezone ?? "UTC";
-      const date = new Date(input.datetime);
-      if (Number.isNaN(date.getTime()))
-        throw new Error(`Invalid datetime: ${input.datetime}`);
+      assertTimezone(toTz);
+      // `timezone` has no other meaning for convert, so accept it as the source
+      // when the caller did not use `fromTimezone`.
+      const date = parseInstant(
+        input.datetime,
+        input.fromTimezone ?? input.timezone,
+      );
       return formatOutput(date, toTz, input.format);
     }
     case "format": {
       if (!input.datetime) throw new Error("datetime is required for format");
       const tz = input.timezone ?? "UTC";
-      const date = new Date(input.datetime);
-      if (Number.isNaN(date.getTime()))
-        throw new Error(`Invalid datetime: ${input.datetime}`);
+      assertTimezone(tz);
+      const date = parseInstant(input.datetime, input.fromTimezone);
       return formatOutput(date, tz, input.format ?? "iso");
     }
     case "timestamp": {
@@ -198,9 +273,7 @@ export function execute(input: Input): string {
         return formatOutput(date, tz, input.format);
       }
       if (input.datetime) {
-        const date = new Date(input.datetime);
-        if (Number.isNaN(date.getTime()))
-          throw new Error(`Invalid datetime: ${input.datetime}`);
+        const date = parseInstant(input.datetime, input.fromTimezone);
         return String(Math.floor(date.getTime() / 1000));
       }
       return String(Math.floor(Date.now() / 1000));

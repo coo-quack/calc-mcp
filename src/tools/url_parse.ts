@@ -25,9 +25,15 @@ export function execute(input: Input): string {
     throw new Error(`Invalid URL: ${input.url}`);
   }
 
-  const searchParams: Record<string, string> = {};
+  // A query string may repeat a key, and an object can hold one value per key.
+  // Collapsing to the last value silently drops the others, so a repeated key
+  // becomes an array of every value in the order they appear.
+  const searchParams: Record<string, string | string[]> = {};
   for (const [key, value] of parsed.searchParams) {
-    searchParams[key] = value;
+    const seen = searchParams[key];
+    if (seen === undefined) searchParams[key] = value;
+    else if (Array.isArray(seen)) seen.push(value);
+    else searchParams[key] = [seen, value];
   }
 
   return JSON.stringify(

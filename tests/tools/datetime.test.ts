@@ -182,3 +182,124 @@ describe("datetime - timestamp", () => {
     expect(Number(back)).toBe(original);
   });
 });
+
+describe("datetime - convert reads the source timezone", () => {
+  test("interprets a bare wall clock in fromTimezone", () => {
+    // 2026-11-03 falls after US DST ends, so New York is EST (UTC-5).
+    const result = execute({
+      action: "convert",
+      datetime: "2026-11-03 14:30",
+      fromTimezone: "America/New_York",
+      toTimezone: "UTC",
+    });
+    expect(result).toContain("2026-11-03T19:30:00");
+    expect(result).toContain("+00:00");
+  });
+
+  test("uses the offset in effect on that date, not a fixed one", () => {
+    // The same wall clock in June, when New York is EDT (UTC-4).
+    const result = execute({
+      action: "convert",
+      datetime: "2026-06-15 14:30",
+      fromTimezone: "America/New_York",
+      toTimezone: "UTC",
+    });
+    expect(result).toContain("2026-06-15T18:30:00");
+  });
+
+  test("UTC to UTC leaves the wall clock untouched", () => {
+    const result = execute({
+      action: "convert",
+      datetime: "2026-11-03 14:30",
+      fromTimezone: "UTC",
+      toTimezone: "UTC",
+    });
+    expect(result).toContain("2026-11-03T14:30:00");
+  });
+
+  test("defaults the source to UTC, so output does not depend on the host", () => {
+    const implicit = execute({
+      action: "convert",
+      datetime: "2026-11-03 14:30",
+      toTimezone: "UTC",
+    });
+    const explicit = execute({
+      action: "convert",
+      datetime: "2026-11-03 14:30",
+      fromTimezone: "UTC",
+      toTimezone: "UTC",
+    });
+    expect(implicit).toBe(explicit);
+    expect(implicit).toContain("2026-11-03T14:30:00");
+  });
+
+  test("accepts timezone as the source when fromTimezone is absent", () => {
+    const result = execute({
+      action: "convert",
+      datetime: "2026-11-03 14:30",
+      timezone: "America/New_York",
+      toTimezone: "UTC",
+    });
+    expect(result).toContain("2026-11-03T19:30:00");
+  });
+
+  test("an offset in the string wins over fromTimezone", () => {
+    const result = execute({
+      action: "convert",
+      datetime: "2026-11-03T19:30:00Z",
+      fromTimezone: "America/New_York",
+      toTimezone: "Asia/Tokyo",
+    });
+    expect(result).toContain("2026-11-04T04:30:00");
+  });
+
+  test("throws on an unknown source timezone", () => {
+    expect(() =>
+      execute({
+        action: "convert",
+        datetime: "2026-11-03 14:30",
+        fromTimezone: "Mars/Olympus",
+        toTimezone: "UTC",
+      }),
+    ).toThrow("Invalid timezone");
+  });
+
+  test("throws on an unknown target timezone", () => {
+    expect(() =>
+      execute({
+        action: "convert",
+        datetime: "2026-11-03T14:30:00Z",
+        toTimezone: "Mars/Olympus",
+      }),
+    ).toThrow("Invalid timezone");
+  });
+});
+
+describe("datetime - fromTimezone on format and timestamp", () => {
+  test("format reads the source timezone", () => {
+    const result = execute({
+      action: "format",
+      datetime: "2026-03-01 12:00",
+      fromTimezone: "Europe/Berlin",
+      timezone: "UTC",
+      format: "iso",
+    });
+    expect(result).toContain("2026-03-01T11:00:00");
+  });
+
+  test("timestamp reads the source timezone", () => {
+    expect(
+      execute({
+        action: "timestamp",
+        datetime: "2026-01-01 00:00",
+        fromTimezone: "Asia/Tokyo",
+      }),
+    ).toBe("1767193200");
+  });
+
+  test("timestamp defaults the source to UTC", () => {
+    expect(execute({ action: "timestamp", datetime: "2026-01-01 00:00" })).toBe(
+      "1767225600",
+    );
+  });
+});

@@ -74,3 +74,64 @@ describe("ip", () => {
     expect(() => execute({ action: "info", ip: ":::1" })).toThrow();
   });
 });
+
+describe("ip - info accepts a prefix", () => {
+  test("takes CIDR notation in ip and reports the network it describes", () => {
+    const result = JSON.parse(execute({ action: "info", ip: "10.0.0.0/29" }));
+    expect(result.ip).toBe("10.0.0.0");
+    expect(result.version).toBe(4);
+    expect(result.network).toBe("10.0.0.0");
+    expect(result.broadcast).toBe("10.0.0.7");
+    expect(result.hostCount).toBe(6);
+    expect(result.totalAddresses).toBe(8);
+  });
+
+  test("takes the prefix through cidr instead", () => {
+    const result = JSON.parse(
+      execute({ action: "info", cidr: "192.168.5.130/26" }),
+    );
+    expect(result.ip).toBe("192.168.5.130");
+    expect(result.network).toBe("192.168.5.128");
+    expect(result.broadcast).toBe("192.168.5.191");
+  });
+
+  test("a bare address carries no network fields", () => {
+    const result = JSON.parse(execute({ action: "info", ip: "192.168.5.130" }));
+    expect(result.isPrivate).toBe(true);
+    expect(result.network).toBeUndefined();
+  });
+
+  test("throws when neither ip nor cidr is given", () => {
+    expect(() => execute({ action: "info" })).toThrow("ip or cidr is required");
+  });
+});
+
+describe("ip - range reports the address count", () => {
+  test("counts every address in the block, not just usable hosts", () => {
+    const result = JSON.parse(
+      execute({ action: "range", cidr: "10.1.0.0/20" }),
+    );
+    expect(result.totalAddresses).toBe(4096);
+    expect(result.hostCount).toBe(4094);
+    expect(result.broadcast).toBe("10.1.15.255");
+  });
+});
+
+describe("ip - info rejects an IPv6 prefix clearly", () => {
+  test("names the address to pass instead", () => {
+    // cidrRange is IPv4-only, so the old path failed as though the address
+    // itself were malformed.
+    expect(() => execute({ action: "info", ip: "2001:db8::/32" })).toThrow(
+      "IPv6 prefixes are not supported",
+    );
+    expect(() => execute({ action: "info", cidr: "2001:db8::/32" })).toThrow(
+      "2001:db8::",
+    );
+  });
+
+  test("a bare IPv6 address still works", () => {
+    const result = JSON.parse(execute({ action: "info", ip: "2001:db8::1" }));
+    expect(result.version).toBe(6);
+    expect(result.type).toBe("global");
+  });
+});

@@ -85,18 +85,59 @@ function compare(a: SemVer, b: SemVer): number {
   return comparePre(a.prerelease, b.prerelease);
 }
 
+/** Every version-like token in one comparator set, operators stripped. */
+function comparatorVersions(set: string): SemVer[] {
+  const hyphen = set.match(/^(.+?)\s+-\s+(.+)$/);
+  const tokens =
+    hyphen?.[1] && hyphen[2] ? [hyphen[1], hyphen[2]] : set.split(/\s+/);
+  const out: SemVer[] = [];
+  for (const token of tokens) {
+    const parsed = parse(token.replace(/^(>=|<=|>|<|=|\^|~)\s*/, ""));
+    if (parsed) out.push(parsed);
+  }
+  return out;
+}
+
+/**
+ * node-semver's prerelease rule: a version carrying a prerelease tag satisfies a
+ * comparator set only if some comparator in that set pins the same
+ * [major, minor, patch] and carries a prerelease tag of its own. Prereleases
+ * change under a stable version number, so a range that never mentions one is
+ * read as not opting into any.
+ */
+function setAdmitsPrerelease(version: SemVer, set: string): boolean {
+  return comparatorVersions(set).some(
+    (c) =>
+      c.prerelease.length > 0 &&
+      c.major === version.major &&
+      c.minor === version.minor &&
+      c.patch === version.patch,
+  );
+}
+
 function satisfies(version: SemVer, range: string): boolean {
   const trimmed = range.trim();
 
-  // Handle OR (||)
+  // Handle OR (||) — each alternative is its own comparator set.
   if (trimmed.includes("||")) {
     return trimmed.split("||").some((r) => satisfies(version, r.trim()));
   }
 
+  // The rule applies once per set, so it is checked here rather than inside
+  // satisfiesSet, which recurses into the individual comparators.
+  if (version.prerelease.length > 0 && !setAdmitsPrerelease(version, trimmed)) {
+    return false;
+  }
+  return satisfiesSet(version, trimmed);
+}
+
+function satisfiesSet(version: SemVer, set: string): boolean {
+  const trimmed = set.trim();
+
   // Handle AND (space-separated ranges like ">=1.0.0 <2.0.0")
   const parts = trimmed.split(/\s+/);
   if (parts.length > 1 && parts.every((p) => /^[><=~^]/.test(p))) {
-    return parts.every((p) => satisfies(version, p));
+    return parts.every((p) => satisfiesSet(version, p));
   }
 
   // Handle hyphen range (1.0.0 - 2.0.0)

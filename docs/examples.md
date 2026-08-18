@@ -135,10 +135,13 @@ What's the current UNIX timestamp?
 
 ```
 Convert 2026-02-14 12:00 from New York time to Tokyo time
-→ 2026-02-15T02:00:00+09:00 (datetime)
+→ 2026-02-15T02:00:00.000+09:00 (datetime)
 
-Format 2026-02-14 in Tokyo timezone as "yyyy/MM/dd HH:mm"
-→ 2026/02/14 12:00 (datetime)
+Convert 2026-06-15 14:30 from New York time to UTC
+→ 2026-06-15T18:30:00.000+00:00 (datetime, EDT that day)
+
+Format 2026-02-14T09:00:00+09:00 as "yyyy/MM/dd HH:mm" in Tokyo
+→ 2026/02/14 09:00 (datetime)
 ```
 
 ### Date Arithmetic
@@ -380,6 +383,9 @@ Is 192.168.1.50 in 192.168.1.0/24?
 
 Parse IPv6 address 2001:db8::1
 → { ip: "2001:db8::1", version: 6, type: "global" } (ip)
+
+Info on 10.0.0.0/29
+→ { network: "10.0.0.0", broadcast: "10.0.0.7", hostCount: 6, totalAddresses: 8 } (ip)
 ```
 
 ### Colors
@@ -468,6 +474,9 @@ Parse https://example.com/search?q=hello&lang=en
 
 Extract query params from https://api.github.com/search?q=mcp&sort=stars
 → { q: "mcp", sort: "stars" } (url_parse)
+
+Parse https://example.com/s?tag=api&tag=mcp
+→ { tag: ["api", "mcp"] } (url_parse, a repeated key keeps every value)
 ```
 
 ### Unicode Info
