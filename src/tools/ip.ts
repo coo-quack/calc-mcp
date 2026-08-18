@@ -11,7 +11,13 @@ const schema = {
     .describe(
       "info: IP details, contains: check if IP in CIDR, range: CIDR range",
     ),
-  ip: z.string().max(MAX_IP_LENGTH).optional().describe("IP address"),
+  ip: z
+    .string()
+    .max(MAX_IP_LENGTH)
+    .optional()
+    .describe(
+      "IP address. For info, IPv4 CIDR notation is also accepted and the network details are included",
+    ),
   cidr: z
     .string()
     .max(MAX_IP_LENGTH)
@@ -98,9 +104,9 @@ function parseCidr(cidr: string): {
   return { network, prefix, mask };
 }
 
-function ipInfo(ip: string): string {
+function ipInfo(ip: string): Record<string, unknown> {
   if (isIPv6(ip)) {
-    return JSON.stringify({
+    return {
       ip,
       version: 6,
       type:
@@ -109,14 +115,14 @@ function ipInfo(ip: string): string {
           : ip.startsWith("fe80:")
             ? "link-local"
             : "global",
-    });
+    };
   }
 
   // ipv4ToNum validates the address and parses octets internally — avoid double-parsing
   const num = ipv4ToNum(ip);
   const firstOctet = (num >>> 24) & 0xff;
 
-  return JSON.stringify({
+  return {
     ip,
     version: 4,
     class: getIpv4Class(firstOctet),
@@ -124,14 +130,43 @@ function ipInfo(ip: string): string {
     isLoopback: firstOctet === 127,
     binary: num.toString(2).padStart(32, "0"),
     decimal: num,
-  });
+  };
+}
+
+function cidrRange(cidr: string): Record<string, unknown> {
+  const { network, prefix, mask } = parseCidr(cidr);
+  const broadcast = (network | ~mask) >>> 0;
+  const hostCount =
+    prefix >= 31 ? (prefix === 32 ? 1 : 2) : broadcast - network - 1;
+  return {
+    cidr,
+    network: numToIpv4(network),
+    broadcast: numToIpv4(broadcast),
+    firstHost: prefix >= 31 ? numToIpv4(network) : numToIpv4(network + 1),
+    lastHost: prefix >= 31 ? numToIpv4(broadcast) : numToIpv4(broadcast - 1),
+    hostCount,
+    mask: numToIpv4(mask),
+    totalAddresses: 2 ** (32 - prefix),
+  };
 }
 
 export function execute(input: Input): string {
   switch (input.action) {
     case "info": {
-      if (!input.ip) throw new Error("ip is required for info");
-      return ipInfo(input.ip);
+      const source = input.ip ?? input.cidr;
+      if (!source) throw new Error("ip or cidr is required for info");
+      const address = arrayGet(source.split("/"), 0);
+      // cidrRange is IPv4-only, so an IPv6 prefix has to say that rather than
+      // fail as though the address itself were malformed.
+      if (source.includes("/") && isIPv6(address))
+        throw new Error(
+          `IPv6 prefixes are not supported: ${source}. Pass the address alone (${address}) for info.`,
+        );
+      const info = ipInfo(address);
+      // A prefix was supplied, so report the network it describes as well.
+      return JSON.stringify(
+        source.includes("/") ? { ...info, ...cidrRange(source) } : info,
+      );
     }
     case "contains": {
       if (!input.cidr) throw new Error("cidr is required for contains");
@@ -146,20 +181,7 @@ export function execute(input: Input): string {
     }
     case "range": {
       if (!input.cidr) throw new Error("cidr is required for range");
-      const { network, prefix, mask } = parseCidr(input.cidr);
-      const broadcast = (network | ~mask) >>> 0;
-      const hostCount =
-        prefix >= 31 ? (prefix === 32 ? 1 : 2) : broadcast - network - 1;
-      return JSON.stringify({
-        cidr: input.cidr,
-        network: numToIpv4(network),
-        broadcast: numToIpv4(broadcast),
-        firstHost: prefix >= 31 ? numToIpv4(network) : numToIpv4(network + 1),
-        lastHost:
-          prefix >= 31 ? numToIpv4(broadcast) : numToIpv4(broadcast - 1),
-        hostCount,
-        mask: numToIpv4(mask),
-      });
+      return JSON.stringify(cidrRange(input.cidr));
     }
   }
 }
