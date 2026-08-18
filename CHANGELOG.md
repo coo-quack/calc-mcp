@@ -2,6 +2,29 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.0 (2026-08-18)
+
+### Features
+
+- **ip** — `range` now reports `totalAddresses`, the count of every address in the block, alongside `hostCount`, which excludes the network and broadcast addresses. `info` accepts an IPv4 prefix in either `ip` or `cidr` and reports the network it describes; previously it rejected CIDR notation outright and pointed at nothing (#191)
+
+### Bug Fixes
+
+- **datetime** — `fromTimezone` was declared in the schema and documented as the source timezone, but nothing read it. `convert` parsed an offset-less datetime as host-local time, so the source zone was whichever machine the server ran on: on a JST host, New York 14:30 converted to 05:30Z instead of 19:30Z, and a UTC-to-UTC conversion moved the clock nine hours. A bare wall-clock string is now read in `fromTimezone`, defaulting to UTC rather than the host zone, and the offset is resolved at the instant in question, so a November date gets EST and a June date gets EDT. `convert`, `format` and `timestamp` all share this. A string carrying a UTC designator or a numeric offset is absolute as before (#191)
+- **semver** — `satisfies` reported that `2.0.0-rc.1` satisfies `>=1.4.0 <2.0.0`. A version carrying a pre-release tag now satisfies a comparator set only if some comparator in that set pins the same `[major, minor, patch]` and carries a pre-release tag of its own, matching node-semver (#191)
+- **url_parse** — a repeated query key kept only its last value, so `?q=first&page=3&q=second` reported `q: "second"` and dropped the first with no indication. A key that appears once still maps to a string; a key that repeats maps to an array of every value, in order (#191)
+- **ip** — an IPv6 prefix passed to `info` failed as though the address itself were malformed. It now fails with a message naming the address to pass instead, since the network calculation is IPv4-only (#191)
+
+### Documentation
+
+- Document the parsing contract for `datetime` and `fromTimezone`, that `convert` reads `timezone` as the source zone when `fromTimezone` is absent, what `totalAddresses` counts, and how a repeated query key is represented (#191)
+- Correct two `datetime` examples: one documented the right answer for a New-York-to-Tokyo conversion the implementation did not produce, and a neighbouring one claimed a date-only input formats as 12:00 in Tokyo, which no source timezone produces (#191)
+- Correct three project rules in `CLAUDE.md` that no longer matched the repository: indentation is 2 spaces per `biome.json` rather than tabs, `biome check .` exits 0 on lint warnings so they are not treated as errors in CI, and the `ci.yml` row named a push trigger that does not exist while omitting both the develop branch and the audit job (#191)
+
+### Tests
+
+- 26 tests covering the four fixes. Every expected value comes from an independent reference implementation rather than from calc-mcp: the `semver` cases were checked against node-semver 7.8.5, which also disagreed with an existing hyphen-range test that had codified the old behaviour. The `datetime` tests were run under three host timezones to confirm the output no longer depends on the host (#191)
+
 ## v2.0.6 (2026-08-18)
 
 ### Maintenance
