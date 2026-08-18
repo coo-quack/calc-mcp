@@ -136,9 +136,9 @@ Get current time, convert timezones, format datetime, or work with UNIX timestam
 
 **Parameters:**
 - `action` (enum) — `now`, `convert`, `format`, or `timestamp`
-- `timezone` (string, optional) — IANA timezone (e.g., `Asia/Tokyo`, `America/New_York`)
-- `datetime` (string, optional) — ISO8601 datetime string for convert/format
-- `fromTimezone` (string, optional) — Source timezone for conversion
+- `timezone` (string, optional) — IANA timezone (e.g., `Asia/Tokyo`, `America/New_York`). Names the output zone for `now`/`format`/`timestamp`; for `convert` it is read as the source zone when `fromTimezone` is absent
+- `datetime` (string, optional) — Datetime string for convert/format/timestamp. A string carrying a UTC designator or a numeric offset (`2026-11-03T14:30:00Z`, `...+09:00`) is absolute, and `fromTimezone` is ignored. A bare wall-clock string (`2026-11-03 14:30`) is read in `fromTimezone`
+- `fromTimezone` (string, optional) — IANA timezone the datetime string is written in, used when the string carries no offset of its own. Defaults to UTC, never the host's local timezone, so results do not depend on the machine the server runs on
 - `toTimezone` (string, optional) — Target timezone for conversion
 - `format` (string, optional) — Output format: `iso`, `date`, `time`, `full`, `short`, date-fns pattern (e.g. `yyyy/MM/dd HH:mm`), or Intl JSON options
 - `timestamp` (number, optional) — UNIX timestamp in seconds for timestamp action
@@ -150,6 +150,12 @@ What time is it in New York?
 
 Convert 1609459200 to ISO8601
 → 2021-01-01T00:00:00Z
+
+2026-11-03 14:30 in New York, in UTC?
+→ 2026-11-03T19:30:00.000+00:00   (EST that day, so UTC-5)
+
+2026-06-15 14:30 in New York, in UTC?
+→ 2026-06-15T18:30:00.000+00:00   (EDT that day, so UTC-4)
 ```
 
 ### date
@@ -390,17 +396,22 @@ IPv4/IPv6 address information, CIDR range calculations, and membership checks.
 
 **Parameters:**
 - `action` (enum) — `info`, `contains`, or `range`
-- `ip` (string, optional) — IP address
-- `cidr` (string, optional) — CIDR notation (e.g., `192.168.1.0/24`)
+- `ip` (string, optional) — IP address. For `info`, IPv4 CIDR notation is also accepted
+- `cidr` (string, optional) — CIDR notation (e.g., `192.168.1.0/24`). For `info`, supplying an IPv4 prefix adds the network details to the result. An IPv6 prefix is rejected with a message naming the address to pass instead
 - `target` (string, optional) — Target IP to check against CIDR
+
+`range` reports both `hostCount`, which excludes the network and broadcast addresses, and `totalAddresses`, which counts every address in the block.
 
 **Examples:**
 ```
 IP range of 192.168.1.0/24?
-→ 192.168.1.1 – .254 (254 hosts)
+→ 192.168.1.1 – .254 (254 hosts, 256 addresses)
 
 Is 192.168.1.50 in 192.168.1.0/24?
 → true
+
+Info on 10.0.0.0/29?
+→ network 10.0.0.0, broadcast 10.0.0.7, hostCount 6, totalAddresses 8
 ```
 
 ### color
@@ -446,10 +457,15 @@ Parse URLs into components.
 **Parameters:**
 - `url` (string) — URL to parse
 
+A query string may repeat a key, which an object cannot represent with one value per key. A key that appears once maps to a string; a key that repeats maps to an array of every value, in the order they appear. The raw `search` string is returned alongside.
+
 **Examples:**
 ```
 Parse https://example.com/search?q=hello
 → host: example.com, pathname: /search, q: "hello"
+
+Parse https://example.com/s?tag=api&tag=mcp
+→ tag: ["api", "mcp"]
 ```
 
 ---
