@@ -35,7 +35,7 @@ bun run build
 Or run the command from any directory outside the repository:
 
 ```bash
-npx -y @coo-quack/calc-mcp@2.0.6
+npx -y @coo-quack/calc-mcp@2.1.0
 ```
 
 Anywhere else this is not an issue. Projects that contain `node_modules`, and projects that depend on `@coo-quack/calc-mcp`, both run the published binary correctly.
