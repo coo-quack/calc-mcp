@@ -1,6 +1,6 @@
 {
   "name": "@coo-quack/calc-mcp",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "mcpName": "io.github.coo-quack/calc-mcp",
   "description": "21 MCP tools for math, randomness, dates, encoding, hashing, and more — deterministic and accurate.",
   "type": "module",
@@ -21,7 +21,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.7",
+    "@biomejs/biome": "2.5.8",
     "@types/bun": "latest",
     "typescript": "7.0.2",
     "vitepress": "2.0.0-alpha.19"

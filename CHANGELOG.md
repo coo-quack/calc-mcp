@@ -2,6 +2,14 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.0.6 (2026-08-18)
+
+### Maintenance
+
+- Update Node.js to 24.19.0 in CI and the published Docker image (#176, #173, #184)
+- Update devDependencies: @biomejs/biome 2.5.8 (#177, #181), vitepress 2.0.0-alpha.19 (#175), docker/login-action v4.6.0 (#172)
+- Lock file maintenance (#174, #178, #182)
+
 ## v2.0.5 (2026-08-11)
 
 ### Bug Fixes
