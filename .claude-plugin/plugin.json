@@ -1,7 +1,7 @@
 {
   "name": "calc-mcp",
   "description": "21 MCP tools for math, randomness, dates, encoding, hashing, and more — deterministic and accurate.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": {
     "name": "coo-quack"
   }
