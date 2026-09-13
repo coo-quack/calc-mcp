@@ -2,6 +2,22 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.1 (2026-09-13)
+
+### Security
+
+- **fast-uri** — bump from 3.1.5 to 3.1.7 to pass four HIGH advisories: GHSA-5jgf-p345-68v8 (denial of service), GHSA-f65p-4m7j-42xc (DoS), GHSA-fph4-wmhf-6fwf (open redirect), GHSA-jqff-g426-hqxp (DoS), published 2026-09-02 and fixed in 3.1.6. The dependency is transitive via `@modelcontextprotocol/sdk` and affects the Docker image and this repository's artifacts; npm consumers resolve fast-uri from their own dependency trees (#208)
+
+### Dependencies
+
+- Update @biomejs/biome to 2.5.13 (#206, #203, #198, #195, #183)
+- Update zod to 4.6.2 (#207, #205, #200, #199, #201)
+- Update Node.js to 24.21.0 (#204, #197)
+- Update actions/deploy-pages to 5.0.1 (#202)
+- Update docker/setup-buildx-action to 4.3.0 (#194)
+- Update yaml to 2.9.1 (#209)
+- Lock file maintenance
+
 ## v2.1.0 (2026-08-18)
 
 ### Features
