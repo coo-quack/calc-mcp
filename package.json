@@ -36,7 +36,7 @@
     "date-fns": "4.4.0",
     "mathjs": "15.2.0",
     "yaml": "2.9.1",
-    "zod": "4.6.2"
+    "zod": "4.6.4"
   },
   "files": [
     "dist/index.js",
