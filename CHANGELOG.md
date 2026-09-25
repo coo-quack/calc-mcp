@@ -2,6 +2,18 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.2 (2026-09-26)
+
+### Maintenance
+
+- Update @modelcontextprotocol/sdk to 1.30.1 (#218)
+- Update zod to 4.6.5 (#213, #212)
+- Update @biomejs/biome to 2.5.14 (#216)
+- Update docker/setup-buildx-action to v4.4.1 (#217, #215)
+- Update docker/build-push-action to v7.4.0 (#214)
+- Update bun builder image digest (#219)
+- Lock file maintenance (#196)
+
 ## v2.1.1 (2026-09-13)
 
 ### Security
