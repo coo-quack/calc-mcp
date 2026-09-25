@@ -10,7 +10,7 @@
 # independent copy: a cache hit never touches Docker Hub, a miss still does.
 # Partial, but better than pulling from Docker Hub every time. Same image
 # either way — verified that this digest resolves identically on both.
-FROM mirror.gcr.io/oven/bun:1@sha256:e10577f0db68676a7024391c6e5cb4b879ebd17188ab750cf10024a6d700e5c4 AS builder
+FROM mirror.gcr.io/oven/bun:1@sha256:9114c058aeae42162ee16dd5084b95fe9473970bb6bcb5b232ab1630f0546895 AS builder
 
 WORKDIR /app
 
