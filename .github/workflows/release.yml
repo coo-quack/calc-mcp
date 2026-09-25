@@ -69,10 +69,9 @@ jobs:
           cache-from: type=gha,scope=release-docker-cache
           cache-to: type=gha,mode=max,scope=release-docker-cache
 
+      # Trusted publishing (OIDC): npm exchanges the job's id-token for a short-lived publish token, so no NPM_TOKEN is needed. Provenance is attached automatically.
       - name: Publish to npm
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
 
       - name: Create git tag
         run: |
