@@ -69,10 +69,9 @@ jobs:
           cache-from: type=gha,scope=release-docker-cache
           cache-to: type=gha,mode=max,scope=release-docker-cache
 
+      # Trusted publishing (OIDC): npm exchanges the job's id-token for a short-lived publish token, so no NPM_TOKEN is needed. Provenance is attached automatically.
       - name: Publish to npm
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
 
       - name: Create git tag
         run: |
@@ -127,37 +126,12 @@ jobs:
             -f 'client_payload[plugin]=calc-mcp' \
             -f 'client_payload[version]=${{ needs.check.outputs.version }}'
 
-      - name: Install mcp-publisher
-        run: |
-          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" \
-            | tar xz mcp-publisher
-          sudo mv mcp-publisher /usr/local/bin/
-
-      - name: Generate server.json
-        run: |
-          REPO_URL=$(node -p "require('./package.json').repository.url.replace(/^git\+/, '').replace(/\.git$/, '')")
-          VERSION=$(node -p "require('./package.json').version")
-          MCP_NAME=$(node -p "require('./package.json').mcpName")
-          PKG_NAME=$(node -p "require('./package.json').name")
-          DESCRIPTION=$(node -p "require('./package.json').description")
-          jq -n \
-            --arg schema "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json" \
-            --arg name "$MCP_NAME" \
-            --arg description "$DESCRIPTION" \
-            --arg repoUrl "$REPO_URL" \
-            --arg version "$VERSION" \
-            --arg pkgName "$PKG_NAME" \
-            '{
-              "$schema": $schema,
-              "name": $name,
-              "description": $description,
-              "repository": {"url": $repoUrl, "source": "github"},
-              "version": $version,
-              "packages": [{"registryType": "npm", "identifier": $pkgName, "version": $version, "transport": {"type": "stdio"}}]
-            }' > server.json
-
-      - name: Login to MCP Registry
-        run: mcp-publisher login github-oidc
-
-      - name: Publish to MCP Registry
-        run: mcp-publisher publish server.json
+  # In its own workflow so it can also be run by hand when a registration
+  # fails; see mcp-registry.yml.
+  mcp-registry:
+    needs: [check, release]
+    if: needs.check.outputs.should_release == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/mcp-registry.yml
