@@ -145,8 +145,11 @@ function parseCsvLine(line: string): string[] {
 function validateXml(input: string): string {
   const errors: string[] = [];
   const stack: string[] = [];
-  const tagRegex = /<\/?([a-zA-Z_][\w:.-]*)[^>]*\/?>/g;
-  let match: RegExpExecArray | null;
+  // Sticky: matches only the "<" or "</" plus tag name at lastIndex. The rest
+  // of the tag (up to the next ">") is found with indexOf, so the scan is
+  // linear. A single /<\/?name[^>]*\/?>/g regex backtracks quadratically when
+  // a "<name" has no ">" after it.
+  const tagNameRegex = /<\/?([a-zA-Z_][\w:.-]*)/y;
 
   // Check basic well-formedness
   const trimmed = input.trim();
@@ -167,9 +170,20 @@ function validateXml(input: string): string {
     });
   }
 
-  match = tagRegex.exec(input);
-  while (match !== null) {
-    const full = match[0];
+  let lt = input.indexOf("<");
+  while (lt !== -1) {
+    tagNameRegex.lastIndex = lt;
+    const match = tagNameRegex.exec(input);
+    if (match === null) {
+      lt = input.indexOf("<", lt + 1);
+      continue;
+    }
+    const gt = input.indexOf(">", tagNameRegex.lastIndex);
+    if (gt === -1) {
+      // No ">" remains, so neither this tag nor any later one can close.
+      break;
+    }
+    const full = input.slice(lt, gt + 1);
     const name = matchGet(match, 1);
     if (full.startsWith("</")) {
       // closing tag
@@ -185,7 +199,7 @@ function validateXml(input: string): string {
         stack.push(name);
       }
     }
-    match = tagRegex.exec(input);
+    lt = input.indexOf("<", gt + 1);
   }
 
   if (stack.length > 0) {

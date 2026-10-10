@@ -57,6 +57,17 @@ describe("format_validate", () => {
     expect(result.valid).toBe(true);
   });
 
+  test("scans XML tags without a closing > in linear time", () => {
+    // These inputs made the previous tag regex backtrack quadratically
+    // (about 8 s at 100,000 chars, minutes at the 1,000,000-char limit).
+    for (const input of [`<${"a".repeat(100_000)}`, "<a".repeat(50_000)]) {
+      const start = performance.now();
+      const result = JSON.parse(execute({ input, format: "xml" }));
+      expect(performance.now() - start).toBeLessThan(1000);
+      expect(result.valid).toBe(true);
+    }
+  });
+
   test("validates malformed XML", () => {
     const result = JSON.parse(
       execute({ input: "<root><child></root>", format: "xml" }),
