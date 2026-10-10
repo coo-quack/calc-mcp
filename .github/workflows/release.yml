@@ -32,6 +32,10 @@ jobs:
     needs: check
     if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    # npm trusted publishing checks the repository and workflow file, not the branch.
+    # The npm-release environment only lets main deploy, so a release.yml edited on
+    # another branch cannot publish. The environment is created by coo-quack/iac.
+    environment: npm-release
     permissions:
       contents: write
       id-token: write
