@@ -2,6 +2,22 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.3 (2026-10-10)
+
+### Security
+
+- **regex**: a pattern such as `((a+))+$` passed the static check and could hang the server, because the timeout was only checked after the match finished. Matching now runs under `node:vm` with a 1000 ms timeout that stops it mid-backtrack (#234)
+- **math**: an expression could call `config` or `typed` and change the shared mathjs instance for every later call. Both now throw inside expressions (#234)
+- **format_validate**: XML tags are scanned in linear time; a `<` followed by a long run with no `>` took quadratic time (#234)
+
+### Maintenance
+
+- Publish to npm only from a job in the `npm-release` environment, which only `main` can deploy to (#235)
+- Update @modelcontextprotocol/sdk to 1.32.1 (#228, #230, #232)
+- Update @biomejs/biome to 2.5.15 (#229)
+- Update actions/setup-node to v7.1.0 (#233)
+- Lock file maintenance (#227, #231)
+
 ## v2.1.2 (2026-09-26)
 
 ### Maintenance
