@@ -59,7 +59,7 @@ describe("format_validate", () => {
 
   test("scans XML tags without a closing > in linear time", () => {
     // These inputs made the previous tag regex backtrack quadratically
-    // (about 8 s at 100,000 chars, minutes at the 1,000,000-char limit).
+    // (about 7 s measured at 100,000 chars; minutes extrapolated at 1,000,000).
     for (const input of [`<${"a".repeat(100_000)}`, "<a".repeat(50_000)]) {
       const start = performance.now();
       const result = JSON.parse(execute({ input, format: "xml" }));

@@ -93,7 +93,9 @@ describe("math", () => {
   });
 
   test("rejects access to the typed instance", () => {
-    expect(() => execute({ expression: "typed.clear()" })).toThrow();
+    expect(() => execute({ expression: "typed.clear()" })).toThrow(
+      /No access to method "clear"/,
+    );
     expect(() => execute({ expression: "typed()" })).toThrow(
       /typed is disabled/,
     );
