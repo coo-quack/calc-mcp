@@ -1,3 +1,4 @@
+import { createContext, Script } from "node:vm";
 import { z } from "zod";
 import type { ToolDefinition } from "../index.js";
 import { assertExists } from "../utils.js";
@@ -138,20 +139,44 @@ function validatePattern(pattern: string): void {
   }
 }
 
+// Regex operations are synchronous, and static validation cannot catch every
+// catastrophic pattern (e.g. ((a+))+$ or (a|a)*$), so a runaway match would
+// block the single-threaded server indefinitely. Running the operation from a
+// vm script with a `timeout` lets V8 terminate it mid-backtrack once the
+// deadline passes. The vm context is used only for its timeout: the script is
+// the constant `run()`, and no input is ever evaluated as code.
+const timeoutContext = createContext();
+const timeoutScript = new Script("run()");
+
 function withTimeout<T>(fn: () => T): T {
-  // Note: JavaScript regex operations are synchronous and cannot be truly interrupted.
-  // This timeout check happens *after* execution, so it won't prevent actual ReDoS attacks
-  // where the regex engine blocks for extended periods.
-  // The pattern validation above provides the main ReDoS protection.
+  let result: T | undefined;
   const start = Date.now();
-  const result = fn();
+  timeoutContext.run = () => {
+    result = fn();
+  };
+  try {
+    timeoutScript.runInContext(timeoutContext, { timeout: TIMEOUT_MS });
+  } catch (error) {
+    if (
+      (error as { code?: unknown } | null)?.code ===
+      "ERR_SCRIPT_EXECUTION_TIMEOUT"
+    ) {
+      throw new Error(
+        `Regex execution timed out after ${TIMEOUT_MS}ms (possible ReDoS)`,
+      );
+    }
+    throw error;
+  } finally {
+    timeoutContext.run = undefined;
+  }
+  // Fallback for runtimes whose vm module does not enforce `timeout`.
   const elapsed = Date.now() - start;
   if (elapsed > TIMEOUT_MS) {
     throw new Error(
       `Regex execution took ${elapsed}ms (timeout: ${TIMEOUT_MS}ms, possible ReDoS)`,
     );
   }
-  return result;
+  return result as T;
 }
 
 export function execute(input: Input): string {

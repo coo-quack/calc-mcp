@@ -393,6 +393,25 @@ describe("MCP Server E2E", () => {
     assert.ok(text.includes("foo qux baz"));
   });
 
+  it("regex — catastrophic backtracking is stopped by the timeout", {
+    timeout: 15_000,
+  }, async () => {
+    for (const pattern of ["((a+))+$", "(a|a)*$"]) {
+      const text = await callToolRaw("regex", {
+        action: "test",
+        text: `${"a".repeat(40)}!`,
+        pattern,
+      });
+      assert.ok(text.includes("timed out"), `${pattern}: ${text}`);
+    }
+    const text = await callTool("regex", {
+      action: "test",
+      text: "hello123",
+      pattern: "\\d+",
+    });
+    assert.ok(text.toLowerCase().includes("true"));
+  });
+
   // ─── base ───
 
   it("base — decimal to hex", async () => {
