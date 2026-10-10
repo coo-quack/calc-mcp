@@ -118,6 +118,21 @@ const math = create(
   },
 );
 
+// mathjs always registers `config` and the `typed` instance in the expression
+// namespace, whichever functions are imported above. Both mutate this
+// module-wide instance for every later call (e.g. `config({number: "number"})`
+// drops BigNumber precision, `typed.clear()` breaks functions not yet loaded),
+// so expressions get a stub that throws. `math.config` and `math.typed` used by
+// this module itself are left untouched.
+const expressionNamespace = (
+  math.expression as unknown as { mathWithTransform: Record<string, unknown> }
+).mathWithTransform;
+for (const name of ["config", "typed"]) {
+  expressionNamespace[name] = () => {
+    throw new Error(`Function ${name} is disabled`);
+  };
+}
+
 // Runtime safety check patterns using word boundaries to avoid false positives
 // (e.g., "important" should not be blocked by matching "import").
 // Defence in depth: even though dangerous functions are not imported above,

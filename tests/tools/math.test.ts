@@ -82,6 +82,24 @@ describe("math", () => {
     expect(() => execute({ expression: "window['import']" })).toThrow();
   });
 
+  test("rejects config() and keeps the shared configuration", () => {
+    expect(() => execute({ expression: 'config({number: "number"})' })).toThrow(
+      /config is disabled/,
+    );
+    expect(() =>
+      execute({ expression: 'evaluate("config({number: \\"number\\"})")' }),
+    ).toThrow(/config is disabled/);
+    expect(execute({ expression: "2^53 + 1" })).toBe("9007199254740993");
+  });
+
+  test("rejects access to the typed instance", () => {
+    expect(() => execute({ expression: "typed.clear()" })).toThrow();
+    expect(() => execute({ expression: "typed()" })).toThrow(
+      /typed is disabled/,
+    );
+    expect(execute({ expression: "cbrt(27)" })).toBe("3");
+  });
+
   test("rejects oversized factorial argument", () => {
     expect(() => execute({ expression: "factorial(10000)" })).toThrow(
       /factorial argument too large/,
