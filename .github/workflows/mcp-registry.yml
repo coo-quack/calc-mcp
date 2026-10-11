@@ -1,8 +1,8 @@
 name: Publish to MCP Registry
 
 # Registers the version in package.json with the MCP Registry. release.yml
-# calls this after publishing to npm, and it can be run by hand from the
-# Actions tab when a release's registration failed (2.1.2 did, because the
+# calls this after publishing to npm, and it can be run by hand on main from
+# the Actions tab when a release's registration failed (2.1.2 did, because the
 # registry checked npm before the new version was visible there).
 #
 # It authenticates with the job's GitHub OIDC token, which carries the
@@ -10,8 +10,8 @@ name: Publish to MCP Registry
 # through `mcp-publisher login github` instead, which only granted
 # io.github.<user>/* when tried, so there is no local fallback.
 #
-# A manual run from another branch is skipped. It would register whatever
-# version and package that branch's package.json names, under the
+# A manual run from another branch fails at its first step. It would register
+# whatever version and package that branch's package.json names, under the
 # organization's namespace, without the review main gets. This keeps a run
 # from a branch from happening by mistake; it is not a boundary against
 # someone with write access, who can push a workflow of their own that asks
@@ -29,13 +29,18 @@ concurrency:
 
 jobs:
   publish:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
     steps:
+      - name: Refuse a run outside main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run this from main. It registers what package.json on the branch it runs from names, and $GITHUB_REF is not main."
+          exit 1
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Generate server.json
@@ -99,11 +104,21 @@ jobs:
           echo "::error::$PKG_NAME@$VERSION is not on npm after 10 minutes."
           exit 1
 
+      # Pinned with its checksum: this job holds a token that can register
+      # anything under io.github.coo-quack, and `latest` would run whatever
+      # binary the release page served that day. To update, take the hash
+      # from the release's registry_<version>_checksums.txt.
       - name: Install mcp-publisher
         if: steps.registered.outputs.skip != 'true'
+        env:
+          MCP_PUBLISHER_VERSION: v1.8.1
+          MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
         run: |
-          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" \
-            | tar xz mcp-publisher
+          set -euo pipefail
+          curl -fsSL -o mcp-publisher.tar.gz \
+            "https://github.com/modelcontextprotocol/registry/releases/download/$MCP_PUBLISHER_VERSION/mcp-publisher_linux_amd64.tar.gz"
+          echo "$MCP_PUBLISHER_SHA256  mcp-publisher.tar.gz" | sha256sum -c -
+          tar xzf mcp-publisher.tar.gz mcp-publisher
           sudo mv mcp-publisher /usr/local/bin/
 
       - name: Login to MCP Registry
