@@ -9,6 +9,13 @@ name: Publish to MCP Registry
 # io.github.coo-quack namespace. Publishing from a maintainer's machine goes
 # through `mcp-publisher login github` instead, which only granted
 # io.github.<user>/* when tried, so there is no local fallback.
+#
+# A manual run from another branch is skipped. It would register whatever
+# version and package that branch's package.json names, under the
+# organization's namespace, without the review main gets. This keeps a run
+# from a branch from happening by mistake; it is not a boundary against
+# someone with write access, who can push a workflow of their own that asks
+# for the same token.
 
 on:
   workflow_call:
@@ -22,6 +29,7 @@ concurrency:
 
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
