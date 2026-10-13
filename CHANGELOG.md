@@ -2,6 +2,14 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.4 (2026-10-13)
+
+### Maintenance
+
+- A manual run of the MCP Registry workflow fails unless it is dispatched on `main`, and `mcp-publisher` is pinned to v1.8.1 and checked against its SHA-256 instead of running the latest release unverified (#240)
+- Update zod to 4.6.6 (#242)
+- Lock file maintenance (#241)
+
 ## v2.1.3 (2026-10-10)
 
 ### Security
