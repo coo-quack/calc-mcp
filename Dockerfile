@@ -28,10 +28,13 @@ RUN bun run build
 
 # Production image.
 #
-# node *is* a Docker Official Image, so this comes from AWS's mirror of those —
-# an independent copy, not a cache of Docker Hub. Verified that the digest
-# resolves identically on `docker.io`, `public.ecr.aws` and `mirror.gcr.io`.
-FROM public.ecr.aws/docker/library/node:24.19.0-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43
+# node *is* a Docker Official Image, so AWS mirrors it as an independent copy
+# at `public.ecr.aws`. That mirror answered GitHub's runners with 429 Too Many
+# Requests on five builds in a row, so this comes from Google's mirror like the
+# builder: the same pull-through cache, partial for the same reason. Verified
+# that the digest resolves identically on `docker.io`, `public.ecr.aws` and
+# `mirror.gcr.io`.
+FROM mirror.gcr.io/library/node:24.19.0-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43
 
 WORKDIR /app
 
