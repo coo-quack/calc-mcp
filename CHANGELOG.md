@@ -2,6 +2,17 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.5 (2026-10-25)
+
+### Maintenance
+
+- Pull the node base image of the Docker build from `mirror.gcr.io`, because `public.ecr.aws` answered GitHub's runners with `429 Too Many Requests` (#252)
+- Update zod to 4.6.7 (#246)
+- Update @biomejs/biome to 2.6.2 (#250)
+- Update node to 24.22.1 (#248, #251)
+- Update actions/create-github-app-token to v3.3.0 (#247)
+- Lock file maintenance (#249)
+
 ## v2.1.4 (2026-10-13)
 
 ### Maintenance
