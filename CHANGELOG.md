@@ -4,6 +4,10 @@ All notable changes to Calc MCP are documented here.
 
 ## v2.1.5 (2026-10-25)
 
+### Security
+
+- Update body-parser to 2.4.0 for GHSA-27r3-jxmh-p828, a denial of service through trailing bytes after a compressed request body. calc-mcp only uses the stdio transport and never loads express, so the server itself was not exposed (#254)
+
 ### Maintenance
 
 - Pull the node base image of the Docker build from `mirror.gcr.io`, because `public.ecr.aws` answered GitHub's runners with `429 Too Many Requests` (#252)
