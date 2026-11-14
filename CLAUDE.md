@@ -99,7 +99,8 @@ Registration: import in `src/index.ts` → add to `tools` array.
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `ci.yml` | PR to main or develop | audit + lint + unit test + e2e test |
+| `ci.yml` | PR to main or develop | lint + unit test + e2e test |
+| `audit.yml` | PR to main or develop / weekly (Monday 04:39 JST) | dependency audit (`bun audit`) |
 | `release.yml` | push to main | npm publish (only if version is new) + git tag + GitHub Release + MCP Registry |
 | `docs.yml` | push to main / manual | Build & deploy VitePress docs to GitHub Pages |
 
