@@ -2,6 +2,17 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.6 (2026-11-20)
+
+### Maintenance
+
+- Update @modelcontextprotocol/sdk to 1.32.2 (#258)
+- Run the dependency audit weekly as well as on pull requests (#273), and keep automated pull requests up to date with `develop`
+- Build and test with Node.js 26.13.1 (#261, #263, #272)
+- Update @biomejs/biome to 2.6.8 (#259, #262, #267, #269, #271, #275)
+- Update docker/login-action to v4.8.0 (#257, #268)
+- Lock file maintenance (#260, #264, #270, #274)
+
 ## v2.1.5 (2026-10-25)
 
 ### Security
