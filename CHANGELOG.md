@@ -2,6 +2,15 @@
 
 All notable changes to Calc MCP are documented here.
 
+## v2.1.7 (2026-11-26)
+
+### Maintenance
+
+- Update mathjs to 15.3.0 (#281)
+- Update @biomejs/biome to 2.6.9 (#282)
+- Update actions/create-github-app-token to v3.4.0 (#277)
+- Lock file maintenance (#280)
+
 ## v2.1.6 (2026-11-20)
 
 ### Maintenance
